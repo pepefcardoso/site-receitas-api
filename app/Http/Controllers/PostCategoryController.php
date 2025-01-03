@@ -2,8 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\StorePostCategoryRequest;
-use App\Http\Requests\UpdatePostCategoryRequest;
 use App\Models\PostCategory;
 use Illuminate\Http\Request;
 

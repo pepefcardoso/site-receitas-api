@@ -27,6 +27,7 @@ class UserController extends Controller implements HasMiddleware
 
     public function store(Request $request)
     {
+
         $fields = $request->validate(User::$createRules);
 
         $user = User::create($fields);

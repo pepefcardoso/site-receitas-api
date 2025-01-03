@@ -31,6 +31,10 @@ class RecipeController extends Controller implements HasMiddleware
 
         $recipe = $request->user()->recipes()->create($fields);
 
+        if ($request->has('diets')) {
+            $recipe->diets()->sync($request->diets);
+        }
+
         return response()->json($recipe, 201);
     }
 
@@ -46,6 +50,10 @@ class RecipeController extends Controller implements HasMiddleware
         $fields = request()->validate(Recipe::rules());
 
         $recipe->update($fields);
+
+        if (request()->has('diets')) {
+            $recipe->diets()->sync(request()->diets);
+        }
 
         return response()->json($recipe, 201);
     }

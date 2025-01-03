@@ -5,8 +5,7 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 use \App\Enum\RecipeDifficultyEnum;
 
-return new class extends Migration
-{
+return new class extends Migration {
     /**
      * Run the migrations.
      */
@@ -15,10 +14,11 @@ return new class extends Migration
         Schema::create('recipes', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
-            $table->string('name')->nullable(false);
-            $table->text('description')->nullable(false);
-            $table->integer('time')->nullable(false);
-            $table->integer('portion')->nullable(false);
+            $table->foreignId('category_id')->constrained('recipe_categories');
+            $table->string('name');
+            $table->text('description');
+            $table->integer('time');
+            $table->integer('portion');
             $table->integer('difficulty')->default(RecipeDifficultyEnum::NORMAL);
             $table->softDeletes();
             $table->timestamps();

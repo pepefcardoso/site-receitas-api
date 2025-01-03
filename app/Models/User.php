@@ -14,9 +14,6 @@ class User extends Authenticatable
 {
     use HasFactory, Notifiable, HasApiTokens, SoftDeletes;
 
-    public mixed $role;
-    public mixed $id;
-
     /**
      * The attributes that are mass assignable.
      *
@@ -64,7 +61,7 @@ class User extends Authenticatable
 
     public static array $updateRules = [
         'name' => 'required|string|min:3|max:100',
-        'email' => 'required|email|unique:users,email',
+        'email' => 'email|unique:users,email',
         'birthday' => 'required|date|before:today',
         'phone' => 'required|string|regex:/^\(\d{2}\)\s?\d{4,5}-\d{4}$/|unique:users,phone',
     ];
