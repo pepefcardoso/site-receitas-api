@@ -3,6 +3,7 @@
 use App\Http\Controllers\RecipeCategoryController;
 use App\Http\Controllers\RecipeController;
 use App\Http\Controllers\RecipeDietController;
+use App\Http\Controllers\RecipeStepController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\AuthController;
@@ -15,6 +16,7 @@ Route::apiResource('post-categories', PostCategoryController::class);
 Route::apiResource('recipes', RecipeController::class);
 Route::apiResource('recipe-diets', RecipeDietController::class);
 Route::apiResource('recipe-categories', RecipeCategoryController::class);
+Route::apiResource('recipe-steps', RecipeStepController::class);
 
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth:sanctum');

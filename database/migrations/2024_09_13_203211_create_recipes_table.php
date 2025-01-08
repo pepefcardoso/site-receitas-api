@@ -22,7 +22,6 @@ return new class extends Migration {
             $table->integer('difficulty')->default(RecipeDifficultyEnum::NORMAL);
             $table->string('image');
             $table->json('ingredients');
-            $table->json('steps');
             $table->softDeletes();
             $table->timestamps();
         });

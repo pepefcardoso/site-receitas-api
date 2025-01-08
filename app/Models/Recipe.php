@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Validation\Rule;
 
@@ -24,7 +25,7 @@ class Recipe extends Model
         'difficulty',
         'image',
         'ingredients',
-        'steps',
+        'category_id',
     ];
 
     protected $casts = [
@@ -44,7 +45,8 @@ class Recipe extends Model
             'ingredients' => 'required|array',
             'ingredients.*' => 'required|string',
             'steps' => 'required|array',
-            'steps.*' => 'required|string',
+            'steps.*.order' => 'required|integer',
+            'steps.*.description' => 'required|string',
             'category_id' => 'required|exists:recipe_categories,id',
             'diets' => 'array|required',
             'diets.*' => 'exists:recipe_diets,id',
@@ -64,5 +66,10 @@ class Recipe extends Model
     public function category(): BelongsTo
     {
         return $this->belongsTo(RecipeCategory::class);
+    }
+
+    public function steps(): HasMany
+    {
+        return $this->hasMany(RecipeStep::class);
     }
 }

@@ -2,13 +2,13 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\StoreRecipeRequest;
-use App\Http\Requests\UpdateRecipeRequest;
 use App\Models\Recipe;
+use App\Models\RecipeStep;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controllers\HasMiddleware;
 use Illuminate\Routing\Controllers\Middleware;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Validator;
 
 class RecipeController extends Controller implements HasMiddleware
 {
@@ -21,7 +21,7 @@ class RecipeController extends Controller implements HasMiddleware
 
     public function index()
     {
-        $recipes = Recipe::with(['user'])->get();
+        $recipes = Recipe::with(['user', 'category', 'diets'])->get();
         return response()->json($recipes, 201);
     }
 
@@ -29,23 +29,30 @@ class RecipeController extends Controller implements HasMiddleware
     {
         $fields = $request->validate(Recipe::rules());
 
-        if (!isset($fields['category_id'])) {
-            return response()->json(['error' => 'Category ID is required.'], 400);
-        }
-
         $recipe = $request->user()->recipes()->create($fields);
-        
-        if ($request->has('diets')) {
-            $recipe->diets()->sync($request->diets);
+
+        foreach ($fields['steps'] as $stepData) {
+            $stepValidator = Validator::make($stepData, RecipeStep::rules());
+
+            if ($stepValidator->fails()) {
+                return response()->json(['errors' => $stepValidator->errors()], 400);
+            }
+
+            $recipe->steps()->create([
+                'order' => $stepData['order'],
+                'description' => $stepData['description'],
+                'recipe_id' => $recipe->id
+            ]);
         }
 
-        return response()->json($recipe, 201);
-    }
+        $recipe->diets()->sync($request->diets);
 
+        return response()->json($recipe->load(['user', 'category', 'diets', 'steps']), 201);
+    }
 
     public function show(Recipe $recipe)
     {
-        return response()->json($recipe->load('user'), 201);
+        return response()->json($recipe->load(['user', 'category', 'diets']), 200);
     }
 
     public function update(Recipe $recipe)
@@ -55,6 +62,21 @@ class RecipeController extends Controller implements HasMiddleware
         $fields = request()->validate(Recipe::rules());
 
         $recipe->update($fields);
+
+        $recipe->steps()->delete();
+        foreach ($fields['steps'] as $stepData) {
+            $stepValidator = Validator::make($stepData, RecipeStep::rules());
+
+            if ($stepValidator->fails()) {
+                return response()->json(['errors' => $stepValidator->errors()], 400);
+            }
+
+            $recipe->steps()->create([
+                'order' => $stepData['order'],
+                'description' => $stepData['description'],
+                'recipe_id' => $recipe->id
+            ]);
+        }
 
         if (request()->has('diets')) {
             $recipe->diets()->sync(request()->diets);

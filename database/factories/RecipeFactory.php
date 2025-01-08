@@ -31,7 +31,6 @@ class RecipeFactory extends Factory
             'category_id' => $category ? $category->id : null,
             'image' => $this->faker->imageUrl(),
             'ingredients' => implode(', ', $this->faker->words(5)),
-            'steps' => implode(', ', $this->faker->words(5)),
         ];
     }
 

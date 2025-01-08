@@ -18,6 +18,10 @@ class RecipePolicy
 
     public function modify(User $user, Recipe $recipe): Response
     {
+        if (!$recipe->relationLoaded('user')) {
+            $recipe->load('user');
+        }
+
         return $user->role >= RolesEnum::INTERNAL || $user->id === $recipe->user->id
             ? Response::allow()
             : Response::deny('Denied');
