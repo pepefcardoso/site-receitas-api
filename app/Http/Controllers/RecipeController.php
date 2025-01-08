@@ -27,16 +27,21 @@ class RecipeController extends Controller implements HasMiddleware
 
     public function store(Request $request)
     {
-        $fields = request()->validate(Recipe::rules());
+        $fields = $request->validate(Recipe::rules());
+
+        if (!isset($fields['category_id'])) {
+            return response()->json(['error' => 'Category ID is required.'], 400);
+        }
 
         $recipe = $request->user()->recipes()->create($fields);
-
+        
         if ($request->has('diets')) {
             $recipe->diets()->sync($request->diets);
         }
 
         return response()->json($recipe, 201);
     }
+
 
     public function show(Recipe $recipe)
     {

@@ -15,22 +15,36 @@ class Recipe extends Model
     use HasFactory, SoftDeletes;
 
     public mixed $user;
+
     protected $fillable = [
-        'name',
+        'title',
         'description',
         'time',
         'portion',
-        'difficulty'
+        'difficulty',
+        'image',
+        'ingredients',
+        'steps',
+    ];
+
+    protected $casts = [
+        'ingredients' => 'array',
+        'steps' => 'array',
     ];
 
     public static function rules(): array
     {
         return [
-            'name' => 'required|string|max:255',
+            'title' => 'required|string|max:255',
             'description' => 'required|string',
             'time' => 'required|integer',
             'portion' => 'required|integer',
             'difficulty' => ['required', Rule::in(RecipeDifficultyEnum::cases())],
+            'image' => 'required|url',
+            'ingredients' => 'required|array',
+            'ingredients.*' => 'required|string',
+            'steps' => 'required|array',
+            'steps.*' => 'required|string',
             'category_id' => 'required|exists:recipe_categories,id',
             'diets' => 'array|required',
             'diets.*' => 'exists:recipe_diets,id',
@@ -47,7 +61,7 @@ class Recipe extends Model
         return $this->belongsToMany(RecipeDiet::class, 'rl_recipe_diets', 'recipe_id', 'recipe_diet_id');
     }
 
-    public function category()
+    public function category(): BelongsTo
     {
         return $this->belongsTo(RecipeCategory::class);
     }

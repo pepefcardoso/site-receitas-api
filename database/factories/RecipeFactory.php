@@ -22,15 +22,19 @@ class RecipeFactory extends Factory
         $category = RecipeCategory::inRandomOrder()->first();
 
         return [
-            'name' => $this->faker->name,
+            'title' => $this->faker->sentence,
             'description' => $this->faker->text,
             'time' => $this->faker->numberBetween(10, 240),
             'portion' => $this->faker->numberBetween(1, 20),
             'difficulty' => $this->faker->randomElement(RecipeDifficultyEnum::cases()),
             'user_id' => $this->faker->numberBetween(1, 10),
             'category_id' => $category ? $category->id : null,
+            'image' => $this->faker->imageUrl(),
+            'ingredients' => implode(', ', $this->faker->words(5)),
+            'steps' => implode(', ', $this->faker->words(5)),
         ];
     }
+
 
     /**
      * Configure the factory.

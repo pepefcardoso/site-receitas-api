@@ -15,11 +15,14 @@ return new class extends Migration {
             $table->id();
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->foreignId('category_id')->constrained('recipe_categories');
-            $table->string('name');
+            $table->string('title');
             $table->text('description');
             $table->integer('time');
             $table->integer('portion');
             $table->integer('difficulty')->default(RecipeDifficultyEnum::NORMAL);
+            $table->string('image');
+            $table->json('ingredients');
+            $table->json('steps');
             $table->softDeletes();
             $table->timestamps();
         });
