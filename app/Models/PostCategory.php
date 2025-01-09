@@ -9,12 +9,12 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class PostCategory extends Model
 {
     use HasFactory;
-    use SoftDeletes;
 
-    protected $fillable = ['name'];
+    protected $fillable = ['name', 'normalized_name'];
 
     public static array $rules = [
         'name' => 'required|string|max:50|unique:post_categories',
+        'normalized_name' => 'required|string|max:50|unique:post_categories',
     ];
 
     public function posts()

@@ -12,7 +12,6 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class Post extends Model
 {
     use HasFactory;
-    use SoftDeletes;
 
     public mixed $user;
     protected $fillable = [
@@ -23,8 +22,8 @@ class Post extends Model
     ];
 
     public static array $rules = [
-        'title' => 'required|string|max:255',
-        'summary' => 'required|string|max:100',
+        'title' => 'required|string|max:100',
+        'summary' => 'required|string|max:255',
         'content' => 'required|string',
         'image_url' => 'required|url',
         'categories' => 'required|array',

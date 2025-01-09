@@ -10,7 +10,6 @@ class RecipeCategory extends Model
 {
     /** @use HasFactory<\Database\Factories\RecipeCategoryFactory> */
     use HasFactory;
-    use SoftDeletes;
 
     protected $fillable = ['name', 'normalized_name'];
 

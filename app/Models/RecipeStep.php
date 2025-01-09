@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class RecipeStep extends Model
 {
     /** @use HasFactory<\Database\Factories\RecipeStepFactory> */
-    use HasFactory, SoftDeletes;
+    use HasFactory;
 
     protected $fillable = [
         'order',
@@ -21,8 +21,8 @@ class RecipeStep extends Model
     public static function rules(): array
     {
         return [
-            'order'=> 'required|integer',
-            'description'=> 'required|string',
+            'order' => 'required|integer',
+            'description' => 'required|string',
         ];
     }
 

@@ -15,13 +15,12 @@ return new class extends Migration {
             $table->id();
             $table->string('name');
             $table->string('email')->unique();
-            $table->date('birthday')->nullable();
-            $table->string('phone')->nullable();
+            $table->date('birthday');
+            $table->string('phone')->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
             $table->integer('role')->default(RolesEnum::CUSTOMER);
             $table->rememberToken();
-            $table->softDeletes();
             $table->timestamps();
         });
 
