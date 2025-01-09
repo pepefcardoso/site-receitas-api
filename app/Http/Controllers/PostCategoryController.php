@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\PostCategory;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 
 class PostCategoryController extends Controller
 {
@@ -15,6 +16,7 @@ class PostCategoryController extends Controller
 
     public function store(Request $request)
     {
+        $request["normalized_name"] = Str::upper($request->name);
         $data = $request->validate(PostCategory::$rules);
 
         $postCategory = PostCategory::create($data);
@@ -29,6 +31,7 @@ class PostCategoryController extends Controller
 
     public function update(Request $request, PostCategory $postCategory)
     {
+        $request["normalized_name"] = Str::upper($request->name);
         $data = $request->validate(PostCategory::$rules);
 
         $postCategory->update($data);

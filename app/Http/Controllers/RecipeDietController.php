@@ -10,8 +10,8 @@ class RecipeDietController extends Controller
 {
     public function index()
     {
-        $categories = RecipeDiet::all();
-        return response()->json($categories, 201);
+        $diets = RecipeDiet::all();
+        return response()->json($diets, 201);
     }
 
     public function store(Request $request)
