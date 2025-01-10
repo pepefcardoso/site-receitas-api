@@ -21,7 +21,6 @@ return new class extends Migration {
             $table->integer('portion');
             $table->integer('difficulty')->default(RecipeDifficultyEnum::NORMAL);
             $table->string('image');
-            $table->json('ingredients');
             $table->timestamps();
         });
     }

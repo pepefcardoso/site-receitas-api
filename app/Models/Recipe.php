@@ -23,7 +23,6 @@ class Recipe extends Model
         'portion',
         'difficulty',
         'image',
-        'ingredients',
         'category_id',
     ];
 
@@ -42,7 +41,8 @@ class Recipe extends Model
             'difficulty' => ['required', Rule::in(RecipeDifficultyEnum::cases())],
             'image' => 'required|url',
             'ingredients' => 'required|array',
-            'ingredients.*' => 'required|string',
+            'ingredients.*.quantity' => 'required|integer',
+            'ingredients.*.name' => 'required|string',
             'steps' => 'required|array',
             'steps.*.order' => 'required|integer',
             'steps.*.description' => 'required|string',
@@ -70,5 +70,10 @@ class Recipe extends Model
     public function steps(): HasMany
     {
         return $this->hasMany(RecipeStep::class);
+    }
+
+    public function ingredients(): HasMany
+    {
+        return $this->hasMany(RecipeIngredient::class);
     }
 }

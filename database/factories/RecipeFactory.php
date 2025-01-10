@@ -30,7 +30,6 @@ class RecipeFactory extends Factory
             'user_id' => $this->faker->numberBetween(1, 10),
             'category_id' => $category ? $category->id : null,
             'image' => $this->faker->imageUrl(),
-            'ingredients' => implode(', ', $this->faker->words(5)),
         ];
     }
 

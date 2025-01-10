@@ -6,22 +6,22 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class RecipeStep extends Model
+class RecipeIngredient extends Model
 {
-    /** @use HasFactory<\Database\Factories\RecipeStepFactory> */
+    /** @use HasFactory<\Database\Factories\RecipeIngredientFactory> */
     use HasFactory;
 
     protected $fillable = [
-        'order',
-        'description',
+        'quantity',
+        'name',
         'recipe_id'
     ];
 
     public static function rules(): array
     {
         return [
-            'order' => 'required|integer',
-            'description' => 'required|string',
+            'quantity' => 'required|integer',
+            'name' => 'required|string',
         ];
     }
 

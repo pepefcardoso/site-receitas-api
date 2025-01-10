@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Recipe;
+use App\Models\RecipeIngredient;
 use App\Models\RecipeStep;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controllers\HasMiddleware;
@@ -45,14 +46,28 @@ class RecipeController extends Controller implements HasMiddleware
             ]);
         }
 
+        foreach ($fields['ingredients'] as $ingredientsData) {
+            $ingredientsValidator = Validator::make($ingredientsData, RecipeIngredient::rules());
+
+            if ($ingredientsValidator->fails()) {
+                return response()->json(['errors' => $ingredientsValidator->errors()], 400);
+            }
+
+            $recipe->ingredients()->create([
+                'quantity' => $ingredientsData['quantity'],
+                'name' => $ingredientsData['name'],
+                'recipe_id' => $recipe->id
+            ]);
+        }
+
         $recipe->diets()->sync($request->diets);
 
-        return response()->json($recipe->load(['user', 'category', 'diets', 'steps']), 201);
+        return response()->json($recipe->load(['user', 'category', 'diets', 'steps', 'ingredients']), 201);
     }
 
     public function show(Recipe $recipe)
     {
-        return response()->json($recipe->load(['user', 'category', 'diets']), 200);
+        return response()->json($recipe->load(['user', 'category', 'diets', 'steps', 'ingredients']), 200);
     }
 
     public function update(Recipe $recipe)
@@ -78,11 +93,25 @@ class RecipeController extends Controller implements HasMiddleware
             ]);
         }
 
+        foreach ($fields['ingredients'] as $ingredientsData) {
+            $ingredientsValidator = Validator::make($ingredientsData, RecipeIngredient::rules());
+
+            if ($ingredientsValidator->fails()) {
+                return response()->json(['errors' => $ingredientsValidator->errors()], 400);
+            }
+
+            $recipe->ingredients()->create([
+                'quantity' => $ingredientsData['quantity'],
+                'name' => $ingredientsData['name'],
+                'recipe_id' => $recipe->id
+            ]);
+        }
+
         if (request()->has('diets')) {
             $recipe->diets()->sync(request()->diets);
         }
 
-        return response()->json($recipe, 201);
+        return response()->json($recipe->load(['user', 'category', 'diets', 'steps', 'ingredients']), 201);
     }
 
     public function destroy(Recipe $recipe)
