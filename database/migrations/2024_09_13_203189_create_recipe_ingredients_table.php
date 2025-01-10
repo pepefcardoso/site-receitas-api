@@ -13,6 +13,7 @@ return new class extends Migration {
         Schema::create('recipe_ingredients', function (Blueprint $table) {
             $table->id();
             $table->foreignId('recipe_id')->constrained()->onDelete('cascade');
+            $table->foreignId('unit_id')->constrained('recipe_units');
             $table->integer('quantity');
             $table->string('name');
             $table->timestamps();

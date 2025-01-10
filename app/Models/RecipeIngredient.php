@@ -22,11 +22,17 @@ class RecipeIngredient extends Model
         return [
             'quantity' => 'required|integer',
             'name' => 'required|string',
+            'unit_id' => 'required|exists:recipe_units,id',
         ];
     }
 
     public function recipe(): BelongsTo
     {
         return $this->belongsTo(Recipe::class);
+    }
+
+    public function unit(): BelongsTo
+    {
+        return $this->belongsTo(RecipeUnit::class);
     }
 }

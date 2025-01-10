@@ -16,4 +16,9 @@ class RecipeUnit extends Model
         'name' => 'required|string|max:50|unique:recipe_diets',
         'normalized_name' => 'required|string|max:50|unique:recipe_diets',
     ];
+
+    public function ingredients()
+    {
+        return $this->hasMany(RecipeIngredient::class);
+    }
 }
