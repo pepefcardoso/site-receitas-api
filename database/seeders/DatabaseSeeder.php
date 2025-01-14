@@ -28,8 +28,8 @@ class DatabaseSeeder extends Seeder
             RecipeDietSeeder::class,
             RecipeCategorySeeder::class,
             RecipeUnitSeeder::class,
-            RecipeIngredientSeeder::class,
             RecipeSeeder::class,
+            RecipeIngredientSeeder::class,
             RecipeStepSeeder::class,
         ]);
     }
