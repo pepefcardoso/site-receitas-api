@@ -1,22 +1,22 @@
 <?php
 
-namespace App\Services\RecipeDiets;
+namespace App\Services\RecipeStep;
 
-use App\Models\RecipeDiet;
+use App\Models\RecipeStep;
 use Illuminate\Support\Facades\DB;
 
-class DeleteRecipeDiet
+class CreateRecipeStep
 {
-    public function delete(RecipeDiet $recipeDiet): RecipeDiet|string
+    public function create(array $data)
     {
         try {
             DB::beginTransaction();
 
-            $recipeDiet->delete();
+            $recipeStep = RecipeStep::create($data);
 
             DB::commit();
 
-            return $recipeDiet;
+            return $recipeStep;
         } catch (\Exception $e) {
             DB::rollback();
             return $e->getMessage();

@@ -2,65 +2,28 @@
 
 namespace App\Policies;
 
+use App\Models\Recipe;
 use App\Models\RecipeStep;
 use App\Models\User;
 use Illuminate\Auth\Access\Response;
 
 class RecipeStepPolicy
 {
-    /**
-     * Determine whether the user can view any models.
-     */
-    public function viewAny(User $user): bool
+    public function isInternalUser(User $user): Response
     {
-        return false;
+        return $user->role >= RolesEnum::INTERNAL
+            ? Response::allow()
+            : Response::deny('Denied');
     }
 
-    /**
-     * Determine whether the user can view the model.
-     */
-    public function view(User $user, RecipeStep $recipeStep): bool
+    public function modify(User $user, Recipe $recipe): Response
     {
-        return false;
-    }
+        if (!$recipe->relationLoaded('user')) {
+            $recipe->load('user');
+        }
 
-    /**
-     * Determine whether the user can create models.
-     */
-    public function create(User $user): bool
-    {
-        return false;
-    }
-
-    /**
-     * Determine whether the user can update the model.
-     */
-    public function update(User $user, RecipeStep $recipeStep): bool
-    {
-        return false;
-    }
-
-    /**
-     * Determine whether the user can delete the model.
-     */
-    public function delete(User $user, RecipeStep $recipeStep): bool
-    {
-        return false;
-    }
-
-    /**
-     * Determine whether the user can restore the model.
-     */
-    public function restore(User $user, RecipeStep $recipeStep): bool
-    {
-        return false;
-    }
-
-    /**
-     * Determine whether the user can permanently delete the model.
-     */
-    public function forceDelete(User $user, RecipeStep $recipeStep): bool
-    {
-        return false;
+        return $user->role >= RolesEnum::INTERNAL || $user->id === $recipe->user->id
+            ? Response::allow()
+            : Response::deny('Denied');
     }
 }
