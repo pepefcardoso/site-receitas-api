@@ -8,59 +8,21 @@ use Illuminate\Auth\Access\Response;
 
 class RecipeIngredientPolicy
 {
-    /**
-     * Determine whether the user can view any models.
-     */
-    public function viewAny(User $user): bool
+    public function isInternalUser(User $user): Response
     {
-        return false;
+        return $user->role >= RolesEnum::INTERNAL
+            ? Response::allow()
+            : Response::deny('Denied');
     }
 
-    /**
-     * Determine whether the user can view the model.
-     */
-    public function view(User $user, RecipeIngredient $recipeIngredient): bool
+    public function modify(User $user, RecipeIngredient $recipeIngredient): Response
     {
-        return false;
-    }
+        if (!$recipeIngredient->relationLoaded('recipe')) {
+            $recipeIngredient->load('recipe');
+        }
 
-    /**
-     * Determine whether the user can create models.
-     */
-    public function create(User $user): bool
-    {
-        return false;
-    }
-
-    /**
-     * Determine whether the user can update the model.
-     */
-    public function update(User $user, RecipeIngredient $recipeIngredient): bool
-    {
-        return false;
-    }
-
-    /**
-     * Determine whether the user can delete the model.
-     */
-    public function delete(User $user, RecipeIngredient $recipeIngredient): bool
-    {
-        return false;
-    }
-
-    /**
-     * Determine whether the user can restore the model.
-     */
-    public function restore(User $user, RecipeIngredient $recipeIngredient): bool
-    {
-        return false;
-    }
-
-    /**
-     * Determine whether the user can permanently delete the model.
-     */
-    public function forceDelete(User $user, RecipeIngredient $recipeIngredient): bool
-    {
-        return false;
+        return $user->role >= RolesEnum::INTERNAL || $user->id === $recipeIngredient->recipe->user->id
+            ? Response::allow()
+            : Response::deny('Denied');
     }
 }

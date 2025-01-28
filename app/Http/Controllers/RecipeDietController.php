@@ -3,11 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Models\RecipeDiet;
-use App\Services\RecipeDiets\CreateRecipeUnit;
-use App\Services\RecipeDiets\DeleteRecipeUnit;
-use App\Services\RecipeDiets\ListRecipeUnit;
-use App\Services\RecipeDiets\ShowRecipeUnit;
-use App\Services\RecipeDiets\UpdateRecipeUnit;
+use App\Services\RecipeDiets\CreateRecipeDiet;
+use App\Services\RecipeDiets\DeleteRecipeDiet;
+use App\Services\RecipeDiets\ListRecipeDiet;
+use App\Services\RecipeDiets\ShowRecipeDiet;
+use App\Services\RecipeDiets\UpdateRecipeDiet;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controllers\Middleware;
 use Illuminate\Support\Facades\Gate;
@@ -22,14 +22,14 @@ class RecipeDietController extends Controller
         ];
     }
 
-    public function index(ListRecipeUnit $service)
+    public function index(ListRecipeDiet $service)
     {
         $diets = $service->list();
 
         return response()->json($diets, 201);
     }
 
-    public function store(Request $request, CreateRecipeUnit $service)
+    public function store(Request $request, CreateRecipeDiet $service)
     {
         Gate::authorize('isInternalUser');
 
@@ -41,14 +41,14 @@ class RecipeDietController extends Controller
         return response()->json($recipeDiet, 201);
     }
 
-    public function show(RecipeDiet $RecipeDiet, ShowRecipeUnit $service)
+    public function show(RecipeDiet $RecipeDiet, ShowRecipeDiet $service)
     {
         $recipeDiet = $service->show($RecipeDiet);
 
         return response()->json($recipeDiet, 201);
     }
 
-    public function update(Request $request, RecipeDiet $recipeDiet, UpdateRecipeUnit $service)
+    public function update(Request $request, RecipeDiet $recipeDiet, UpdateRecipeDiet $service)
     {
         Gate::authorize('isInternalUser');
 
@@ -60,7 +60,7 @@ class RecipeDietController extends Controller
         return response()->json($recipeDiet, 201);
     }
 
-    public function destroy(RecipeDiet $RecipeDiet, DeleteRecipeUnit $service)
+    public function destroy(RecipeDiet $RecipeDiet, DeleteRecipeDiet $service)
     {
         Gate::authorize('isInternalUser');
 
