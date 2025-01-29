@@ -31,7 +31,7 @@ class RecipeDietController extends Controller
 
     public function store(Request $request, CreateRecipeDiet $service)
     {
-        Gate::authorize('isInternalUser');
+        Gate::authorize('create', RecipeDiet::class);
 
         $request["normalized_name"] = Str::upper($request->name);
         $data = $request->validate(RecipeDiet::$rules);
