@@ -8,66 +8,55 @@ use App\Services\RecipeDiets\DeleteRecipeDiet;
 use App\Services\RecipeDiets\ListRecipeDiet;
 use App\Services\RecipeDiets\ShowRecipeDiet;
 use App\Services\RecipeDiets\UpdateRecipeDiet;
-use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Illuminate\Routing\Controller as BaseController;
 
-class RecipeDietController extends Controller
+class RecipeDietController extends BaseController
 {
     use AuthorizesRequests;
 
-    // public static function middleware()
-    // {
-    //     return [
-    //         new Middleware('auth:sanctum', except: ['index', 'show'])
-    //     ];
-    // }
+    public function __construct()
+    {
+        $this->middleware('auth:sanctum')->except(['index', 'show']);
+        $this->authorizeResource(RecipeDiet::class, 'recipe_diet');
+    }
 
     public function index(ListRecipeDiet $service)
     {
-        $diets = $service->list();
-
-        return response()->json($diets, 201);
+        return response()->json($service->list(), 200);
     }
 
     public function store(Request $request, CreateRecipeDiet $service)
     {
-        $this->authorize('create', RecipeDiet::class);
+        if (config('app.debug')) {
+            Log::info('Authenticated user:', ['user' => auth()->user()]);
+        }
 
         $request["normalized_name"] = Str::upper($request->name);
         $data = $request->validate(RecipeDiet::$rules);
 
-        $recipeDiet = $service->create($data);
-
-        return response()->json($recipeDiet, 201);
+        return response()->json($service->create($data), 201);
     }
 
-    public function show(RecipeDiet $RecipeDiet, ShowRecipeDiet $service)
+    public function show(RecipeDiet $recipeDiet, ShowRecipeDiet $service)
     {
-        $recipeDiet = $service->show($RecipeDiet);
-
-        return response()->json($recipeDiet, 201);
+        return response()->json($service->show($recipeDiet), 200);
     }
 
     public function update(Request $request, RecipeDiet $recipeDiet, UpdateRecipeDiet $service)
     {
-        Gate::authorize('isInternalUser');
-
         $request["normalized_name"] = Str::upper($request->name);
         $data = $request->validate(RecipeDiet::$rules);
 
-        $recipeDiet = $service->update($recipeDiet, $data);
-
-        return response()->json($recipeDiet, 201);
+        return response()->json($service->update($recipeDiet, $data), 200);
     }
 
-    public function destroy(RecipeDiet $RecipeDiet, DeleteRecipeDiet $service)
+    public function destroy(RecipeDiet $recipeDiet, DeleteRecipeDiet $service)
     {
-        Gate::authorize('isInternalUser');
-
-        $recipeDiet = $service->delete($RecipeDiet);
-
-        return response()->json($recipeDiet, 201);
+        $service->delete($recipeDiet);
+        return response()->json(null, 204);
     }
 }

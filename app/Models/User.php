@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\Log;
 use Laravel\Sanctum\HasApiTokens;
 
 class User extends Authenticatable
@@ -52,6 +53,10 @@ class User extends Authenticatable
         ];
     }
 
+    protected $casts = [
+        'role' => RolesEnum::class,
+    ];
+
     public static array $createRules = [
         'name' => 'required|string|min:3|max:100',
         'email' => 'required|email|unique:users,email',
@@ -69,7 +74,8 @@ class User extends Authenticatable
 
     public function isInternal(): bool
     {
-        return $this->role >= RolesEnum::INTERNAL;
+        Log::info('User role:', ['role' => $this->role]);
+        return $this->role->value <= RolesEnum::INTERNAL->value;
     }
 
     public function posts(): HasMany
