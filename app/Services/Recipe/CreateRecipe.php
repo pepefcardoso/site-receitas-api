@@ -5,6 +5,8 @@ namespace App\Services\Recipe;
 use App\Models\Recipe;
 use App\Services\RecipeIngredient\CreateRecipeIngredient;
 use App\Services\RecipeStep\CreateRecipeStep;
+use Arr;
+use Exception;
 use Illuminate\Support\Facades\DB;
 
 class CreateRecipe
@@ -14,9 +16,8 @@ class CreateRecipe
 
     public function __construct(
         CreateRecipeIngredient $createRecipeIngredient,
-        CreateRecipeStep       $createRecipeStep
-    )
-    {
+        CreateRecipeStep $createRecipeStep
+    ) {
         $this->createRecipeIngredient = $createRecipeIngredient;
         $this->createRecipeStep = $createRecipeStep;
     }
@@ -26,49 +27,43 @@ class CreateRecipe
         try {
             DB::beginTransaction();
 
-            $recipeData = [
-                'title' => $data['title'],
-                'description' => $data['description'],
-                'time' => $data['time'],
-                'portion' => $data['portion'],
-                'difficulty' => $data['difficulty'],
-                'image' => $data['image'],
-                'category_id' => $data['category_id'],
-            ];
-
+            $recipeData = array_merge(
+                Arr::only($data, ['title', 'description', 'time', 'portion', 'difficulty', 'image', 'category_id']),
+                ['user_id' => auth()->id()] // Assign the authenticated user
+            );
             $recipe = Recipe::create($recipeData);
 
-            if (isset($data['diets'])) {
-                $recipe->diets()->sync($data['diets']);
+            $diets = data_get($data, 'diets');
+            throw_if(empty($diets), Exception::class, 'Diets are required');
+            $recipe->diets()->sync($diets);
+
+            $ingredients = data_get($data, 'ingredients');
+            throw_if(empty($ingredients), Exception::class, 'Ingredients are required');
+            foreach ($ingredients as $ingredient) {
+                $this->createRecipeIngredient->create([
+                    'recipe_id' => $recipe->id,
+                    'quantity' => $ingredient['quantity'],
+                    'name' => $ingredient['name'],
+                    'unit_id' => $ingredient['unit_id'],
+                ]);
             }
 
-            if (isset($data['ingredients'])) {
-                foreach ($data['ingredients'] as $ingredient) {
-                    $this->createRecipeIngredient->create([
-                        'recipe_id' => $recipe->id,
-                        'quantity' => $ingredient['quantity'],
-                        'name' => $ingredient['name'],
-                        'unit_id' => $ingredient['unit_id'],
-                    ]);
-                }
-            }
-
-            if (isset($data['steps'])) {
-                foreach ($data['steps'] as $step) {
-                    $this->createRecipeStep->create([
-                        'recipe_id' => $recipe->id,
-                        'order' => $step['order'],
-                        'description' => $step['description'],
-                    ]);
-                }
+            $steps = data_get($data, 'steps');
+            throw_if(empty($steps), Exception::class, 'Steps are required');
+            foreach ($steps as $step) {
+                $this->createRecipeStep->create([
+                    'recipe_id' => $recipe->id,
+                    'order' => $step['order'],
+                    'description' => $step['description'],
+                ]);
             }
 
             DB::commit();
-
             return $recipe;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             DB::rollback();
             return $e->getMessage();
         }
     }
+
 }

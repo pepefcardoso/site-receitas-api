@@ -17,9 +17,19 @@ class RecipeIngredient extends Model
         'recipe_id'
     ];
 
-    public static function rules(): array
+    public static function createRules(): array
     {
         return [
+            'quantity' => 'required|integer',
+            'name' => 'required|string',
+            'unit_id' => 'required|exists:recipe_units,id',
+        ];
+    }
+
+    public static function updateRules(): array
+    {
+        return [
+            'id' => 'required|exists:recipe_ingredients',
             'quantity' => 'required|integer',
             'name' => 'required|string',
             'unit_id' => 'required|exists:recipe_units,id',

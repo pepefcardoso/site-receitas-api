@@ -32,7 +32,7 @@ class RecipeStepController extends Controller
     {
         Gate::authorize('modify');
 
-        $data = $request->validate(RecipeStep::rules());
+        $data = $request->validate(RecipeStep::createRules());
 
         $recipeStep = $service->create($data);
 
@@ -50,7 +50,7 @@ class RecipeStepController extends Controller
     {
         Gate::authorize('modify');
 
-        $data = $request->validate(RecipeStep::rules());
+        $data = $request->validate(RecipeStep::createRules());
 
         $RecipeStep = $service->update($RecipeStep, $data);
 

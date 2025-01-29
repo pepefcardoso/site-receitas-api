@@ -17,7 +17,15 @@ class RecipeStep extends Model
         'recipe_id'
     ];
 
-    public static function rules(): array
+    public static function createRules(): array
+    {
+        return [
+            'order' => 'required|integer',
+            'description' => 'required|string',
+        ];
+    }
+
+    public static function updateRules(): array
     {
         return [
             'order' => 'required|integer',

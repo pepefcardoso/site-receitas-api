@@ -30,7 +30,7 @@ class RecipeIngredientController extends Controller
 
     public function store(Request $request, CreateRecipeIngredient $service)
     {
-        $data = $request->validate(RecipeIngredient::rules());
+        $data = $request->validate(RecipeIngredient::createRules());
 
         $RecipeIngredient = $service->create($data);
 
@@ -48,7 +48,7 @@ class RecipeIngredientController extends Controller
     {
         Gate::authorize('modify', $RecipeIngredient);
 
-        $data = $request->validate(RecipeIngredient::rules());
+        $data = $request->validate(RecipeIngredient::createRules());
 
         $RecipeIngredient = $service->update($RecipeIngredient, $data);
 

@@ -3,12 +3,12 @@
 namespace App\Services\Recipe;
 
 use App\Models\Recipe;
-use Illuminate\Support\Facades\DB;
 
 class ShowRecipe
 {
     public function show($id)
     {
+        //need to load the relations too
         return Recipe::findOrFail($id);
     }
 }
