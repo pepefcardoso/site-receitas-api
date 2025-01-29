@@ -2,17 +2,12 @@
 
 namespace App\Policies;
 
-use App\Enum\RolesEnum;
-use App\Models\RecipeDiet;
 use App\Models\User;
-use Illuminate\Auth\Access\Response;
 
 class RecipeDietPolicy
 {
-    public function create(User $user): Response
+    public function create(User $user): bool
     {
-        return $user->role >= RolesEnum::INTERNAL
-            ? Response::allow()
-            : Response::deny('Denied');
+        return $user->isInternal();
     }
 }

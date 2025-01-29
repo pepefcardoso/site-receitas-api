@@ -3,6 +3,7 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use App\Enum\RolesEnum;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -65,6 +66,11 @@ class User extends Authenticatable
         'birthday' => 'required|date|before:today',
         'phone' => 'required|string|regex:/^\(\d{2}\)\s?\d{4,5}-\d{4}$/|unique:users,phone',
     ];
+
+    public function isInternal(): bool
+    {
+        return $this->role >= RolesEnum::INTERNAL;
+    }
 
     public function posts(): HasMany
     {

@@ -22,7 +22,7 @@ class UserSeeder extends Seeder
             'birthday' => '1990-01-01',
             'phone' => '48998742031',
             'password' => Hash::make('test1234'),
-            'role' => 2,
+            'role' => 1,
         ]);
     }
 }

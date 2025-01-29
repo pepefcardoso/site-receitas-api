@@ -8,19 +8,21 @@ use App\Services\RecipeDiets\DeleteRecipeDiet;
 use App\Services\RecipeDiets\ListRecipeDiet;
 use App\Services\RecipeDiets\ShowRecipeDiet;
 use App\Services\RecipeDiets\UpdateRecipeDiet;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
-use Illuminate\Routing\Controllers\Middleware;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Str;
 
 class RecipeDietController extends Controller
 {
-    public static function middleware()
-    {
-        return [
-            new Middleware('auth:sanctum', except: ['index', 'show'])
-        ];
-    }
+    use AuthorizesRequests;
+
+    // public static function middleware()
+    // {
+    //     return [
+    //         new Middleware('auth:sanctum', except: ['index', 'show'])
+    //     ];
+    // }
 
     public function index(ListRecipeDiet $service)
     {
@@ -31,7 +33,7 @@ class RecipeDietController extends Controller
 
     public function store(Request $request, CreateRecipeDiet $service)
     {
-        Gate::authorize('create', RecipeDiet::class);
+        $this->authorize('create', RecipeDiet::class);
 
         $request["normalized_name"] = Str::upper($request->name);
         $data = $request->validate(RecipeDiet::$rules);
