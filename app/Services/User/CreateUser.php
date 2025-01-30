@@ -1,24 +1,26 @@
 <?php
 
-namespace App\Services\Recipe;
+namespace App\Services\User;
 
-use App\Models\Recipe;
+use App\Models\User;
 use Exception;
 use Illuminate\Support\Facades\DB;
 
-class DeleteRecipe
+class CreateUser
 {
-    public function delete(Recipe $recipe): Recipe|string
+    public function create(array $data): User|string
     {
         try {
             DB::beginTransaction();
 
-            $recipe->delete();
+            $user = User::create($data);
+
             DB::commit();
 
-            return $recipe;
+            return $user;
         } catch (Exception $e) {
-            DB::rollback();
+            DB::rollBack();
+
             return $e->getMessage();
         }
     }

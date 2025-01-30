@@ -2,28 +2,18 @@
 
 namespace App\Policies;
 
-use App\Models\Recipe;
 use App\Models\RecipeStep;
 use App\Models\User;
-use Illuminate\Auth\Access\Response;
 
 class RecipeStepPolicy
 {
-    public function isInternalUser(User $user): Response
+    public function update(User $user, RecipeStep $recipeStep): bool
     {
-        return $user->role >= RolesEnum::INTERNAL
-            ? Response::allow()
-            : Response::deny('Denied');
+        return $user->isInternal() || $user->id === $recipeStep->recipe->user_id;
     }
 
-    public function modify(User $user, Recipe $recipe): Response
+    public function delete(User $user, RecipeStep $recipeStep): bool
     {
-        if (!$recipe->relationLoaded('user')) {
-            $recipe->load('user');
-        }
-
-        return $user->role >= RolesEnum::INTERNAL || $user->id === $recipe->user->id
-            ? Response::allow()
-            : Response::deny('Denied');
+        return $user->isInternal() || $user->id === $recipeStep->recipe->user_id;
     }
 }

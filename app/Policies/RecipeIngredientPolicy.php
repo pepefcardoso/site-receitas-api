@@ -4,25 +4,16 @@ namespace App\Policies;
 
 use App\Models\RecipeIngredient;
 use App\Models\User;
-use Illuminate\Auth\Access\Response;
 
 class RecipeIngredientPolicy
 {
-    public function isInternalUser(User $user): Response
+    public function update(User $user, RecipeIngredient $recipeIngredient): bool
     {
-        return $user->role >= RolesEnum::INTERNAL
-            ? Response::allow()
-            : Response::deny('Denied');
+        return $user->isInternal() || $user->id === $recipeIngredient->recipe->user_id;
     }
 
-    public function modify(User $user, RecipeIngredient $recipeIngredient): Response
+    public function delete(User $user, RecipeIngredient $recipeIngredient): bool
     {
-        if (!$recipeIngredient->relationLoaded('recipe')) {
-            $recipeIngredient->load('recipe');
-        }
-
-        return $user->role >= RolesEnum::INTERNAL || $user->id === $recipeIngredient->recipe->user->id
-            ? Response::allow()
-            : Response::deny('Denied');
+        return $user->isInternal() || $user->id === $recipeIngredient->recipe->user_id;
     }
 }

@@ -8,32 +8,32 @@ use App\Services\Recipe\DeleteRecipe;
 use App\Services\Recipe\ListRecipe;
 use App\Services\Recipe\ShowRecipe;
 use App\Services\Recipe\UpdateRecipe;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
-use Illuminate\Routing\Controllers\HasMiddleware;
-use Illuminate\Routing\Controllers\Middleware;
-use Illuminate\Support\Facades\Gate;
+use Illuminate\Routing\Controller as BaseController;
 
-class RecipeController extends Controller implements HasMiddleware
+class RecipeController extends BaseController
 {
-    public static function middleware()
+    use AuthorizesRequests;
+
+    public function __construct()
     {
-        return [
-            new Middleware('auth:sanctum', except: ['index', 'show'])
-        ];
+        $this->middleware('auth:sanctum')->except(['index', 'show']);
+        $this->authorizeResource(Recipe::class, 'recipe');
     }
 
     public function index(ListRecipe $service)
     {
         $recipes = $service->list();
 
-        return response()->json($recipes, 201);
+        return response()->json($recipes);
     }
 
     public function store(Request $request, CreateRecipe $service)
     {
-        $fields = $request->validate(Recipe::createRules());
+        $data = $request->validate(Recipe::createRules());
 
-        $recipe = $service->create($fields);
+        $recipe = $service->create($data);
 
         return response()->json($recipe, 201);
     }
@@ -42,24 +42,20 @@ class RecipeController extends Controller implements HasMiddleware
     {
         $recipe = $service->show($recipe);
 
-        return response()->json($recipe, 200);
+        return response()->json($recipe);
     }
 
-    public function update(Recipe $recipe, UpdateRecipe $service)
+    public function update(Request $request, Recipe $recipe, UpdateRecipe $service)
     {
-        Gate::authorize('modify', $recipe);
+        $data = $request->validate(Recipe::updateRules());
 
-        $fields = request()->validate(Recipe::updateRules());
+        $recipe = $service->update($recipe->id, $data);
 
-        $updatedRecipe = $service->update($recipe->id, $fields);
-
-        return response()->json($updatedRecipe, 201);
+        return response()->json($recipe);
     }
 
     public function destroy(Recipe $recipe, DeleteRecipe $service)
     {
-        Gate::authorize('modify', $recipe);
-
         $service->delete($recipe);
 
         return response()->json(null, 204);

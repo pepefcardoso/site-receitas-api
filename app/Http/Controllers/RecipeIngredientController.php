@@ -9,56 +9,53 @@ use App\Services\RecipeIngredient\ListRecipeIngredient;
 use App\Services\RecipeIngredient\ShowRecipeIngredient;
 use App\Services\RecipeIngredient\UpdateRecipeIngredient;
 use Illuminate\Http\Request;
-use Illuminate\Routing\Controllers\Middleware;
-use Illuminate\Support\Facades\Gate;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Illuminate\Routing\Controller as BaseController;
 
-class RecipeIngredientController extends Controller
+class RecipeIngredientController extends BaseController
 {
-    public static function middleware()
+    use AuthorizesRequests;
+
+    public function __construct()
     {
-        return [
-            new Middleware('auth:sanctum', except: ['index', 'show'])
-        ];
+        $this->middleware('auth:sanctum')->except(['index', 'show']);
+        $this->authorizeResource(RecipeIngredient::class, 'recipe_ingredient');
     }
 
     public function index(ListRecipeIngredient $service)
     {
         $ingredients = $service->list();
 
-        return response()->json($ingredients, 201);
+        return response()->json($ingredients);
     }
 
     public function store(Request $request, CreateRecipeIngredient $service)
     {
         $data = $request->validate(RecipeIngredient::createRules());
 
-        $RecipeIngredient = $service->create($data);
+        $ingredient = $service->create($data);
 
-        return response()->json($RecipeIngredient, 201);
+        return response()->json($ingredient, 201);
     }
 
     public function show(RecipeIngredient $RecipeIngredient, ShowRecipeIngredient $service)
     {
-        $RecipeIngredient = $service->show($RecipeIngredient);
+        $ingredient = $service->show($RecipeIngredient);
 
-        return response()->json($RecipeIngredient, 201);
+        return response()->json($ingredient);
     }
 
     public function update(Request $request, RecipeIngredient $RecipeIngredient, UpdateRecipeIngredient $service)
     {
-        Gate::authorize('modify', $RecipeIngredient);
-
         $data = $request->validate(RecipeIngredient::createRules());
 
-        $RecipeIngredient = $service->update($RecipeIngredient, $data);
+        $ingredient = $service->update($RecipeIngredient, $data);
 
-        return response()->json($RecipeIngredient, 201);
+        return response()->json($ingredient);
     }
 
     public function destroy(RecipeIngredient $RecipeIngredient, DeleteRecipeIngredient $service)
     {
-        Gate::authorize('modify', $RecipeIngredient);
-
         $service->delete($RecipeIngredient);
 
         return response()->json(null, 204);

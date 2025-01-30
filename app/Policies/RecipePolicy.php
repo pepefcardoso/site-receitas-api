@@ -2,28 +2,18 @@
 
 namespace App\Policies;
 
-use App\Enum\RolesEnum;
 use App\Models\Recipe;
 use App\Models\User;
-use Illuminate\Auth\Access\Response;
 
 class RecipePolicy
 {
-    public function isInternalUser(User $user): Response
+    public function update(User $user, Recipe $recipe): bool
     {
-        return $user->role >= RolesEnum::INTERNAL
-            ? Response::allow()
-            : Response::deny('Denied');
+        return $user->isInternal() || $user->id === $recipe->user_id;
     }
 
-    public function modify(User $user, Recipe $recipe): Response
+    public function delete(User $user, Recipe $recipe): bool
     {
-        if (!$recipe->relationLoaded('user')) {
-            $recipe->load('user');
-        }
-
-        return $user->role >= RolesEnum::INTERNAL || $user->id === $recipe->user->id
-            ? Response::allow()
-            : Response::deny('Denied');
+        return $user->isInternal() || $user->id === $recipe->user_id;
     }
 }

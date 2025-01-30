@@ -9,7 +9,6 @@ use App\Services\RecipeDiets\ListRecipeDiet;
 use App\Services\RecipeDiets\ShowRecipeDiet;
 use App\Services\RecipeDiets\UpdateRecipeDiet;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Routing\Controller as BaseController;
@@ -26,24 +25,26 @@ class RecipeDietController extends BaseController
 
     public function index(ListRecipeDiet $service)
     {
-        return response()->json($service->list(), 200);
+        $diets = $service->list();
+
+        return response()->json($diets);
     }
 
     public function store(Request $request, CreateRecipeDiet $service)
     {
-        if (config('app.debug')) {
-            Log::info('Authenticated user:', ['user' => auth()->user()]);
-        }
-
         $request["normalized_name"] = Str::upper($request->name);
         $data = $request->validate(RecipeDiet::$rules);
 
-        return response()->json($service->create($data), 201);
+        $diet = $service->create($data);
+
+        return response()->json($diet, 201);
     }
 
     public function show(RecipeDiet $recipeDiet, ShowRecipeDiet $service)
     {
-        return response()->json($service->show($recipeDiet), 200);
+        $diet = $service->show($recipeDiet);
+
+        return response()->json($diet);
     }
 
     public function update(Request $request, RecipeDiet $recipeDiet, UpdateRecipeDiet $service)
@@ -51,12 +52,15 @@ class RecipeDietController extends BaseController
         $request["normalized_name"] = Str::upper($request->name);
         $data = $request->validate(RecipeDiet::$rules);
 
-        return response()->json($service->update($recipeDiet, $data), 200);
+        $diet = $service->update($recipeDiet, $data);
+
+        return response()->json($diet);
     }
 
     public function destroy(RecipeDiet $recipeDiet, DeleteRecipeDiet $service)
     {
         $service->delete($recipeDiet);
+
         return response()->json(null, 204);
     }
 }

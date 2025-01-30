@@ -3,34 +3,37 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Services\User\CreateUser;
+use App\Services\User\DeleteUser;
+use App\Services\User\ListUser;
+use App\Services\User\ShowUser;
+use App\Services\User\UpdateUser;
 use Illuminate\Http\Request;
-use Illuminate\Routing\Controllers\HasMiddleware;
-use Illuminate\Routing\Controllers\Middleware;
-use Illuminate\Support\Facades\Gate;
+use Illuminate\Routing\Controller as BaseController;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
-class UserController extends Controller implements HasMiddleware
+class UserController extends BaseController
 {
-    public static function middleware()
+    use AuthorizesRequests;
+
+    public function __construct()
     {
-        return [
-            new Middleware('auth:sanctum', except: ['store'])
-        ];
+        $this->middleware('auth:sanctum')->except(['index', 'show', 'store']);
+        $this->authorizeResource(User::class, 'user');
     }
 
-    public function index()
+    public function index(ListUser $service)
     {
-        Gate::authorize('isInternalUser');
+        $users = $service->list();
 
-        $users = User::all();
-        return response()->json($users, 201);
+        return response()->json($users);
     }
 
-    public function store(Request $request)
+    public function store(Request $request, CreateUser $service)
     {
+        $data = $request->validate(User::$createRules);
 
-        $fields = $request->validate(User::$createRules);
-
-        $user = User::create($fields);
+        $user = $service->create($data);
 
         $token = $user->createToken('auth_token');
 
@@ -40,29 +43,25 @@ class UserController extends Controller implements HasMiddleware
         ], 201);
     }
 
-    public function show(User $user)
+    public function show(User $user, ShowUser $service)
     {
-        Gate::authorize('showAndModify', $user);
+        $user = $service->show($user);
 
-        return response()->json($user, 201);
+        return response()->json($user);
     }
 
-    public function update(Request $request, User $user)
+    public function update(Request $request, User $user, UpdateUser $service)
     {
-        Gate::authorize('showAndModify', $user);
+        $data = $request->validate(User::$updateRules);
 
-        $fields = $request->validate(user::$updateRules);
+        $user = $service->update($user->id, $data);
 
-        $user->update($fields);
-
-        return response()->json($user, 201);
+        return response()->json($user);
     }
 
-    public function destroy(User $user)
+    public function destroy(User $user, DeleteUser $service)
     {
-        Gate::authorize('showAndModify', $user);
-
-        $user->delete();
+        $service->delete($user);
 
         return response()->json(null, 204);
     }

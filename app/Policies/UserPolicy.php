@@ -8,17 +8,13 @@ use Illuminate\Auth\Access\Response;
 
 class UserPolicy
 {
-    public function isInternalUser(User $user): Response
+    public function update(User $authUser, User $updateUser): bool
     {
-        return $user->role >= RolesEnum::INTERNAL
-            ? Response::allow()
-            : Response::deny('Denied');
+        return $authUser->isInternal() || $authUser->id === $updateUser->id;
     }
 
-    public function showAndModify(User $user, User $modelUser): Response
+    public function showAndModify(User $authUser, User $updateUser): bool
     {
-        return $user->role >= RolesEnum::INTERNAL || $user->id === $modelUser->id
-            ? Response::allow()
-            : Response::deny('Denied');
+        return $authUser->isInternal() || $authUser->id === $updateUser->id;
     }
 }

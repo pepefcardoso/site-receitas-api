@@ -9,62 +9,57 @@ use App\Services\RecipeUnit\ListRecipeUnit;
 use App\Services\RecipeUnit\ShowRecipeUnit;
 use App\Services\RecipeUnit\UpdateRecipeUnit;
 use Illuminate\Http\Request;
-use Illuminate\Routing\Controllers\Middleware;
-use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Str;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Illuminate\Routing\Controller as BaseController;
 
-class RecipeUnitController extends Controller
+class RecipeUnitController extends BaseController
 {
-    public static function middleware()
+    use AuthorizesRequests;
+
+    public function __construct()
     {
-        return [
-            new Middleware('auth:sanctum', except: ['index', 'show'])
-        ];
+        $this->middleware('auth:sanctum')->except(['index', 'show']);
+        $this->authorizeResource(RecipeUnit::class, 'recipe_unit');
     }
 
     public function index(ListRecipeUnit $service)
     {
         $units = $service->list();
 
-        return response()->json($units, 201);
+        return response()->json($units);
     }
 
     public function store(Request $request, CreateRecipeUnit $service)
     {
-        Gate::authorize('isInternalUser');
-
         $request["normalized_name"] = Str::upper($request->name);
         $data = $request->validate(RecipeUnit::$rules);
 
-        $RecipeUnit = $service->create($data);
+        $unit = $service->create($data);
 
-        return response()->json($RecipeUnit, 201);
+        return response()->json($unit, 201);
     }
 
     public function show(RecipeUnit $recipeUnit, ShowRecipeUnit $service)
     {
-        $recipeUnit = $service->show($recipeUnit);
+        $unit = $service->show($recipeUnit);
 
-        return response()->json($recipeUnit, 201);
+        return response()->json($unit);
     }
 
     public function update(Request $request, RecipeUnit $recipeUnit, UpdateRecipeUnit $service)
     {
-        Gate::authorize('isInternalUser');
-
         $request["normalized_name"] = Str::upper($request->name);
         $data = $request->validate(RecipeUnit::$rules);
 
-        $recipeUnit = $service->update($recipeUnit, $data);
+        $unit = $service->update($recipeUnit, $data);
 
-        return response()->json($recipeUnit, 201);
+        return response()->json($unit);
     }
 
     public function destroy(RecipeUnit $recipeUnit, DeleteRecipeUnit $service)
     {
-        Gate::authorize('isInternalUser');
-
-        $recipeUnit = $service->delete($recipeUnit);
+        $service->delete($recipeUnit);
 
         return response()->json(null, 204);
     }
