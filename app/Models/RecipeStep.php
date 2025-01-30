@@ -22,6 +22,7 @@ class RecipeStep extends Model
         return [
             'order' => 'required|integer',
             'description' => 'required|string',
+            'recipe_id' => 'required|exists:recipes,id',
         ];
     }
 
@@ -30,6 +31,15 @@ class RecipeStep extends Model
         return [
             'order' => 'required|integer',
             'description' => 'required|string',
+        ];
+    }
+
+    public static function recipeRules(): array
+    {
+        return [
+            'steps.*.id' => 'nullable|exists:recipe_steps,id',
+            'steps.*.order' => self::createRules()["order"],
+            'steps.*.description' => self::createRules()["description"],
         ];
     }
 

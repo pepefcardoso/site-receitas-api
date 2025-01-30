@@ -43,7 +43,7 @@ class RecipeCategoryController extends BaseController
 
     public function show(RecipeCategory $RecipeCategory, ShowRecipeCategory $service)
     {
-        $category = $service->show($RecipeCategory);
+        $category = $service->show($RecipeCategory->id);
 
         return response()->json($category);
     }

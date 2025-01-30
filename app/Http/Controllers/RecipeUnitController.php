@@ -43,7 +43,7 @@ class RecipeUnitController extends BaseController
 
     public function show(RecipeUnit $recipeUnit, ShowRecipeUnit $service)
     {
-        $unit = $service->show($recipeUnit);
+        $unit = $service->show($recipeUnit->id);
 
         return response()->json($unit);
     }

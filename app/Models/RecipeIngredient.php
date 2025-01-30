@@ -14,6 +14,7 @@ class RecipeIngredient extends Model
     protected $fillable = [
         'quantity',
         'name',
+        'unit_id',
         'recipe_id'
     ];
 
@@ -23,6 +24,7 @@ class RecipeIngredient extends Model
             'quantity' => 'required|integer',
             'name' => 'required|string',
             'unit_id' => 'required|exists:recipe_units,id',
+            'recipe_id' => 'required|exists:recipes,id',
         ];
     }
 
@@ -33,6 +35,16 @@ class RecipeIngredient extends Model
             'quantity' => 'required|integer',
             'name' => 'required|string',
             'unit_id' => 'required|exists:recipe_units,id',
+        ];
+    }
+
+    public static function recipeRules(): array
+    {
+        return [
+            'ingredients.*.id' => 'nullable|exists:recipe_ingredients,id',
+            'ingredients.*.name' => self::createRules()["name"],
+            'ingredients.*.quantity' => self::createRules()["quantity"],
+            'ingredients.*.unit_id' => self::createRules()["unit_id"],
         ];
     }
 

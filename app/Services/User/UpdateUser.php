@@ -3,6 +3,7 @@
 namespace App\Services\User;
 
 use App\Models\User;
+use Arr;
 use Exception;
 use Illuminate\Support\Facades\DB;
 
@@ -15,8 +16,7 @@ class UpdateUser
 
             $user = User::findOrFail($id);
 
-            $userData = Arr::only($data, ['name', 'email', 'password']);
-            $user->update($userData);
+            $user->update($data);
 
             DB::commit();
             return $user;

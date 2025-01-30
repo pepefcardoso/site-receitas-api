@@ -47,7 +47,7 @@ class UserController extends BaseController
     {
         $this->authorize('view', $user);
 
-        $user = $service->show($user);
+        $user = $service->show($user->id);
 
         return response()->json($user);
     }

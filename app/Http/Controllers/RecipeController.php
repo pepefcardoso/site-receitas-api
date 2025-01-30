@@ -41,7 +41,7 @@ class RecipeController extends BaseController
 
     public function show(Recipe $recipe, ShowRecipe $service)
     {
-        $recipe = $service->show($recipe);
+        $recipe = $service->show($recipe->id);
 
         return response()->json($recipe);
     }

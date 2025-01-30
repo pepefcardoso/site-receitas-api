@@ -41,7 +41,7 @@ class RecipeStepController extends BaseController
 
     public function show(RecipeStep $RecipeStep, ShowRecipeStep $service)
     {
-        $step = $service->show($RecipeStep);
+        $step = $service->show($RecipeStep->id);
 
         return response()->json($step);
     }
@@ -50,7 +50,7 @@ class RecipeStepController extends BaseController
     {
         $this->authorize('update', $RecipeStep);
 
-        $data = $request->validate(RecipeStep::createRules());
+        $data = $request->validate(RecipeStep::updateRules());
 
         $step = $service->update($RecipeStep, $data);
 

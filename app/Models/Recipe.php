@@ -22,6 +22,7 @@ class Recipe extends Model
         'difficulty',
         'image',
         'category_id',
+        'user_id',
     ];
 
     protected $casts = [
@@ -31,49 +32,39 @@ class Recipe extends Model
 
     public static function createRules(): array
     {
-        return array_merge([
+        return [
             'title' => 'required|string|max:255',
             'description' => 'required|string',
             'time' => 'required|integer',
             'portion' => 'required|integer',
-            'difficulty' => 'required|string',
+            'difficulty' => 'required|integer',
             'image' => 'required|url',
             'category_id' => 'required|exists:recipe_categories,id',
             'diets' => 'array|required',
             'diets.*' => 'exists:recipe_diets,id',
-        ], self::ingredientRules('create'), self::stepRules('create'));
+            'steps' => 'required|array',
+            ...RecipeStep::recipeRules(),
+            'ingredients' => 'required|array',
+            ...RecipeIngredient::recipeRules(),
+        ];
     }
 
     public static function updateRules(): array
     {
-        return array_merge([
+        return [
             'title' => 'required|string|max:255',
             'description' => 'required|string',
             'time' => 'required|integer',
             'portion' => 'required|integer',
-            'difficulty' => 'required|string',
+            'difficulty' => 'required|integer',
             'image' => 'required|url',
             'category_id' => 'required|exists:recipe_categories,id',
             'diets' => 'array|required',
             'diets.*' => 'exists:recipe_diets,id',
-        ], self::ingredientRules('update'), self::stepRules('update'));
-    }
-
-    protected static function ingredientRules(string $type): array
-    {
-        $rules = RecipeIngredient::{$type . 'Rules'}();
-        return [
-            'ingredients' => 'required|array',
-            'ingredients.*' => $rules,
-        ];
-    }
-
-    protected static function stepRules(string $type): array
-    {
-        $rules = RecipeStep::{$type . 'Rules'}();
-        return [
             'steps' => 'required|array',
-            'steps.*' => $rules,
+            ...RecipeStep::recipeRules(),
+            'ingredients' => 'required|array',
+            ...RecipeIngredient::recipeRules(),
         ];
     }
 

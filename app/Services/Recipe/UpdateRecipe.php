@@ -3,6 +3,8 @@
 namespace App\Services\Recipe;
 
 use App\Models\Recipe;
+use App\Models\RecipeIngredient;
+use App\Models\RecipeStep;
 use App\Services\RecipeIngredient\CreateRecipeIngredient;
 use App\Services\RecipeIngredient\DeleteRecipeIngredient;
 use App\Services\RecipeIngredient\UpdateRecipeIngredient;
@@ -25,7 +27,7 @@ class UpdateRecipe
     ) {
     }
 
-    public function update(int $id, array $data): Recipe | string
+    public function update(int $id, array $data): Recipe|string
     {
         try {
             DB::beginTransaction();
@@ -68,7 +70,9 @@ class UpdateRecipe
         if (isset($data['ingredients'])) {
             $ingredientIds = collect($data['ingredients'])->map(function ($ingredient) use ($recipe) {
                 if (isset($ingredient['id'])) {
-                    $this->updateRecipeIngredient->update($ingredient['id'], [
+                    $currentIngredient = RecipeIngredient::findOrFail($ingredient['id'])->first();
+
+                    $this->updateRecipeIngredient->update($currentIngredient, [
                         'quantity' => $ingredient['quantity'],
                         'name' => $ingredient['name'],
                         'unit_id' => $ingredient['unit_id'],
@@ -94,7 +98,9 @@ class UpdateRecipe
         if (isset($data['steps'])) {
             $stepIds = collect($data['steps'])->map(function ($step) use ($recipe) {
                 if (isset($step['id'])) {
-                    $this->updateRecipeStep->update($step['id'], [
+                    $currentStep = RecipeStep::findOrFail($step['id'])->first();
+
+                    $this->updateRecipeStep->update($currentStep, [
                         'order' => $step['order'],
                         'description' => $step['description'],
                     ]);

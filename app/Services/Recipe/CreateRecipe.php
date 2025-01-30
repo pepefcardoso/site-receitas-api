@@ -27,10 +27,13 @@ class CreateRecipe
         try {
             DB::beginTransaction();
 
+            $userId = auth()->id() ? auth()->id() : auth()->user()->id;
+
             $recipeData = array_merge(
-                Arr::only($data, ['title', 'description', 'time', 'portion', 'difficulty', 'image', 'category_id']),
-                ['user_id' => auth()->id()] // Assign the authenticated user
+                Arr::only($data, ['title', 'description', 'time', 'portion', 'difficulty', 'image', 'category_id'])
             );
+            $recipeData["user_id"] = $userId;
+
             $recipe = Recipe::create($recipeData);
 
             $diets = data_get($data, 'diets');

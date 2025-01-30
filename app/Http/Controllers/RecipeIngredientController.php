@@ -41,7 +41,7 @@ class RecipeIngredientController extends BaseController
 
     public function show(RecipeIngredient $RecipeIngredient, ShowRecipeIngredient $service)
     {
-        $ingredient = $service->show($RecipeIngredient);
+        $ingredient = $service->show($RecipeIngredient->id);
 
         return response()->json($ingredient);
     }
@@ -50,7 +50,7 @@ class RecipeIngredientController extends BaseController
     {
         $this->authorize("update", $RecipeIngredient);
 
-        $data = $request->validate(RecipeIngredient::createRules());
+        $data = $request->validate(RecipeIngredient::updateRules());
 
         $ingredient = $service->update($RecipeIngredient, $data);
 
