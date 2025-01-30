@@ -18,12 +18,12 @@ class UserController extends BaseController
 
     public function __construct()
     {
-        $this->middleware('auth:sanctum')->except(['index', 'show', 'store']);
-        $this->authorizeResource(User::class, 'user');
+        $this->middleware('auth:sanctum')->except(['create']);
     }
 
     public function index(ListUser $service)
     {
+        $this->authorize('viewAny', User::class);
         $users = $service->list();
 
         return response()->json($users);
@@ -45,6 +45,8 @@ class UserController extends BaseController
 
     public function show(User $user, ShowUser $service)
     {
+        $this->authorize('view', $user);
+
         $user = $service->show($user);
 
         return response()->json($user);
@@ -52,6 +54,8 @@ class UserController extends BaseController
 
     public function update(Request $request, User $user, UpdateUser $service)
     {
+        $this->authorize('update', $user);
+
         $data = $request->validate(User::updateRules());
 
         $user = $service->update($user->id, $data);
@@ -61,6 +65,8 @@ class UserController extends BaseController
 
     public function destroy(User $user, DeleteUser $service)
     {
+        $this->authorize('delete', $user);
+
         $service->delete($user);
 
         return response()->json(null, 204);

@@ -19,7 +19,6 @@ class RecipeIngredientController extends BaseController
     public function __construct()
     {
         $this->middleware('auth:sanctum')->except(['index', 'show']);
-        $this->authorizeResource(RecipeIngredient::class, 'recipe_ingredient');
     }
 
     public function index(ListRecipeIngredient $service)
@@ -31,6 +30,8 @@ class RecipeIngredientController extends BaseController
 
     public function store(Request $request, CreateRecipeIngredient $service)
     {
+        $this->authorize('create', RecipeIngredient::class);
+
         $data = $request->validate(RecipeIngredient::createRules());
 
         $ingredient = $service->create($data);
@@ -47,6 +48,8 @@ class RecipeIngredientController extends BaseController
 
     public function update(Request $request, RecipeIngredient $RecipeIngredient, UpdateRecipeIngredient $service)
     {
+        $this->authorize("update", $RecipeIngredient);
+
         $data = $request->validate(RecipeIngredient::createRules());
 
         $ingredient = $service->update($RecipeIngredient, $data);
@@ -56,6 +59,8 @@ class RecipeIngredientController extends BaseController
 
     public function destroy(RecipeIngredient $RecipeIngredient, DeleteRecipeIngredient $service)
     {
+        $this->authorize("delete", $RecipeIngredient);
+
         $service->delete($RecipeIngredient);
 
         return response()->json(null, 204);

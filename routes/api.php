@@ -23,4 +23,4 @@ Route::apiResource('recipe-ingredients', RecipeIngredientController::class);
 Route::apiResource('recipe-units', RecipeUnitController::class);
 
 Route::post('/login', [AuthController::class, 'login']);
-Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth:sanctum');
+Route::post('/logout', [AuthController::class, 'logout']);

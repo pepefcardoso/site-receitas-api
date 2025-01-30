@@ -7,6 +7,16 @@ use App\Models\User;
 
 class RecipeUnitPolicy
 {
+    public function viewAny(?User $user)
+    {
+        return true;
+    }
+
+    public function view(?User $user, RecipeUnit $recipeUnit)
+    {
+        return true;
+    }
+
     public function create(User $user): bool
     {
         return $user->isInternal();

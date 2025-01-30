@@ -20,7 +20,6 @@ class RecipeDietController extends BaseController
     public function __construct()
     {
         $this->middleware('auth:sanctum')->except(['index', 'show']);
-        $this->authorizeResource(RecipeDiet::class, 'recipe_diet');
     }
 
     public function index(ListRecipeDiet $service)
@@ -32,6 +31,8 @@ class RecipeDietController extends BaseController
 
     public function store(Request $request, CreateRecipeDiet $service)
     {
+        $this->authorize('create', RecipeDiet::class);
+
         $request["normalized_name"] = Str::upper($request->name);
         $data = $request->validate(RecipeDiet::$rules);
 
@@ -42,13 +43,15 @@ class RecipeDietController extends BaseController
 
     public function show(RecipeDiet $recipeDiet, ShowRecipeDiet $service)
     {
-        $diet = $service->show($recipeDiet);
+        $diet = $service->show($recipeDiet->id);
 
         return response()->json($diet);
     }
 
     public function update(Request $request, RecipeDiet $recipeDiet, UpdateRecipeDiet $service)
     {
+        $this->authorize("update", $recipeDiet);
+
         $request["normalized_name"] = Str::upper($request->name);
         $data = $request->validate(RecipeDiet::$rules);
 
@@ -59,6 +62,8 @@ class RecipeDietController extends BaseController
 
     public function destroy(RecipeDiet $recipeDiet, DeleteRecipeDiet $service)
     {
+        $this->authorize("delete", $recipeDiet);
+
         $service->delete($recipeDiet);
 
         return response()->json(null, 204);

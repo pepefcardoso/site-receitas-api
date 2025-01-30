@@ -5,7 +5,7 @@ namespace App\Services\Recipe;
 use App\Models\Recipe;
 use App\Services\RecipeIngredient\CreateRecipeIngredient;
 use App\Services\RecipeStep\CreateRecipeStep;
-use Arr;
+use Illuminate\Support\Arr;
 use Exception;
 use Illuminate\Support\Facades\DB;
 

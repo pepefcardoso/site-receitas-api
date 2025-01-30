@@ -86,7 +86,6 @@ class User extends Authenticatable
 
     public function isInternal(): bool
     {
-        Log::info('User role:', ['role' => $this->role]);
         return $this->role->value <= RolesEnum::INTERNAL->value;
     }
 

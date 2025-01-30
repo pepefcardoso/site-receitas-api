@@ -19,7 +19,6 @@ class RecipeStepController extends BaseController
     public function __construct()
     {
         $this->middleware('auth:sanctum')->except(['index', 'show']);
-        $this->authorizeResource(RecipeStep::class, 'recipe_step');
     }
 
     public function index(ListRecipeStep $service)
@@ -31,6 +30,8 @@ class RecipeStepController extends BaseController
 
     public function store(Request $request, CreateRecipeStep $service)
     {
+        $this->authorize('create', RecipeStep::class);
+
         $data = $request->validate(RecipeStep::createRules());
 
         $step = $service->create($data);
@@ -47,6 +48,8 @@ class RecipeStepController extends BaseController
 
     public function update(Request $request, RecipeStep $RecipeStep, UpdateRecipeStep $service)
     {
+        $this->authorize('update', $RecipeStep);
+
         $data = $request->validate(RecipeStep::createRules());
 
         $step = $service->update($RecipeStep, $data);
@@ -56,6 +59,8 @@ class RecipeStepController extends BaseController
 
     public function destroy(RecipeStep $RecipeStep, DeleteRecipeStep $service)
     {
+        $this->authorize('delete', $RecipeStep);
+
         $service->delete($RecipeStep);
 
         return response()->json(null, 204);

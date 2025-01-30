@@ -6,12 +6,28 @@ use App\Models\User;
 
 class UserPolicy
 {
-    public function update(User $authUser, User $updateUser): bool
+
+    public function viewAny(?User $user)
+    {
+        return $user->isInternal();
+    }
+
+    public function view(?User $authUser, User $updateUser): bool
     {
         return $authUser->isInternal() || $authUser->id === $updateUser->id;
     }
 
-    public function showAndModify(User $authUser, User $updateUser): bool
+    public function create(?User $user): bool
+    {
+        return true;
+    }
+
+    public function update(?User $authUser, User $updateUser): bool
+    {
+        return $authUser->isInternal() || $authUser->id === $updateUser->id;
+    }
+
+    public function delete(?User $authUser, User $updateUser): bool
     {
         return $authUser->isInternal() || $authUser->id === $updateUser->id;
     }

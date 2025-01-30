@@ -45,7 +45,6 @@ class UpdateRecipe
             return $recipe;
         } catch (Exception $e) {
             DB::rollback();
-//            throw new Exception("Failed to update recipe: " . $e->getMessage());
             return $e->getMessage();
         }
     }
