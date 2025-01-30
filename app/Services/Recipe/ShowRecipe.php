@@ -8,7 +8,14 @@ class ShowRecipe
 {
     public function show($id)
     {
-        //need to load the relations too
-        return Recipe::findOrFail($id);
+        return Recipe::with([
+            'diets',
+            'category',
+            'steps',
+            'ingredients.unit',
+            'user' => function ($query) {
+                $query->select('id', 'name');
+            }
+        ])->findOrFail($id);
     }
 }

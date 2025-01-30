@@ -34,7 +34,7 @@ class RecipeDietController extends BaseController
         $this->authorize('create', RecipeDiet::class);
 
         $request["normalized_name"] = Str::upper($request->name);
-        $data = $request->validate(RecipeDiet::$rules);
+        $data = $request->validate(RecipeDiet::rules());
 
         $diet = $service->create($data);
 
@@ -53,7 +53,7 @@ class RecipeDietController extends BaseController
         $this->authorize("update", $recipeDiet);
 
         $request["normalized_name"] = Str::upper($request->name);
-        $data = $request->validate(RecipeDiet::$rules);
+        $data = $request->validate(RecipeDiet::rules());
 
         $diet = $service->update($recipeDiet, $data);
 

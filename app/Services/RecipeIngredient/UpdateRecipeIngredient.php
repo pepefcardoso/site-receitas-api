@@ -3,8 +3,9 @@
 namespace App\Services\RecipeIngredient;
 
 use App\Models\RecipeIngredient;
-use App\Models\RecipeUnit;
+use App\Models\Recipe;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 
 class UpdateRecipeIngredient
 {
@@ -13,9 +14,11 @@ class UpdateRecipeIngredient
         try {
             DB::beginTransaction();
 
-            throw_if(!isset($data['unit_id']), \Exception::class, 'Unit Id is required');
-            $recipeUnit = RecipeUnit::findOrFail($data['unit_id']);
-            throw_if(!$recipeUnit, \Exception::class, 'Unit not found');
+            // Ensure the recipe belongs to the authenticated user
+            $recipe = Recipe::findOrFail($recipeIngredient->recipe_id);
+            if ($recipe->user_id !== Auth::id()) {
+                throw new \Exception('You do not have permission to update ingredients for this recipe.');
+            }
 
             $recipeIngredient->fill($data);
             $recipeIngredient->save();

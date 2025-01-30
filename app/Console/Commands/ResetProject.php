@@ -4,10 +4,10 @@ namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
 
-class ClearAllCaches extends Command
+class ResetProject extends Command
 {
     // The name and signature of the console command.
-    protected $signature = 'cache:clear-all';
+    protected $signature = 'config:reset-project';
 
     // The console command description.
     protected $description = 'Clear all Laravel caches (config, routes, views, and application cache).';

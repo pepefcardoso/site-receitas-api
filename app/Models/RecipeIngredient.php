@@ -21,7 +21,7 @@ class RecipeIngredient extends Model
     public static function createRules(): array
     {
         return [
-            'quantity' => 'required|integer',
+            'quantity' => 'required|integer|min:1',
             'name' => 'required|string',
             'unit_id' => 'required|exists:recipe_units,id',
             'recipe_id' => 'required|exists:recipes,id',
@@ -31,8 +31,7 @@ class RecipeIngredient extends Model
     public static function updateRules(): array
     {
         return [
-            'id' => 'required|exists:recipe_ingredients',
-            'quantity' => 'required|integer',
+            'quantity' => 'required|integer|min:1',
             'name' => 'required|string',
             'unit_id' => 'required|exists:recipe_units,id',
         ];

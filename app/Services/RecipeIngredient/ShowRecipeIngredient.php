@@ -8,6 +8,6 @@ class ShowRecipeIngredient
 {
     public function show($id)
     {
-        return RecipeIngredient::findOrFail($id);
+        return RecipeIngredient::with('unit')->findOrFail($id);
     }
 }

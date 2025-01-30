@@ -34,7 +34,7 @@ class RecipeCategoryController extends BaseController
         $this->authorize('create', RecipeCategory::class);
 
         $request["normalized_name"] = Str::upper($request->name);
-        $data = $request->validate(RecipeCategory::$rules);
+        $data = $request->validate(RecipeCategory::rules());
 
         $category = $service->create($data);
 
@@ -53,7 +53,7 @@ class RecipeCategoryController extends BaseController
         $this->authorize("update", $RecipeCategory);
 
         $request["normalized_name"] = Str::upper($request->name);
-        $data = $request->validate(RecipeCategory::$rules);
+        $data = $request->validate(RecipeCategory::rules());
 
         $category = $service->update($RecipeCategory, $data);
 

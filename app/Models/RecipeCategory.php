@@ -2,23 +2,27 @@
 
 namespace App\Models;
 
+use Database\Factories\RecipeCategoryFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class RecipeCategory extends Model
 {
-    /** @use HasFactory<\Database\Factories\RecipeCategoryFactory> */
+    /** @use HasFactory<RecipeCategoryFactory> */
     use HasFactory;
 
     protected $fillable = ['name', 'normalized_name'];
 
-    public static array $rules = [
-        'name' => 'required|string|max:50|unique:recipe_diets',
-        'normalized_name' => 'required|string|max:50|unique:recipe_diets',
-    ];
+    public static function rules(): array
+    {
+        return [
+            'name' => 'required|string|max:50|unique:recipe_categories',
+            'normalized_name' => 'required|string|max:50|unique:recipe_categories',
+        ];
+    }
 
-    public function recipes()
+    public function recipes(): HasMany
     {
         return $this->hasMany(Recipe::class);
     }

@@ -8,7 +8,6 @@ class ShowUser
 {
     public function show($id)
     {
-        //need to load the relations too
         return User::findOrFail($id);
     }
 }

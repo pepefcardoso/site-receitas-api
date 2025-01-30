@@ -21,22 +21,19 @@ class UpdateRecipe
         protected CreateRecipeIngredient $createRecipeIngredient,
         protected UpdateRecipeIngredient $updateRecipeIngredient,
         protected DeleteRecipeIngredient $deleteRecipeIngredient,
-        protected CreateRecipeStep $createRecipeStep,
-        protected UpdateRecipeStep $updateRecipeStep,
-        protected DeleteRecipeStep $deleteRecipeStep
-    ) {
+        protected CreateRecipeStep       $createRecipeStep,
+        protected UpdateRecipeStep       $updateRecipeStep,
+        protected DeleteRecipeStep       $deleteRecipeStep
+    )
+    {
     }
 
-    public function update(int $id, array $data): Recipe|string
+    public function update(int $id, array $data): Recipe
     {
+        DB::beginTransaction();
+
         try {
-            DB::beginTransaction();
-
             $recipe = Recipe::findOrFail($id);
-
-            if ($recipe->user_id !== auth()->id()) {
-                throw new Exception("Unauthorized: You don't own this recipe.");
-            }
 
             $this->updateRecipeDetails($recipe, $data);
             $this->syncDiets($recipe, $data);
@@ -44,13 +41,13 @@ class UpdateRecipe
             $this->handleSteps($recipe, $data);
 
             DB::commit();
+
             return $recipe;
         } catch (Exception $e) {
             DB::rollback();
-            return $e->getMessage();
+            throw new Exception("Failed to update recipe: " . $e->getMessage());
         }
     }
-
 
     protected function updateRecipeDetails(Recipe $recipe, array $data): void
     {
@@ -67,55 +64,89 @@ class UpdateRecipe
 
     protected function handleIngredients(Recipe $recipe, array $data): void
     {
-        if (isset($data['ingredients'])) {
-            $ingredientIds = collect($data['ingredients'])->map(function ($ingredient) use ($recipe) {
-                if (isset($ingredient['id'])) {
-                    $currentIngredient = RecipeIngredient::findOrFail($ingredient['id'])->first();
+        if (!isset($data['ingredients'])) {
+            // If no ingredients are provided, delete all existing ingredients for the recipe
+            $recipe->ingredients->each(function ($ingredient) {
+                $this->deleteRecipeIngredient->delete($ingredient);
+            });
+            return;
+        }
 
-                    $this->updateRecipeIngredient->update($currentIngredient, [
-                        'quantity' => $ingredient['quantity'],
-                        'name' => $ingredient['name'],
-                        'unit_id' => $ingredient['unit_id'],
-                    ]);
-                    return $ingredient['id'];
-                } else {
-                    $newIngredient = $this->createRecipeIngredient->create([
-                        'recipe_id' => $recipe->id,
-                        'quantity' => $ingredient['quantity'],
-                        'name' => $ingredient['name'],
-                        'unit_id' => $ingredient['unit_id'],
-                    ]);
-                    return $newIngredient->id;
-                }
-            })->filter()->values()->toArray();
+        $ingredientIds = [];
 
-            $recipe->ingredients()->whereNotIn('id', $ingredientIds)->delete();
+        foreach ($data['ingredients'] as $ingredient) {
+            if (isset($ingredient['id'])) {
+                // Update existing ingredient
+                $currentIngredient = RecipeIngredient::findOrFail($ingredient['id']);
+                $this->updateRecipeIngredient->update($currentIngredient, [
+                    'quantity' => $ingredient['quantity'],
+                    'name' => $ingredient['name'],
+                    'unit_id' => $ingredient['unit_id'],
+                ]);
+                $ingredientIds[] = $ingredient['id'];
+            } else {
+                // Create new ingredient
+                $newIngredient = $this->createRecipeIngredient->create([
+                    'recipe_id' => $recipe->id,
+                    'quantity' => $ingredient['quantity'],
+                    'name' => $ingredient['name'],
+                    'unit_id' => $ingredient['unit_id'],
+                ]);
+                $ingredientIds[] = $newIngredient->id;
+            }
+        }
+
+        // Find ingredients to delete
+        $existingIngredientIds = $recipe->ingredients()->pluck('id')->toArray();
+        $ingredientsToDelete = array_diff($existingIngredientIds, $ingredientIds);
+
+        // Delete ingredients that were not included in the request
+        foreach ($ingredientsToDelete as $ingredientId) {
+            $ingredient = RecipeIngredient::findOrFail($ingredientId);
+            $this->deleteRecipeIngredient->delete($ingredient);
         }
     }
 
     protected function handleSteps(Recipe $recipe, array $data): void
     {
-        if (isset($data['steps'])) {
-            $stepIds = collect($data['steps'])->map(function ($step) use ($recipe) {
-                if (isset($step['id'])) {
-                    $currentStep = RecipeStep::findOrFail($step['id'])->first();
+        if (!isset($data['steps'])) {
+            // If no steps are provided, delete all existing steps for the recipe
+            $recipe->steps->each(function ($step) {
+                $this->deleteRecipeStep->delete($step);
+            });
+            return;
+        }
 
-                    $this->updateRecipeStep->update($currentStep, [
-                        'order' => $step['order'],
-                        'description' => $step['description'],
-                    ]);
-                    return $step['id'];
-                } else {
-                    $newStep = $this->createRecipeStep->create([
-                        'recipe_id' => $recipe->id,
-                        'order' => $step['order'],
-                        'description' => $step['description'],
-                    ]);
-                    return $newStep->id;
-                }
-            })->filter()->values()->toArray();
+        $stepIds = [];
 
-            $recipe->steps()->whereNotIn('id', $stepIds)->delete();
+        foreach ($data['steps'] as $step) {
+            if (isset($step['id'])) {
+                // Update existing step
+                $currentStep = RecipeStep::findOrFail($step['id']);
+                $this->updateRecipeStep->update($currentStep, [
+                    'order' => $step['order'],
+                    'description' => $step['description'],
+                ]);
+                $stepIds[] = $step['id'];
+            } else {
+                // Create new step
+                $newStep = $this->createRecipeStep->create([
+                    'recipe_id' => $recipe->id,
+                    'order' => $step['order'],
+                    'description' => $step['description'],
+                ]);
+                $stepIds[] = $newStep->id;
+            }
+        }
+
+        // Find steps to delete
+        $existingStepIds = $recipe->steps()->pluck('id')->toArray();
+        $stepsToDelete = array_diff($existingStepIds, $stepIds);
+
+        // Delete steps that were not included in the request
+        foreach ($stepsToDelete as $stepId) {
+            $step = RecipeStep::findOrFail($stepId);
+            $this->deleteRecipeStep->delete($step);
         }
     }
 }
