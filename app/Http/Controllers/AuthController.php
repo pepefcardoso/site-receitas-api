@@ -3,43 +3,35 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Services\Auth\Login;
+use App\Services\Auth\Logout;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
+use Illuminate\Routing\Controller as BaseController;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
-class AuthController extends Controller
+class AuthController extends BaseController
 {
+    use AuthorizesRequests;
 
-    public function login(Request $request)
+    public function __construct()
     {
-        $request->validate([
-            'email' => 'required|email|exists:users',
-            'password' => 'required',
-        ]);
-
-        $user = User::where('email', $request->email)->first();
-
-        if (!$user || !Hash::check($request->password, $user->password)) {
-            return response()->json([
-                'errors' => [
-                    'email' => ['The provided credentials are incorrect.'],
-                ],
-            ], 401);
-        }
-
-        $token = $user->createToken('auth_token');
-
-        return response()->json([
-            'user' => $user,
-            'token' => $token->plainTextToken,
-        ], 200);
+        $this->middleware('auth:sanctum')->except(['login']);
+        $this->authorizeResource(User::class, 'user');
     }
 
-    public function logout()
+    public function login(Request $request, Login $service)
     {
-        auth()->user()->tokens()->delete();
+        $data = $request->validate(User::loginRules());
 
-        return response()->json([
-            'message' => 'Successfully logged out.',
-        ], 200);
+        $result = $service->login($data);
+
+        return response()->json($result);
+    }
+
+    public function logout(Logout $service)
+    {
+        $service->logout();
+
+        return response()->json(null);
     }
 }

@@ -31,7 +31,7 @@ class UserController extends BaseController
 
     public function store(Request $request, CreateUser $service)
     {
-        $data = $request->validate(User::$createRules);
+        $data = $request->validate(User::createRules());
 
         $user = $service->create($data);
 
@@ -52,7 +52,7 @@ class UserController extends BaseController
 
     public function update(Request $request, User $user, UpdateUser $service)
     {
-        $data = $request->validate(User::$updateRules);
+        $data = $request->validate(User::updateRules());
 
         $user = $service->update($user->id, $data);
 

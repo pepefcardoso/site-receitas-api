@@ -2,11 +2,9 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
 use App\Enum\RolesEnum;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\Log;
@@ -57,20 +55,34 @@ class User extends Authenticatable
         'role' => RolesEnum::class,
     ];
 
-    public static array $createRules = [
-        'name' => 'required|string|min:3|max:100',
-        'email' => 'required|email|unique:users,email',
-        'birthday' => 'required|date|before:today',
-        'phone' => 'required|string|regex:/^\(\d{2}\)\s?\d{4,5}-\d{4}$/|unique:users,phone',
-        'password' => 'required|string|min:8|max:99',
-    ];
+    public static function createRules(): array
+    {
+        return [
+            'name' => 'required|string|min:3|max:100',
+            'email' => 'required|email|unique:users,email',
+            'birthday' => 'required|date|before:today',
+            'phone' => 'required|string|regex:/^\(\d{2}\)\s?\d{4,5}-\d{4}$/|unique:users,phone',
+            'password' => 'required|string|min:8|max:99',
+        ];
+    }
 
-    public static array $updateRules = [
-        'name' => 'required|string|min:3|max:100',
-        'email' => 'required|email|unique:users,email',
-        'birthday' => 'required|date|before:today',
-        'phone' => 'required|string|regex:/^\(\d{2}\)\s?\d{4,5}-\d{4}$/|unique:users,phone',
-    ];
+    public static function updateRules(): array
+    {
+        return [
+            'name' => 'required|string|min:3|max:100',
+            'email' => 'required|email|unique:users,email',
+            'birthday' => 'required|date|before:today',
+            'phone' => 'required|string|regex:/^\(\d{2}\)\s?\d{4,5}-\d{4}$/|unique:users,phone',
+        ];
+    }
+    public static function loginRules(): array
+    {
+        return [
+            'email' => 'required|email|exists:users,email',
+            'password' => 'required|string',
+        ];
+    }
+
 
     public function isInternal(): bool
     {
