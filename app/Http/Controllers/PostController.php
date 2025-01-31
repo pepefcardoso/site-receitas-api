@@ -3,59 +3,65 @@
 namespace App\Http\Controllers;
 
 use App\Models\Post;
+use App\Services\Post\CreatePost;
+use App\Services\Post\DeletePost;
+use App\Services\Post\ListPost;
+use App\Services\Post\ShowPost;
+use App\Services\Post\UpdatePost;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
-use Illuminate\Routing\Controllers\HasMiddleware;
-use Illuminate\Routing\Controllers\Middleware;
-use Illuminate\Support\Facades\Gate;
+use Illuminate\Routing\Controller as BaseController;
 
-class PostController extends Controller implements HasMiddleware
+class PostController extends BaseController
 {
-    public static function middleware()
+    use AuthorizesRequests;
+
+    public function __construct()
     {
-        return [
-            new Middleware('auth:sanctum', except: ['index', 'show'])
-        ];
+        $this->middleware('auth:sanctum')->except(['index', 'show']);
     }
 
-    public function index()
+    public function index(ListPost $service)
     {
-        $post = Post::with(['user', 'categories'])->get();
-        return response()->json($post, 201);
+        $Posts = $service->list();
+
+        return response()->json($Posts);
     }
 
-    public function store(Request $request)
+    public function store(Request $request, CreatePost $service)
     {
-        $fields = $request->validate(Post::$rules);
+        $this->authorize('create', Post::class);
 
-        $post = $request->user()->posts()->create($fields);
+        $data = $request->validate(Post::createRules());
 
-        $post->categories()->attach($request->categories);
+        $Post = $service->create($data);
 
-        return response()->json($post, 201);
+        return response()->json($Post, 201);
     }
 
-    public function show(Post $post)
+    public function show(Post $Post, ShowPost $service)
     {
-        return response()->json($post->load('user', 'categories'), 201);
+        $Post = $service->show($Post->id);
+
+        return response()->json($Post);
     }
 
-    public function update(Request $request, Post $post)
+    public function update(Request $request, Post $Post, UpdatePost $service)
     {
-        Gate::authorize('modify', $post);
+        $this->authorize("update", $Post);
 
-        $fields = $request->validate(Post::$rules);
+        $data = $request->validate(Post::updateRules());
 
-        $post->update($fields);
-        $post->categories()->sync($request->categories);
+        $Post = $service->update($Post->id, $data);
 
-        return response()->json($post, 201);
+        return response()->json($Post);
     }
 
-    public function destroy(Post $post)
+    public function destroy(Post $Post, DeletePost $service)
     {
-        Gate::authorize('modify', $post);
+        $this->authorize("delete", $Post);
 
-        $post->delete();
+        $service->delete($Post);
 
         return response()->json(null, 204);
     }

@@ -17,11 +17,14 @@ class PostFactory extends Factory
      */
     public function definition(): array
     {
+        $category = PostCategory::inRandomOrder()->first();
+
         return [
             'title' => $this->faker->sentence(),
             'summary' => $this->faker->sentence(),
             'content' => $this->faker->paragraph(),
             'image_url' => $this->faker->imageUrl(),
+            'category_id' => $category ? $category->id : null,
             'user_id' => 1,
         ];
     }

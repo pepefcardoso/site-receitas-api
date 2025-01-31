@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Models\PostCategory;
 use App\Models\Recipe;
 use App\Models\RecipeCategory;
 use App\Models\RecipeDiet;
@@ -33,6 +34,8 @@ class AuthServiceProvider extends ServiceProvider
         RecipeStep::class => RecipeStepPolicy::class,
         Recipe::class => RecipePolicy::class,
         User::class => UserPolicy::class,
+        Post::class => PostPolicy::class,
+        PostCategory::class => PostCategoryPolicy::class,
     ];
 
     /**

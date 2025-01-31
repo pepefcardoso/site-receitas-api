@@ -3,45 +3,68 @@
 namespace App\Http\Controllers;
 
 use App\Models\PostCategory;
+use App\Services\PostCategory\CreatePostCategory;
+use App\Services\PostCategory\DeletePostCategory;
+use App\Services\PostCategory\ListPostCategory;
+use App\Services\PostCategory\ShowPostCategory;
+use App\Services\PostCategory\UpdatePostCategory;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Illuminate\Routing\Controller as BaseController;
 
-class PostCategoryController extends Controller
+class PostCategoryController extends BaseController
 {
-    public function index()
+    use AuthorizesRequests;
+
+    public function __construct()
     {
-        $categories = PostCategory::all();
-        return response()->json($categories, 201);
+        $this->middleware('auth:sanctum')->except(['index', 'show']);
     }
 
-    public function store(Request $request)
+    public function index(ListPostCategory $service)
     {
+        $categories = $service->list();
+
+        return response()->json($categories);
+    }
+
+    public function store(Request $request, CreatePostCategory $service)
+    {
+        $this->authorize('create', PostCategory::class);
+
         $request["normalized_name"] = Str::upper($request->name);
-        $data = $request->validate(PostCategory::$rules);
+        $data = $request->validate(PostCategory::rules());
 
-        $postCategory = PostCategory::create($data);
+        $category = $service->create($data);
 
-        return response()->json($postCategory, 201);
+        return response()->json($category, 201);
     }
 
-    public function show(PostCategory $postCategory)
+    public function show(PostCategory $PostCategory, ShowPostCategory $service)
     {
-        return response()->json($postCategory, 201);
+        $category = $service->show($PostCategory->id);
+
+        return response()->json($category);
     }
 
-    public function update(Request $request, PostCategory $postCategory)
+    public function update(Request $request, PostCategory $PostCategory, UpdatePostCategory $service)
     {
+        $this->authorize("update", $PostCategory);
+
         $request["normalized_name"] = Str::upper($request->name);
-        $data = $request->validate(PostCategory::$rules);
+        $data = $request->validate(PostCategory::rules());
 
-        $postCategory->update($data);
+        $category = $service->update($PostCategory, $data);
 
-        return response()->json($postCategory, 201);
+        return response()->json($category);
     }
 
-    public function destroy(PostCategory $postCategory)
+    public function destroy(PostCategory $PostCategory, DeletePostCategory $service)
     {
-        $postCategory->delete();
+        $this->authorize("delete", $PostCategory);
+
+        $service->delete($PostCategory);
 
         return response()->json(null, 204);
     }
