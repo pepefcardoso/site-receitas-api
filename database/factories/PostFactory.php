@@ -3,6 +3,7 @@
 namespace Database\Factories;
 
 use App\Models\PostCategory;
+use App\Models\PostTopic;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -27,5 +28,18 @@ class PostFactory extends Factory
             'category_id' => $category ? $category->id : null,
             'user_id' => 1,
         ];
+    }
+
+    /**
+     * Configure the factory.
+     *
+     * @return \Illuminate\Database\Eloquent\Factories\Factory
+     */
+    public function configure()
+    {
+        return $this->afterCreating(function ($post) {
+            $topics = PostTopic::inRandomOrder()->take(rand(1, 3))->pluck('id');
+            $post->topics()->sync($topics);
+        });
     }
 }

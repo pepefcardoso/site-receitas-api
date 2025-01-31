@@ -2,9 +2,6 @@
 
 namespace App\Providers;
 
-use App\Models\RecipeDiet;
-use App\Policies\RecipeDietPolicy;
-use Gate;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider

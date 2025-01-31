@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\PostTopicController;
 use App\Http\Controllers\RecipeCategoryController;
 use App\Http\Controllers\RecipeController;
 use App\Http\Controllers\RecipeDietController;
@@ -15,6 +16,7 @@ use \App\Http\Controllers\UserController;
 Route::apiResource('user', UserController::class);
 Route::apiResource('posts', PostController::class);
 Route::apiResource('post-categories', PostCategoryController::class);
+Route::apiResource('post-topics', PostTopicController::class);
 Route::apiResource('recipes', RecipeController::class);
 Route::apiResource('recipe-diets', RecipeDietController::class);
 Route::apiResource('recipe-categories', RecipeCategoryController::class);

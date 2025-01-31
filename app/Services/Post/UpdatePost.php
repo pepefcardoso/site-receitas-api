@@ -16,6 +16,9 @@ class UpdatePost
 
             $post->update($data);
 
+            $topics = data_get($data, 'topics');
+            $post->topics()->sync($topics);
+
             DB::commit();
 
             return $post;
