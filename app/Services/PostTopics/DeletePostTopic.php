@@ -12,6 +12,10 @@ class DeletePostTopic
         try {
             DB::beginTransaction();
 
+            if ($postTopic->posts()->exists()) {
+                throw new \Exception('This topic cannot be deleted because it is associated with one or more posts');
+            }
+
             $postTopic->delete();
 
             DB::commit();

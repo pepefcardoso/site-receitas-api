@@ -12,6 +12,10 @@ class DeleteRecipeDiet
         try {
             DB::beginTransaction();
 
+            if ($recipeDiet->recipes()->exists()) {
+                throw new \Exception('This diet cannot be deleted because it is associated with one or more recipes');
+            }
+
             $recipeDiet->delete();
 
             DB::commit();

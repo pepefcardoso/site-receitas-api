@@ -22,6 +22,6 @@ class PostCategory extends Model
 
     public function posts(): HasMany
     {
-        return $this->hasMany(Post::class);
+        return $this->hasMany(Post::class, 'category_id');
     }
 }

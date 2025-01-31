@@ -64,8 +64,8 @@ class RecipeDietController extends BaseController
     {
         $this->authorize("delete", $recipeDiet);
 
-        $service->delete($recipeDiet);
+        $response = $service->delete($recipeDiet);
 
-        return response()->json(null, 204);
+        return response()->json($response);
     }
 }

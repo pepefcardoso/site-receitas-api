@@ -64,8 +64,8 @@ class PostTopicController extends BaseController
     {
         $this->authorize("delete", $PostTopic);
 
-        $service->delete($PostTopic);
+        $response = $service->delete($PostTopic);
 
-        return response()->json(null, 204);
+        return response()->json($response);
     }
 }

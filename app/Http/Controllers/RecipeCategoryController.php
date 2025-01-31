@@ -64,8 +64,8 @@ class RecipeCategoryController extends BaseController
     {
         $this->authorize("delete", $RecipeCategory);
 
-        $service->delete($RecipeCategory);
+        $response = $service->delete($RecipeCategory);
 
-        return response()->json(null, 204);
+        return response()->json($response);
     }
 }

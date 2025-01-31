@@ -12,6 +12,10 @@ class DeleteRecipeStep
         try {
             DB::beginTransaction();
 
+            if ($recipeStep->recipes()->exists()) {
+                throw new \Exception('This step cannot be deleted because it is associated with one or more recipes');
+            }
+
             $recipeStep->delete();
 
             DB::commit();

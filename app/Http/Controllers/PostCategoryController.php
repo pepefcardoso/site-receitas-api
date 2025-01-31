@@ -60,12 +60,13 @@ class PostCategoryController extends BaseController
         return response()->json($category);
     }
 
-    public function destroy(PostCategory $PostCategory, DeletePostCategory $service)
+    public function destroy(PostCategory $postCategory, DeletePostCategory $service)
     {
-        $this->authorize("delete", $PostCategory);
+        $this->authorize("delete", $postCategory);
 
-        $service->delete($PostCategory);
+        $response = $service->delete($postCategory->id);
 
-        return response()->json(null, 204);
+        return response()->json($response, is_string($response) ? 400 : 204);
     }
+
 }

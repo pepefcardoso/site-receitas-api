@@ -12,6 +12,10 @@ class DeleteRecipeUnit
         try {
             DB::beginTransaction();
 
+            if ($recipeUnit->ingredients()->exists()) {
+                throw new \Exception('This unit cannot be deleted because it is associated with one or more ingredients');
+            }
+
             $recipeUnit->delete();
 
             DB::commit();

@@ -12,6 +12,10 @@ class DeleteRecipeCategory
         try {
             DB::beginTransaction();
 
+            if ($recipeCategory->recipes()->exists()) {
+                throw new \Exception('This category cannot be deleted because it is associated with one or more recipes');
+            }
+
             $recipeCategory->delete();
 
             DB::commit();

@@ -64,8 +64,8 @@ class RecipeUnitController extends BaseController
     {
         $this->authorize("delete", $recipeUnit);
 
-        $service->delete($recipeUnit);
+        $response = $service->delete($recipeUnit);
 
-        return response()->json(null, 204);
+        return response()->json($response);
     }
 }

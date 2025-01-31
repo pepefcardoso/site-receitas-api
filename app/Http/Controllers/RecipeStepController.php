@@ -61,8 +61,8 @@ class RecipeStepController extends BaseController
     {
         $this->authorize('delete', $RecipeStep);
 
-        $service->delete($RecipeStep);
+        $response = $service->delete($RecipeStep);
 
-        return response()->json(null, 204);
+        return response()->json($response);
     }
 }
