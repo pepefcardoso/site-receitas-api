@@ -14,9 +14,12 @@ return new class extends Migration {
             $table->id();
             $table->unsignedBiginteger('recipe_id')->unsigned();
             $table->unsignedBiginteger('recipe_diet_id')->unsigned();
-            $table->foreign('recipe_id')->references('id')->on('recipes');
-            $table->foreign('recipe_diet_id')->references('id')->on('recipe_diets');
+            $table->foreign('recipe_id')->references('id')->on('recipes')->onDelete('cascade');
+            $table->foreign('recipe_diet_id')->references('id')->on('recipe_diets')->onDelete('cascade');
             $table->timestamps();
+
+            $table->index('recipe_id');
+            $table->index('recipe_diet_id');
         });
     }
 

@@ -12,6 +12,8 @@ class DeletePost
         try {
             DB::beginTransaction();
 
+            $post->topics()->detach();
+
             $post->delete();
 
             DB::commit();

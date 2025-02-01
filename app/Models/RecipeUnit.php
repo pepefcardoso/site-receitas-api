@@ -24,6 +24,6 @@ class RecipeUnit extends Model
 
     public function ingredients(): HasMany
     {
-        return $this->hasMany(RecipeIngredient::class);
+        return $this->hasMany(RecipeIngredient::class, 'unit_id');
     }
 }

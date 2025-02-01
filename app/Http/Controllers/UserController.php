@@ -67,8 +67,8 @@ class UserController extends BaseController
     {
         $this->authorize('delete', $user);
 
-        $service->delete($user);
+        $response = $service->delete($user);
 
-        return response()->json(null, 204);
+        return response()->json($response);
     }
 }

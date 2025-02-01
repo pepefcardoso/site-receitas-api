@@ -66,7 +66,7 @@ class PostCategoryController extends BaseController
 
         $response = $service->delete($postCategory->id);
 
-        return response()->json($response, is_string($response) ? 400 : 204);
+        return response()->json($response);
     }
 
 }

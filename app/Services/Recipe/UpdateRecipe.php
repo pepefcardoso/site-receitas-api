@@ -28,7 +28,7 @@ class UpdateRecipe
     {
     }
 
-    public function update(int $id, array $data): Recipe
+    public function update(int $id, array $data): Recipe|string
     {
         DB::beginTransaction();
 
@@ -45,7 +45,7 @@ class UpdateRecipe
             return $recipe;
         } catch (Exception $e) {
             DB::rollback();
-            throw new Exception("Failed to update recipe: " . $e->getMessage());
+            return $e->getMessage();
         }
     }
 

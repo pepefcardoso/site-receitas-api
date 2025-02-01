@@ -13,7 +13,12 @@ class DeleteRecipe
         try {
             DB::beginTransaction();
 
+            $recipe->steps()->delete();
+            $recipe->ingredients()->delete();
+            $recipe->diets()->detach();
+
             $recipe->delete();
+
             DB::commit();
 
             return $recipe;

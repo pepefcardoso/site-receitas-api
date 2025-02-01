@@ -61,8 +61,8 @@ class PostController extends BaseController
     {
         $this->authorize("delete", $Post);
 
-        $service->delete($Post);
+        $response = $service->delete($Post);
 
-        return response()->json(null, 204);
+        return response()->json($response);
     }
 }

@@ -12,10 +12,6 @@ class DeleteRecipeIngredient
         try {
             DB::beginTransaction();
 
-            if ($recipeIngredient->recipes()->exists()) {
-                throw new \Exception('This ingredient cannot be deleted because it is associated with one or more recipes');
-            }
-
             $recipeIngredient->delete();
 
             DB::commit();
