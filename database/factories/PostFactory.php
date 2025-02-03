@@ -24,7 +24,6 @@ class PostFactory extends Factory
             'title' => $this->faker->sentence(),
             'summary' => $this->faker->sentence(),
             'content' => $this->faker->paragraph(),
-            'image_url' => $this->faker->imageUrl(),
             'category_id' => $category ? $category->id : null,
             'user_id' => 1,
         ];

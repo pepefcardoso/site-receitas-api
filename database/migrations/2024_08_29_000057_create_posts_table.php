@@ -17,7 +17,6 @@ return new class extends Migration {
             $table->string('title');
             $table->text('summary');
             $table->text('content');
-            $table->string('image_url');
             $table->timestamps();
         });
     }

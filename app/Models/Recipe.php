@@ -20,7 +20,6 @@ class Recipe extends Model
         'time',
         'portion',
         'difficulty',
-        'image',
         'category_id',
         'user_id',
     ];
@@ -38,7 +37,6 @@ class Recipe extends Model
             'time' => 'required|integer',
             'portion' => 'required|integer',
             'difficulty' => 'required|integer',
-            'image' => 'required|url',
             'category_id' => 'required|exists:recipe_categories,id',
             'diets' => 'array|required',
             'diets.*' => 'exists:recipe_diets,id',
@@ -57,7 +55,6 @@ class Recipe extends Model
             'time' => 'required|integer',
             'portion' => 'required|integer',
             'difficulty' => 'required|integer',
-            'image' => 'required|url',
             'category_id' => 'required|exists:recipe_categories,id',
             'diets' => 'array|required',
             'diets.*' => 'exists:recipe_diets,id',

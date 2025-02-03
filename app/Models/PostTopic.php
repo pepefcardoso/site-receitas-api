@@ -10,14 +10,13 @@ class PostTopic extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['name', 'normalized_name', 'image_url'];
+    protected $fillable = ['name', 'normalized_name'];
 
     public static function rules(): array
     {
         return [
             'name' => 'required|string|max:50|unique:post_topics',
             'normalized_name' => 'required|string|max:50|unique:post_topics',
-            'image_url' => 'required|url',
         ];
     }
 

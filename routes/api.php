@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\ImageController;
 use App\Http\Controllers\PostTopicController;
 use App\Http\Controllers\RecipeCategoryController;
 use App\Http\Controllers\RecipeController;
@@ -23,6 +24,7 @@ Route::apiResource('recipe-categories', RecipeCategoryController::class);
 Route::apiResource('recipe-steps', RecipeStepController::class);
 Route::apiResource('recipe-ingredients', RecipeIngredientController::class);
 Route::apiResource('recipe-units', RecipeUnitController::class);
+Route::apiResource('images', ImageController::class);
 
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/logout', [AuthController::class, 'logout']);

@@ -20,7 +20,6 @@ return new class extends Migration {
             $table->integer('time');
             $table->integer('portion');
             $table->integer('difficulty')->default(RecipeDifficultyEnum::NORMAL);
-            $table->string('image');
             $table->timestamps();
         });
     }

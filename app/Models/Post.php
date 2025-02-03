@@ -17,7 +17,6 @@ class Post extends Model
         'title',
         'summary',
         'content',
-        'image_url',
         'category_id',
         'user_id',
     ];
@@ -28,7 +27,6 @@ class Post extends Model
             'title' => 'required|string|max:100',
             'summary' => 'required|string|max:255',
             'content' => 'required|string',
-            'image_url' => 'required|url',
             'category_id' => 'required|exists:post_categories,id',
             'topics' => 'array|required',
             'topics.*' => 'exists:post_topics,id',
@@ -41,7 +39,6 @@ class Post extends Model
             'title' => 'required|string|max:100',
             'summary' => 'required|string|max:255',
             'content' => 'required|string',
-            'image_url' => 'required|url',
             'category_id' => 'required|exists:post_categories,id',
             'topics' => 'array|required',
             'topics.*' => 'exists:post_topics,id',

@@ -3,6 +3,7 @@
 namespace App\Services\Image;
 
 use App\Models\Image;
+use Auth;
 use Exception;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
@@ -22,19 +23,19 @@ class CreateImage
 
             $path = Storage::disk('s3')->putFileAs(Image::$S3Directory, $file, $name);
 
-            $url = Storage::disk('s3')->url($path);
+            $userId = Auth::id();
 
             $image = $model->image()->create([
                 'path' => $path,
                 'name' => $name,
+                'user_id' => $userId,
             ]);
 
             DB::commit();
 
-            return 'success';
+            return $image;
         } catch (Exception $e) {
             DB::rollBack();
-
             return $e->getMessage();
         }
     }

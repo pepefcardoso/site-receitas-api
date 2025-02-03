@@ -11,7 +11,6 @@ use App\Services\Image\UpdateImage;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller as BaseController;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class ImageController extends BaseController
 {

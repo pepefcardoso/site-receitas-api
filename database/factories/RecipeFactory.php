@@ -29,7 +29,6 @@ class RecipeFactory extends Factory
             'difficulty' => $this->faker->randomElement(RecipeDifficultyEnum::cases()),
             'user_id' => $this->faker->numberBetween(1, 10),
             'category_id' => $category ? $category->id : null,
-            'image' => $this->faker->imageUrl(),
         ];
     }
 

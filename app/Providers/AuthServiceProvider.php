@@ -11,6 +11,7 @@ use App\Models\RecipeIngredient;
 use App\Models\RecipeStep;
 use App\Models\RecipeUnit;
 use App\Models\User;
+use App\Policies\ImagePolicy;
 use App\Policies\PostCategoryPolicy;
 use App\Policies\PostTopicPolicy;
 use App\Policies\PostPolicy;
@@ -41,6 +42,7 @@ class AuthServiceProvider extends ServiceProvider
         Post::class => PostPolicy::class,
         PostCategory::class => PostCategoryPolicy::class,
         PostTopic::class => PostTopicPolicy::class,
+        Image::class => ImagePolicy::class,
     ];
 
     /**

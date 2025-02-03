@@ -22,7 +22,6 @@ class PostTopicFactory extends Factory
         return [
             'name' => $name,
             'normalized_name' => Str::upper($name),
-            'image_url' => $this->faker->imageUrl(),
         ];
     }
 }
