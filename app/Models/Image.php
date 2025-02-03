@@ -13,7 +13,7 @@ class Image extends Model
 {
     use HasFactory;
 
-    static public string $S3Directory = 'app_images';
+    static public string $S3Directory = 'images';
 
     protected $appends = [
         'url',
@@ -21,22 +21,12 @@ class Image extends Model
 
     protected $fillable = ['name', 'path', 'imageable_id', 'imageable_type', 'user_id'];
 
-    public static function modelRules(): array
-    {
-        return [
-            'id' => 'nullable|integer|exists:images,id',
-            'file' => 'nullable',
-            'user_id' => 'nullable|integer|exists:users,id',
-        ];
-    }
-
     public static function createRules(): array
     {
         return [
             'file' => 'required|file|mimes:jpeg,png,jpg,gif,svg|max:2048',
             'imageable_id' => 'required|integer',
             'imageable_type' => 'required|string',
-            'user_id' => 'required|integer|exists:users,id',
         ];
     }
 

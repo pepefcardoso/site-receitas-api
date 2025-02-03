@@ -11,6 +11,7 @@ class ShowPost
         return Post::with([
             'category',
             'topics',
+            'image',
             'user' => function ($query) {
                 $query->select('id', 'name');
             }

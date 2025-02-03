@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\MorphOne;
 
 class Post extends Model
 {
@@ -30,6 +31,7 @@ class Post extends Model
             'category_id' => 'required|exists:post_categories,id',
             'topics' => 'array|required',
             'topics.*' => 'exists:post_topics,id',
+            'image' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
         ];
     }
 
@@ -42,6 +44,7 @@ class Post extends Model
             'category_id' => 'required|exists:post_categories,id',
             'topics' => 'array|required',
             'topics.*' => 'exists:post_topics,id',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
         ];
     }
 
@@ -58,5 +61,10 @@ class Post extends Model
     public function topics(): BelongsToMany
     {
         return $this->belongsToMany(PostTopic::class, 'rl_post_topics', 'post_id', 'post_topic_id');
+    }
+
+    public function image(): MorphOne
+    {
+        return $this->morphOne(Image::class, 'imageable');
     }
 }

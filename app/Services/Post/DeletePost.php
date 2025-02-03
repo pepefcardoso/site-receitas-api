@@ -3,16 +3,29 @@
 namespace App\Services\Post;
 
 use App\Models\Post;
+use App\Services\Image\DeleteImage;
 use Illuminate\Support\Facades\DB;
 
 class DeletePost
 {
+    protected DeleteImage $deleteImageService;
+
+    public function __construct(
+        DeleteImage $deleteImageService,
+    ) {
+        $this->deleteImageService = $deleteImageService;
+    }
+
     public function delete(Post $post): Post|string
     {
         try {
             DB::beginTransaction();
 
             $post->topics()->detach();
+
+            if ($post->image) {
+                $this->deleteImageService->delete($post->image->id);
+            }
 
             $post->delete();
 

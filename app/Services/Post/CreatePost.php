@@ -3,12 +3,22 @@
 namespace App\Services\Post;
 
 use App\Models\Post;
+use App\Services\Image\CreateImage;
 use Exception;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class CreatePost
 {
+    protected CreateImage $createImageService;
+
+    public function __construct(
+        CreateImage $createImageService,
+    )
+    {
+        $this->createImageService = $createImageService;
+    }
+
     public function create(array $data): Post|string
     {
         try {
@@ -21,6 +31,9 @@ class CreatePost
 
             $topics = data_get($data, 'topics');
             $post->topics()->sync($topics);
+
+            $image = data_get($data, 'image');
+            $this->createImageService->create($post, $image);
 
             DB::commit();
 
