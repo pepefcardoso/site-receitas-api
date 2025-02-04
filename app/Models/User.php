@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Enum\RolesEnum;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
@@ -72,6 +73,7 @@ class User extends Authenticatable
             'email' => 'required|email|unique:users,email',
             'birthday' => 'required|date|before:today',
             'phone' => 'required|string|regex:/^\(\d{2}\)\s?\d{4,5}-\d{4}$/|unique:users,phone',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
         ];
     }
     public static function loginRules(): array
@@ -101,5 +103,10 @@ class User extends Authenticatable
     public function images(): HasMany
     {
         return $this->hasMany(Image::class);
+    }
+
+    public function image(): MorphOne
+    {
+        return $this->morphOne(Image::class, 'imageable');
     }
 }

@@ -13,6 +13,7 @@ class ListRecipe
             'category',
             'steps',
             'ingredients.unit',
+            'image',
             'user' => function ($query) {
                 $query->select('id', 'name'); // Only load id and name from the user table
             }

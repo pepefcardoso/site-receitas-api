@@ -7,6 +7,6 @@ class ShowRecipeDiet
 {
     public function show($id)
     {
-        return RecipeDiet::findOrFail($id);
+        return RecipeDiet::with('image')->findOrFail($id);
     }
 }

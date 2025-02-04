@@ -8,6 +8,6 @@ class ListUser
 {
     public function list(array $filters = [])
     {
-        return User::all();
+        return User::with('image')->get();
     }
 }

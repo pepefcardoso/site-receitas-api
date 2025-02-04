@@ -8,6 +8,6 @@ class ListRecipeCategory
 {
     public function list(array $filters = [])
     {
-        return RecipeCategory::all();
+        return RecipeCategory::with('image')->get();
     }
 }

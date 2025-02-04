@@ -3,6 +3,7 @@
 namespace App\Services\Recipe;
 
 use App\Models\Recipe;
+use App\Services\Image\CreateImage;
 use App\Services\RecipeIngredient\CreateRecipeIngredient;
 use App\Services\RecipeStep\CreateRecipeStep;
 use Illuminate\Support\Arr;
@@ -14,14 +15,16 @@ class CreateRecipe
 {
     protected CreateRecipeIngredient $createRecipeIngredient;
     protected CreateRecipeStep $createRecipeStep;
+    protected CreateImage $createImageService;
 
     public function __construct(
         CreateRecipeIngredient $createRecipeIngredient,
-        CreateRecipeStep       $createRecipeStep
-    )
-    {
+        CreateRecipeStep $createRecipeStep,
+        CreateImage $createImageService,
+    ) {
         $this->createRecipeIngredient = $createRecipeIngredient;
         $this->createRecipeStep = $createRecipeStep;
+        $this->createImageService = $createImageService;
     }
 
     public function create(array $data): Recipe
@@ -33,6 +36,9 @@ class CreateRecipe
             $this->syncDiets($recipe, $data);
             $this->createIngredients($recipe, $data);
             $this->createSteps($recipe, $data);
+
+            $image = data_get($data, 'image');
+            $this->createImageService->create($recipe, $image);
 
             DB::commit();
 

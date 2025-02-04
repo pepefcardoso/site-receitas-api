@@ -8,6 +8,6 @@ class ShowUser
 {
     public function show($id)
     {
-        return User::findOrFail($id);
+        return User::with('image')->findOrFail($id);
     }
 }

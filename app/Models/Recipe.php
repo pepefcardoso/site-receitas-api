@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\MorphOne;
 
 class Recipe extends Model
 {
@@ -44,6 +45,7 @@ class Recipe extends Model
             ...RecipeStep::recipeRules(),
             'ingredients' => 'required|array',
             ...RecipeIngredient::recipeRules(),
+            'image' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
         ];
     }
 
@@ -62,6 +64,7 @@ class Recipe extends Model
             ...RecipeStep::recipeRules(),
             'ingredients' => 'required|array',
             ...RecipeIngredient::recipeRules(),
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
         ];
     }
 
@@ -88,5 +91,10 @@ class Recipe extends Model
     public function ingredients(): HasMany
     {
         return $this->hasMany(RecipeIngredient::class);
+    }
+
+    public function image(): MorphOne
+    {
+        return $this->morphOne(Image::class, 'imageable');
     }
 }

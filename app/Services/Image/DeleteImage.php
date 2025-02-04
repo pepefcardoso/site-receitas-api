@@ -9,12 +9,12 @@ use Exception;
 
 class DeleteImage
 {
-    public function delete(int $id): Image|string
+    public function delete(int $imageId): Image|string
     {
         try {
             DB::beginTransaction();
 
-            $image = Image::findOrFail($id);
+            $image = Image::findOrFail($imageId);
 
             $image->delete();
 

@@ -8,6 +8,6 @@ class ShowPostCategory
 {
     public function show($id)
     {
-        return PostCategory::findOrFail($id);
+        return PostCategory::with('image')->findOrFail($id);
     }
 }

@@ -13,6 +13,7 @@ class ShowRecipe
             'category',
             'steps',
             'ingredients.unit',
+            'image',
             'user' => function ($query) {
                 $query->select('id', 'name');
             }

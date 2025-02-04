@@ -5,6 +5,7 @@ namespace App\Services\Recipe;
 use App\Models\Recipe;
 use App\Models\RecipeIngredient;
 use App\Models\RecipeStep;
+use App\Services\Image\UpdateImage;
 use App\Services\RecipeIngredient\CreateRecipeIngredient;
 use App\Services\RecipeIngredient\DeleteRecipeIngredient;
 use App\Services\RecipeIngredient\UpdateRecipeIngredient;
@@ -23,7 +24,8 @@ class UpdateRecipe
         protected DeleteRecipeIngredient $deleteRecipeIngredient,
         protected CreateRecipeStep       $createRecipeStep,
         protected UpdateRecipeStep       $updateRecipeStep,
-        protected DeleteRecipeStep       $deleteRecipeStep
+        protected DeleteRecipeStep       $deleteRecipeStep,
+        protected UpdateImage $updateImageService
     )
     {
     }
@@ -39,6 +41,12 @@ class UpdateRecipe
             $this->syncDiets($recipe, $data);
             $this->handleIngredients($recipe, $data);
             $this->handleSteps($recipe, $data);
+
+            $newImageFile = data_get($data, 'image');
+            if ($newImageFile) {
+                $currentImage = $recipe->image;
+                $this->updateImageService->update($currentImage->id, $newImageFile);
+            }
 
             DB::commit();
 

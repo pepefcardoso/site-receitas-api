@@ -28,9 +28,10 @@ class UpdatePost
             $topics = data_get($data, 'topics');
             $post->topics()->sync($topics);
 
-            $image = data_get($data, 'image');
-            if ($image) {
-                $this->updateImageService->update($post, $image);
+            $newImageFile = data_get($data, 'image');
+            if ($newImageFile) {
+                $currentImage = $post->image;
+                $this->updateImageService->update($currentImage->id, $newImageFile);
             }
 
             DB::commit();

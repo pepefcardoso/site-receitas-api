@@ -34,7 +34,7 @@ class PostCategoryController extends BaseController
         $this->authorize('create', PostCategory::class);
 
         $request["normalized_name"] = Str::upper($request->name);
-        $data = $request->validate(PostCategory::rules());
+        $data = $request->validate(PostCategory::createRules());
 
         $category = $service->create($data);
 
@@ -53,7 +53,7 @@ class PostCategoryController extends BaseController
         $this->authorize("update", $PostCategory);
 
         $request["normalized_name"] = Str::upper($request->name);
-        $data = $request->validate(PostCategory::rules());
+        $data = $request->validate(PostCategory::updateRules());
 
         $category = $service->update($PostCategory, $data);
 

@@ -7,6 +7,6 @@ class ShowPostTopic
 {
     public function show($id)
     {
-        return PostTopic::findOrFail($id);
+        return PostTopic::with('image')->findOrFail($id);
     }
 }

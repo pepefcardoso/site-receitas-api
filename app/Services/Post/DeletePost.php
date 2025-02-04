@@ -24,7 +24,8 @@ class DeletePost
             $post->topics()->detach();
 
             if ($post->image) {
-                $this->deleteImageService->delete($post->image->id);
+                $imageId = $post->image->id;
+                $this->deleteImageService->delete($imageId);
             }
 
             $post->delete();

@@ -8,6 +8,6 @@ class ListPostCategory
 {
     public function list(array $filters = [])
     {
-        return PostCategory::all();
+        return PostCategory::with('image')->get();
     }
 }

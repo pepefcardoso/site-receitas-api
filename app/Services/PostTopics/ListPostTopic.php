@@ -8,6 +8,6 @@ class ListPostTopic
 {
     public function list(array $filters = [])
     {
-        return PostTopic::all();
+        return PostTopic::with('image')->get();
     }
 }

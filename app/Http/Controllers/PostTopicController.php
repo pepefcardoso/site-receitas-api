@@ -34,7 +34,7 @@ class PostTopicController extends BaseController
         $this->authorize('create', PostTopic::class);
 
         $request["normalized_name"] = Str::upper($request->name);
-        $data = $request->validate(PostTopic::rules());
+        $data = $request->validate(PostTopic::createRules());
 
         $diet = $service->create($data);
 
@@ -53,7 +53,7 @@ class PostTopicController extends BaseController
         $this->authorize("update", $PostTopic);
 
         $request["normalized_name"] = Str::upper($request->name);
-        $data = $request->validate(PostTopic::rules());
+        $data = $request->validate(PostTopic::updateRules());
 
         $diet = $service->update($PostTopic, $data);
 
