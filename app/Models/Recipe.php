@@ -13,6 +13,8 @@ class Recipe extends Model
 {
     use HasFactory;
 
+    public const VALID_SORT_COLUMNS = ['title', 'created_at', 'time', 'difficulty'];
+
     public mixed $user;
 
     protected $fillable = [
@@ -29,6 +31,29 @@ class Recipe extends Model
         'ingredients' => 'array',
         'steps' => 'array',
     ];
+
+    public function scopeFilter($query, array $filters)
+    {
+        if (!empty($filters['title'])) {
+            $query->where('title', 'like', '%' . $filters['title'] . '%');
+        }
+
+        if (!empty($filters['category_id'])) {
+            $query->where('category_id', $filters['category_id']);
+        }
+
+        if (!empty($filters['diets'])) {
+            $query->whereHas('diets', function ($query) use ($filters) {
+                $query->whereIn('recipe_diets.id', $filters['diets']);
+            });
+        }
+
+        if (!empty($filters['user_id'])) {
+            $query->where('user_id', $filters['user_id']);
+        }
+
+        return $query;
+    }
 
     public static function createRules(): array
     {
@@ -65,6 +90,20 @@ class Recipe extends Model
             'ingredients' => 'required|array',
             ...RecipeIngredient::recipeRules(),
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+        ];
+    }
+
+    public static function filtersRules(): array
+    {
+        return [
+            'title' => 'nullable|string|max:255',
+            'category_id' => 'nullable|integer|exists:recipe_categories,id',
+            'diets' => 'nullable|array',
+            'diets.*' => 'integer|exists:recipe_diets,id',
+            'order_by' => 'nullable|string|in:title,created_at,time,difficulty',
+            'order_direction' => 'nullable|string|in:asc,desc',
+            'user_id' => 'nullable|integer|exists:users,id',
+            'per_page' => 'nullable|integer|min:1|max:100',
         ];
     }
 

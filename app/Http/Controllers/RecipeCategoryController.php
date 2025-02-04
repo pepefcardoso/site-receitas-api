@@ -24,7 +24,9 @@ class RecipeCategoryController extends BaseController
 
     public function index(ListRecipeCategory $service)
     {
-        $categories = $service->list();
+        $perPage = request()->input('per_page', 10);
+
+        $categories = $service->list([], $perPage);
 
         return response()->json($categories);
     }

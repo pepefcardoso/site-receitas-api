@@ -24,7 +24,9 @@ class PostTopicController extends BaseController
 
     public function index(ListPostTopic $service)
     {
-        $diets = $service->list();
+        $perPage = request()->input('per_page', 10);
+
+        $diets = $service->list([], $perPage);
 
         return response()->json($diets);
     }

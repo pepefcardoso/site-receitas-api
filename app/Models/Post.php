@@ -12,6 +12,8 @@ class Post extends Model
 {
     use HasFactory;
 
+    public const VALID_SORT_COLUMNS = ['title', 'created_at'];
+
     public mixed $user;
 
     protected $fillable = [
@@ -21,6 +23,29 @@ class Post extends Model
         'category_id',
         'user_id',
     ];
+
+    public function scopeFilter($query, array $filters)
+    {
+        if (!empty($filters['title'])) {
+            $query->where('title', 'like', '%' . $filters['title'] . '%');
+        }
+
+        if (!empty($filters['category_id'])) {
+            $query->where('category_id', $filters['category_id']);
+        }
+
+        if (!empty($filters['topics'])) {
+            $query->whereHas('topics', function ($query) use ($filters) {
+                $query->whereIn('post_topics.id', $filters['topics']);
+            });
+        }
+
+        if (!empty($filters['user_id'])) {
+            $query->where('user_id', $filters['user_id']);
+        }
+
+        return $query;
+    }
 
     public static function createRules(): array
     {
@@ -45,6 +70,20 @@ class Post extends Model
             'topics' => 'array|required',
             'topics.*' => 'exists:post_topics,id',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+        ];
+    }
+
+    public static function filtersRules(): array
+    {
+        return [
+            'title' => 'nullable|string|max:255',
+            'category_id' => 'nullable|integer|exists:post_categories,id',
+            'topics' => 'nullable|array',
+            'topics.*' => 'integer|exists:post_topics,id',
+            'order_by' => 'nullable|string|in:title,created_at',
+            'order_direction' => 'nullable|string|in:asc,desc',
+            'user_id' => 'nullable|integer|exists:users,id',
+            'per_page' => 'nullable|integer|min:1|max:100',
         ];
     }
 

@@ -24,7 +24,9 @@ class PostCategoryController extends BaseController
 
     public function index(ListPostCategory $service)
     {
-        $categories = $service->list();
+        $perPage = request()->input('per_page', 10);
+
+        $categories = $service->list([], $perPage);
 
         return response()->json($categories);
     }

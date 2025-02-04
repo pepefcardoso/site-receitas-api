@@ -6,32 +6,34 @@ use App\Models\Recipe;
 
 class ListRecipe
 {
-    public function list(array $filters = [])
+    public function list(array $filters = [], int $perPage = 10)
     {
         $query = Recipe::with([
             'diets',
             'category',
-            'steps',
-            'ingredients.unit',
             'image',
-            'user' => function ($query) {
-                $query->select('id', 'name'); // Only load id and name from the user table
-            }
         ]);
 
-        // Apply filters if provided
-        if (isset($filters['category_id'])) {
-            $query->where('category_id', $filters['category_id']);
+        $query = $query->filter($filters);
+
+        $query = $this->applySorting($query, $filters);
+
+        return $query->paginate($perPage);
+    }
+
+    protected function applySorting($query, array $filters)
+    {
+        $orderBy = $filters['order_by'] ?? 'created_at';
+        $orderDirection = $filters['order_direction'] ?? 'desc';
+
+        if (!in_array($orderBy, Recipe::VALID_SORT_COLUMNS)) {
+            $orderBy = 'created_at';
         }
 
-        if (isset($filters['difficulty'])) {
-            $query->where('difficulty', $filters['difficulty']);
+        if (!in_array(strtolower($orderDirection), ['asc', 'desc'])) {
+            $orderDirection = 'desc';
         }
 
-        if (isset($filters['title'])) {
-            $query->where('title', 'like', '%' . $filters['title'] . '%');
-        }
-
-        return $query->get();
+        return $query->orderBy($orderBy, $orderDirection);
     }
 }

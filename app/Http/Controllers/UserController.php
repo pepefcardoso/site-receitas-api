@@ -8,6 +8,7 @@ use App\Services\User\DeleteUser;
 use App\Services\User\ListUser;
 use App\Services\User\ShowUser;
 use App\Services\User\UpdateUser;
+use Auth;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller as BaseController;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
@@ -24,9 +25,21 @@ class UserController extends BaseController
     public function index(ListUser $service)
     {
         $this->authorize('viewAny', User::class);
-        $users = $service->list();
 
-        return response()->json($users);
+        $filters = [
+            'search' => request()->input('search'),
+            'role' => request()->input('role'),
+            'birthday_start' => request()->input('birthday_start'),
+            'birthday_end' => request()->input('birthday_end'),
+            'order_by' => request()->input('order_by', 'created_at'),
+            'order_direction' => request()->input('order_direction', 'desc')
+        ];
+
+        $perPage = request()->input('per_page', 10);
+
+        $posts = $service->list($filters, $perPage);
+
+        return response()->json($posts);
     }
 
     public function store(Request $request, CreateUser $service)
@@ -70,5 +83,15 @@ class UserController extends BaseController
         $response = $service->delete($user);
 
         return response()->json($response);
+    }
+
+    public function authUser(ShowUser $service)
+    {
+        $authUser = Auth::user();
+        $this->authorize('view', $authUser);
+
+        $user = $service->show($authUser->id);
+
+        return response()->json($user);
     }
 }

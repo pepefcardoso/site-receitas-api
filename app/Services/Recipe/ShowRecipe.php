@@ -9,14 +9,12 @@ class ShowRecipe
     public function show($id)
     {
         return Recipe::with([
-            'diets',
-            'category',
+            'diets.image',
+            'category.image',
             'steps',
             'ingredients.unit',
             'image',
-            'user' => function ($query) {
-                $query->select('id', 'name');
-            }
+            'user.image'
         ])->findOrFail($id);
     }
 }

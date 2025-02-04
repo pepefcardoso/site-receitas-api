@@ -55,6 +55,31 @@ class User extends Authenticatable
         'role' => RolesEnum::class,
     ];
 
+    public function scopeFilter($query, array $filters)
+    {
+        if (!empty($filters['search'])) {
+            $searchTerm = '%' . $filters['search'] . '%';
+
+            $query->where(function ($query) use ($searchTerm) {
+                $query->where('name', 'like', $searchTerm)
+                    ->orWhere('email', 'like', $searchTerm)
+                    ->orWhere('phone', 'like', $searchTerm)
+                    ->orWhere('id', 'like', $searchTerm);
+            });
+        }
+
+        if (!empty($filters['role']) && is_array($filters['role'])) {
+            $query->whereIn('role', $filters['role']);
+        }
+
+        if (!empty($filters['birthday_start']) && !empty($filters['birthday_end'])) {
+            $query->whereBetween('birthday', [$filters['birthday_start'], $filters['birthday_end']]);
+        }
+
+        return $query;
+    }
+
+
     public static function createRules(): array
     {
         return [

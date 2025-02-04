@@ -9,12 +9,10 @@ class ShowPost
     public function show($id)
     {
         return Post::with([
-            'category',
-            'topics',
+            'category.image',
+            'topics.image',
             'image',
-            'user' => function ($query) {
-                $query->select('id', 'name');
-            }
+            'user.image'
         ])->findOrFail($id);
     }
 }

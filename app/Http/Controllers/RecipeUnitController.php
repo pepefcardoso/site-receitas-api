@@ -24,7 +24,9 @@ class RecipeUnitController extends BaseController
 
     public function index(ListRecipeUnit $service)
     {
-        $units = $service->list();
+        $perPage = request()->input('per_page', 10);
+
+        $units = $service->list([], $perPage);
 
         return response()->json($units);
     }

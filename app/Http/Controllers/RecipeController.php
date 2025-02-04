@@ -8,6 +8,7 @@ use App\Services\Recipe\DeleteRecipe;
 use App\Services\Recipe\ListRecipe;
 use App\Services\Recipe\ShowRecipe;
 use App\Services\Recipe\UpdateRecipe;
+use Auth;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller as BaseController;
@@ -21,9 +22,22 @@ class RecipeController extends BaseController
         $this->middleware('auth:sanctum')->except(['index', 'show']);
     }
 
-    public function index(ListRecipe $service)
+    public function index(Request $request, ListRecipe $service)
     {
-        $recipes = $service->list();
+        $validatedFilters = $request->validate(Recipe::filtersRules());
+
+        $filters = [
+            'title' => $validatedFilters['title'] ?? null,
+            'category_id' => $validatedFilters['category_id'] ?? null,
+            'diets' => $validatedFilters['diets'] ?? null,
+            'order_by' => $validatedFilters['order_by'] ?? 'created_at',
+            'order_direction' => $validatedFilters['order_direction'] ?? 'desc',
+            'user_id' => $validatedFilters['user_id'] ?? null,
+        ];
+
+        $perPage = $validatedFilters['per_page'] ?? 10;
+
+        $recipes = $service->list($filters, $perPage);
 
         return response()->json($recipes);
     }
@@ -64,5 +78,23 @@ class RecipeController extends BaseController
         $response = $service->delete($recipe);
 
         return response()->json($response);
+    }
+
+    public function userRecipes(ListRecipe $service)
+    {
+        $filters = [
+            'title' => request()->input('title'),
+            'category_id' => request()->input('category_id'),
+            'diets' => request()->input('diets'),
+            'order_by' => request()->input('order_by', 'created_at'),
+            'order_direction' => request()->input('order_direction', 'desc'),
+            'user_id' => Auth::id()
+        ];
+
+        $perPage = request()->input('per_page', 10);
+
+        $recipes = $service->list($filters, $perPage);
+
+        return response()->json($recipes);
     }
 }

@@ -21,11 +21,24 @@ class PostController extends BaseController
         $this->middleware('auth:sanctum')->except(['index', 'show']);
     }
 
-    public function index(ListPost $service)
+    public function index(Request $request, ListPost $service)
     {
-        $Posts = $service->list();
+        $validatedFilters = $request->validate(Post::filtersRules());
 
-        return response()->json($Posts);
+        $filters = [
+            'title' => $validatedFilters['title'] ?? null,
+            'category_id' => $validatedFilters['category_id'] ?? null,
+            'topics' => $validatedFilters['diets'] ?? null,
+            'order_by' => $validatedFilters['order_by'] ?? 'created_at',
+            'order_direction' => $validatedFilters['order_direction'] ?? 'desc',
+            'user_id' => $validatedFilters['user_id'] ?? null,
+        ];
+
+        $perPage = $validatedFilters['per_page'] ?? 10;
+
+        $posts = $service->list($filters, $perPage);
+
+        return response()->json($posts);
     }
 
     public function store(Request $request, CreatePost $service)
@@ -64,5 +77,23 @@ class PostController extends BaseController
         $response = $service->delete($Post);
 
         return response()->json($response);
+    }
+
+    public function userPosts(ListPost $service)
+    {
+        $filters = [
+            'title' => request()->input('title'),
+            'category_id' => request()->input('category_id'),
+            'topics' => request()->input('topics'),
+            'user_id' => request()->input('user_id'),
+            'order_by' => request()->input('order_by', 'created_at'),
+            'order_direction' => request()->input('order_direction', 'desc')
+        ];
+
+        $perPage = request()->input('per_page', 10);
+
+        $posts = $service->list($filters, $perPage);
+
+        return response()->json($posts);
     }
 }
