@@ -21,11 +21,17 @@ class AuthController extends BaseController
 
     public function login(Request $request, Login $service)
     {
-        $data = $request->validate(User::loginRules());
+        try {
+            $data = $request->validate(User::loginRules());
 
-        $result = $service->login($data);
+            $result = $service->login($data);
 
-        return response()->json($result);
+            return response()->json($result);
+        } catch (\Exception $e) {
+            return response()->json([
+                'errors' => $e->getMessage(),
+            ], 401);
+        }
     }
 
     public function logout(Logout $service)

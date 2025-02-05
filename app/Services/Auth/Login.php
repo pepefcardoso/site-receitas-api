@@ -15,22 +15,27 @@ class Login
             DB::beginTransaction();
 
             $email = data_get($data, "email");
-            $user = User::where('email', $email)->firstOrFail();
+            $user = User::where('email', $email)->first();
+
+            if (!$user) {
+                throw new Exception("User not found.");
+            }
 
             $password = data_get($data, 'password');
-            throw_if(!Hash::check($password, $user->password), Exception::class, "Credentials are incorrect");
+            if (!Hash::check($password, $user->password)) {
+                throw new Exception("Invalid credentials.");
+            }
 
-            $token = $user->createToken('auth_token');
+            $user->tokens()->delete();
+
+            $token = $user->createToken('auth_token')->plainTextToken;
 
             DB::commit();
 
-            return [
-                'user' => $user,
-                'token' => $token->plainTextToken,
-            ];
+            return $token;
         } catch (Exception $e) {
             DB::rollback();
-            return $e->getMessage();
+            throw new Exception("Login failed. Please try again.");
         }
     }
 }
