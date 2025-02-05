@@ -15,7 +15,7 @@ use \App\Http\Controllers\PostCategoryController;
 use \App\Http\Controllers\UserController;
 
 Route::apiResource('users', UserController::class);
-Route::get('users/me', [UserController::class, 'authUser']);
+Route::get('user/me', [UserController::class, 'authUser']);
 
 Route::apiResource('posts', PostController::class);
 Route::get('posts/my', [PostController::class, 'userPosts']);
