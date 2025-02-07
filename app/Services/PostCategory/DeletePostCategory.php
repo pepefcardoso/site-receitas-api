@@ -9,14 +9,6 @@ use Illuminate\Support\Facades\DB;
 
 class DeletePostCategory
 {
-    protected DeleteImage $deleteImageService;
-
-    public function __construct(
-        DeleteImage $deleteImageService,
-    ) {
-        $this->deleteImageService = $deleteImageService;
-    }
-
     public function delete(int $id)
     {
         try {
@@ -26,11 +18,6 @@ class DeletePostCategory
 
             if ($postCategory->posts()->exists()) {
                 throw new Exception('This category cannot be deleted because it is associated with one or more posts.');
-            }
-
-            if ($postCategory->image) {
-                $imageId = $postCategory->image->id;
-                $this->deleteImageService->delete($imageId);
             }
 
             $postCategory->delete();

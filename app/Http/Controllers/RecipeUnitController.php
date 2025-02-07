@@ -22,11 +22,11 @@ class RecipeUnitController extends BaseController
         $this->middleware('auth:sanctum')->except(['index', 'show']);
     }
 
-    public function index(ListRecipeUnit $service)
+    public function index(Request $request, ListRecipeUnit $service)
     {
         $perPage = request()->input('per_page', 10);
 
-        $units = $service->list([], $perPage);
+        $units = $service->list($perPage);
 
         return response()->json($units);
     }

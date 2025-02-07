@@ -6,8 +6,10 @@ use App\Models\PostCategory;
 
 class ListPostCategory
 {
-    public function list(array $filters = [], $perPage = 10)
+    public function list(int $perPage = 10)
     {
-        return PostCategory::with('image')->get();
+        $query = PostCategory::query();
+
+        return $query->paginate($perPage);
     }
 }

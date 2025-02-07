@@ -6,8 +6,10 @@ use App\Models\RecipeUnit;
 
 class ListRecipeUnit
 {
-    public function list(array $filters = [], int $perPage = 10)
+    public function list(int $perPage = 10)
     {
-        return RecipeUnit::all();
+        $query = RecipeUnit::query();
+
+        return $query->paginate($perPage);
     }
 }

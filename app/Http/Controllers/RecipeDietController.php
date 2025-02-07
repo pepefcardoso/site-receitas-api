@@ -22,11 +22,11 @@ class RecipeDietController extends BaseController
         $this->middleware('auth:sanctum')->except(['index', 'show']);
     }
 
-    public function index(ListRecipeDiet $service)
+    public function index(Request $request, ListRecipeDiet $service)
     {
         $perPage = request()->input('per_page', 10);
 
-        $diets = $service->list([], $perPage);
+        $diets = $service->list($perPage);
 
         return response()->json($diets);
     }

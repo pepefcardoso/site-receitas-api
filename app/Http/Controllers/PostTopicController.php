@@ -22,11 +22,11 @@ class PostTopicController extends BaseController
         $this->middleware('auth:sanctum')->except(['index', 'show']);
     }
 
-    public function index(ListPostTopic $service)
+    public function index(Request $request, ListPostTopic $service)
     {
         $perPage = request()->input('per_page', 10);
 
-        $diets = $service->list([], $perPage);
+        $diets = $service->list($perPage);
 
         return response()->json($diets);
     }

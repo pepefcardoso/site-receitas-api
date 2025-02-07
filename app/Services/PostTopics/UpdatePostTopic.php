@@ -3,18 +3,10 @@
 namespace App\Services\PostTopics;
 
 use App\Models\PostTopic;
-use App\Services\Image\UpdateImage;
 use Illuminate\Support\Facades\DB;
 
 class UpdatePostTopic
 {
-    protected UpdateImage $updateImageService;
-
-    public function __construct(
-        UpdateImage $updateImageService,
-    ) {
-        $this->updateImageService = $updateImageService;
-    }
 
     public function update(PostTopic $PostTopic, array $data)
     {
@@ -23,12 +15,6 @@ class UpdatePostTopic
 
             $PostTopic->fill($data);
             $PostTopic->save();
-
-            $newImageFile = data_get($data, 'image');
-            if ($newImageFile) {
-                $currentImage = $PostTopic->image;
-                $this->updateImageService->update($currentImage->id, $newImageFile);
-            }
 
             DB::commit();
 

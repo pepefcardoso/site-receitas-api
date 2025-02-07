@@ -8,6 +8,6 @@ class ShowRecipeCategory
 {
     public function show($id)
     {
-        return RecipeCategory::with('image')->findOrFail($id);
+        return RecipeCategory::findOrFail($id);
     }
 }

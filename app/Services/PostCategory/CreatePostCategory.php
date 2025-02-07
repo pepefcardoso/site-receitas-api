@@ -8,23 +8,12 @@ use Illuminate\Support\Facades\DB;
 
 class CreatePostCategory
 {
-    protected CreateImage $createImageService;
-
-    public function __construct(
-        CreateImage $createImageService,
-    ) {
-        $this->createImageService = $createImageService;
-    }
-
     public function create(array $data)
     {
         try {
             DB::beginTransaction();
 
             $postCategory = PostCategory::create($data);
-
-            $image = data_get($data, 'image');
-            $this->createImageService->create($postCategory, $image);
 
             DB::commit();
 

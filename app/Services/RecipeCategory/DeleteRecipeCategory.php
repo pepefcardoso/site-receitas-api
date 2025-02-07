@@ -8,14 +8,6 @@ use Illuminate\Support\Facades\DB;
 
 class DeleteRecipeCategory
 {
-    protected DeleteImage $deleteImageService;
-
-    public function __construct(
-        DeleteImage $deleteImageService,
-    ) {
-        $this->deleteImageService = $deleteImageService;
-    }
-
     public function delete(RecipeCategory $recipeCategory)
     {
         try {
@@ -23,11 +15,6 @@ class DeleteRecipeCategory
 
             if ($recipeCategory->recipes()->exists()) {
                 throw new \Exception('This category cannot be deleted because it is associated with one or more recipes');
-            }
-
-            if ($recipeCategory->image) {
-                $imageId = $recipeCategory->image->id;
-                $this->deleteImageService->delete($imageId);
             }
 
             $recipeCategory->delete();

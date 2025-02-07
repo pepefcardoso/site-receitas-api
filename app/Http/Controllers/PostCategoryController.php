@@ -22,11 +22,11 @@ class PostCategoryController extends BaseController
         $this->middleware('auth:sanctum')->except(['index', 'show']);
     }
 
-    public function index(ListPostCategory $service)
+    public function index(Request $request, ListPostCategory $service)
     {
         $perPage = request()->input('per_page', 10);
 
-        $categories = $service->list([], $perPage);
+        $categories = $service->list($perPage);
 
         return response()->json($categories);
     }

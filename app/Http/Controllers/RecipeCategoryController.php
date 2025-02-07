@@ -22,11 +22,11 @@ class RecipeCategoryController extends BaseController
         $this->middleware('auth:sanctum')->except(['index', 'show']);
     }
 
-    public function index(ListRecipeCategory $service)
+    public function index(Request $request, ListRecipeCategory $service)
     {
         $perPage = request()->input('per_page', 10);
 
-        $categories = $service->list([], $perPage);
+        $categories = $service->list($perPage);
 
         return response()->json($categories);
     }

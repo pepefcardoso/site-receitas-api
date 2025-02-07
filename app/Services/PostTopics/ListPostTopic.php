@@ -6,8 +6,10 @@ use App\Models\PostTopic;
 
 class ListPostTopic
 {
-    public function list(array $filters = [], $perPage = 10)
+    public function list(int $perPage = 10)
     {
-        return PostTopic::with('image')->get();
+        $query = PostTopic::query();
+
+        return $query->paginate($perPage);
     }
 }
