@@ -9,8 +9,8 @@ class ShowPost
     public function show($id)
     {
         return Post::with([
-            'category.image',
-            'topics.image',
+            'category',
+            'topics',
             'image',
             'user.image'
         ])->findOrFail($id);

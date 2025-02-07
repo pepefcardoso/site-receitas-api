@@ -26,9 +26,8 @@ class PostController extends BaseController
         $validatedFilters = $request->validate(Post::filtersRules());
 
         $filters = [
-            'title' => $validatedFilters['title'] ?? null,
+            'search' => request()->input('search'),
             'category_id' => $validatedFilters['category_id'] ?? null,
-            'topics' => $validatedFilters['diets'] ?? null,
             'order_by' => $validatedFilters['order_by'] ?? 'created_at',
             'order_direction' => $validatedFilters['order_direction'] ?? 'desc',
             'user_id' => $validatedFilters['user_id'] ?? null,

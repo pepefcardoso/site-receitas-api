@@ -9,8 +9,8 @@ class ShowRecipe
     public function show($id)
     {
         return Recipe::with([
-            'diets.image',
-            'category.image',
+            'diets',
+            'category',
             'steps',
             'ingredients.unit',
             'image',

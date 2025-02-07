@@ -26,18 +26,18 @@ class Post extends Model
 
     public function scopeFilter($query, array $filters)
     {
-        if (!empty($filters['title'])) {
-            $query->where('title', 'like', '%' . $filters['title'] . '%');
+        if (!empty($filters['search'])) {
+            $searchTerm = $filters['search'];
+            $query->where(function ($query) use ($searchTerm) {
+                $query->where('title', 'like', '%' . $searchTerm . '%')
+                    ->orWhereHas('topics', function ($query) use ($searchTerm) {
+                        $query->where('name', 'like', '%' . $searchTerm . '%');
+                    });
+            });
         }
 
         if (!empty($filters['category_id'])) {
             $query->where('category_id', $filters['category_id']);
-        }
-
-        if (!empty($filters['topics'])) {
-            $query->whereHas('topics', function ($query) use ($filters) {
-                $query->whereIn('post_topics.id', $filters['topics']);
-            });
         }
 
         if (!empty($filters['user_id'])) {
@@ -76,10 +76,8 @@ class Post extends Model
     public static function filtersRules(): array
     {
         return [
-            'title' => 'nullable|string|max:255',
+            'search' => 'nullable|string|max:255',
             'category_id' => 'nullable|integer|exists:post_categories,id',
-            'topics' => 'nullable|array',
-            'topics.*' => 'integer|exists:post_topics,id',
             'order_by' => 'nullable|string|in:title,created_at',
             'order_direction' => 'nullable|string|in:asc,desc',
             'user_id' => 'nullable|integer|exists:users,id',
