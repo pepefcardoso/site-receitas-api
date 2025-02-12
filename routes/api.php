@@ -16,6 +16,9 @@ use \App\Http\Controllers\UserController;
 
 Route::apiResource('users', UserController::class);
 Route::get('user/me', [UserController::class, 'authUser']);
+Route::get('users/roles', [UserController::class, 'listRoles']);
+Route::post('user/role', [UserController::class, 'updateRole']);
+Route::post('users/resetPassword', [UserController::class, 'resetPassword']);
 
 Route::apiResource('posts', PostController::class);
 Route::get('posts/my', [PostController::class, 'userPosts']);

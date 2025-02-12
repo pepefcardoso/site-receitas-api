@@ -5,8 +5,11 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use App\Services\User\CreateUser;
 use App\Services\User\DeleteUser;
+use App\Services\User\ListRoles;
 use App\Services\User\ListUser;
+use App\Services\User\ResetPassword;
 use App\Services\User\ShowUser;
+use App\Services\User\UpdateRole;
 use App\Services\User\UpdateUser;
 use Auth;
 use Illuminate\Http\Request;
@@ -19,7 +22,7 @@ class UserController extends BaseController
 
     public function __construct()
     {
-        $this->middleware('auth:sanctum')->except(['create']);
+        $this->middleware('auth:sanctum')->except(['store', 'resetPassword']);
     }
 
     public function index(ListUser $service)
@@ -93,5 +96,42 @@ class UserController extends BaseController
         $user = $service->show($authUser->id);
 
         return response()->json($user);
+    }
+
+    public function listRoles(ListRoles $service)
+    {
+        $this->authorize('viewAny', User::class);
+
+        $roles = $service->list();
+
+        return response()->json($roles);
+    }
+
+    public function updateRole(Request $request, UpdateRole $service)
+    {
+        try {
+            $this->authorize('viewAny', arguments: User::class);
+            $data = $request->validate(User::setRoleRules());
+
+            $user = $service->update($data);
+
+            return response()->json(data: $user);
+        } catch (\Exception $e) {
+            return response()->json(data: $e, status: 400);
+        }
+    }
+
+    public function resetPassword(Request $request, ResetPassword $service)
+    {
+        $data = $request->validate(User::resetPasswordRules());
+        $email = data_get($data, 'email');
+
+        try {
+            $response = $service->reset($email);
+
+            return response()->json($response);
+        } catch (\Exception $e) {
+            return response()->json(data: $e, status: 400);
+        }
     }
 }
