@@ -2,12 +2,14 @@
 
 namespace App\Models;
 
+use App\Enum\RecipeDifficultyEnum;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
+use Illuminate\Validation\Rule;
 
 class Recipe extends Model
 {
@@ -62,7 +64,7 @@ class Recipe extends Model
             'description' => 'required|string',
             'time' => 'required|integer',
             'portion' => 'required|integer',
-            'difficulty' => 'required|integer',
+            'difficulty' => ['required', 'integer', Rule::enum(RecipeDifficultyEnum::class)],
             'category_id' => 'required|exists:recipe_categories,id',
             'diets' => 'array|required',
             'diets.*' => 'exists:recipe_diets,id',
@@ -81,7 +83,7 @@ class Recipe extends Model
             'description' => 'required|string',
             'time' => 'required|integer',
             'portion' => 'required|integer',
-            'difficulty' => 'required|integer',
+            'difficulty' => ['required', 'integer', Rule::enum(RecipeDifficultyEnum::class)],
             'category_id' => 'required|exists:recipe_categories,id',
             'diets' => 'array|required',
             'diets.*' => 'exists:recipe_diets,id',
