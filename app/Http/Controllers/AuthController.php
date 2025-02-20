@@ -24,7 +24,7 @@ class AuthController extends BaseController
         try {
             $data = $request->validate(User::loginRules());
             $result = $service->login($data);
-            return response()->json($result);
+            return response()->json(['token' => $result]);
         } catch (\Exception $e) {
             return response()->json([
                 'errors' => [$e->getMessage()],

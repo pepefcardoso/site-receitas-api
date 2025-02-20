@@ -8,6 +8,7 @@ use App\Services\Post\DeletePost;
 use App\Services\Post\ListPost;
 use App\Services\Post\ShowPost;
 use App\Services\Post\UpdatePost;
+use Auth;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller as BaseController;
@@ -84,9 +85,9 @@ class PostController extends BaseController
             'title' => request()->input('title'),
             'category_id' => request()->input('category_id'),
             'topics' => request()->input('topics'),
-            'user_id' => request()->input('user_id'),
             'order_by' => request()->input('order_by', 'created_at'),
-            'order_direction' => request()->input('order_direction', 'desc')
+            'order_direction' => request()->input('order_direction', 'desc'),
+            'user_id' => Auth::id()
         ];
 
         $perPage = request()->input('per_page', 10);
