@@ -36,7 +36,7 @@ class UpdateUser
                     $currentImage = $user->image;
                     $this->updateImageService->update($currentImage->id, $newImageFile);
                 } else {
-                    $this->createImageService->create($newImageFile, $newImageFile);
+                    $this->createImageService->create($user, $newImageFile);
                 }
             }
 
