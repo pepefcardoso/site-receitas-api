@@ -85,7 +85,7 @@ class User extends Authenticatable
         return [
             'name' => 'required|string|min:3|max:100',
             'email' => 'required|email|unique:users,email',
-            'phone' => 'required|string|regex:/^\d{11}$/|unique:users,phone',
+            'phone' => 'required|string|regex:/^\d{10,11}$/|unique:users,phone',
             'password' => 'required|string|min:8|max:99',
             'confirm_password' => 'required|string|same:password',
         ];
@@ -96,7 +96,7 @@ class User extends Authenticatable
         return [
             'name' => 'required|string|min:3|max:100',
             'birthday' => 'nullable|date|before:today',
-            'phone' => 'required|string|regex:/^\d{11}$/|unique:users,phone',
+            'phone' => 'required|string|regex:/^\d{10,11}$/|unique:users,phone',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
             'password' => 'nullable|string|min:8|max:99',
             'confirm_password' => 'nullable|string|same:password',
