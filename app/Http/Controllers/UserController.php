@@ -15,6 +15,7 @@ use Auth;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller as BaseController;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Illuminate\Support\Facades\Log;
 
 class UserController extends BaseController
 {
@@ -70,6 +71,12 @@ class UserController extends BaseController
 
     public function update(Request $request, User $user, UpdateUser $service)
     {
+        // Debug Symfony's parsed data
+        \Log::info('Symfony Request Data:', $request->request->all());
+
+        // Debug Laravel's parsed data
+        \Log::info('Laravel Request Data:', $request->all());
+
         $this->authorize('update', $user);
 
         $data = $request->validate(User::updateRules());
