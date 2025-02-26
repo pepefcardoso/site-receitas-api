@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enum\RolesEnum;
+use App\Notifications\PasswordResetNotification;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
@@ -54,6 +55,11 @@ class User extends Authenticatable
     protected $casts = [
         'role' => RolesEnum::class,
     ];
+
+    public function sendPasswordResetNotification($token): void
+    {
+        $this->notify(new PasswordResetNotification($this->name, $token));
+    }
 
     public function scopeFilter($query, array $filters)
     {

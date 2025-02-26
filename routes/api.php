@@ -25,7 +25,6 @@ Route::apiResource('users', UserController::class);
 Route::get('user/me', [UserController::class, 'authUser']);
 Route::get('users/roles', [UserController::class, 'listRoles']);
 Route::post('user/role', [UserController::class, 'updateRole']);
-Route::post('users/resetPassword', [UserController::class, 'resetPassword']);
 
 /*
 |--------------------------------------------------------------------------
@@ -65,6 +64,8 @@ Route::apiResource('images', ImageController::class);
 */
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/logout', [AuthController::class, 'logout']);
+Route::post('/password/forgot', [AuthController::class, 'sendResetLink'])->withoutMiddleware('auth:sanctum');
+Route::post('/password/reset', [AuthController::class, 'resetPassword'])->withoutMiddleware('auth:sanctum');
 
 /*
 |--------------------------------------------------------------------------

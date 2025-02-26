@@ -7,14 +7,13 @@ use App\Services\User\CreateUser;
 use App\Services\User\DeleteUser;
 use App\Services\User\ListRoles;
 use App\Services\User\ListUser;
-use App\Services\User\ResetPassword;
 use App\Services\User\ShowUser;
 use App\Services\User\UpdateRole;
 use App\Services\User\UpdateUser;
 use Auth;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller as BaseController;
-use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
 class UserController extends BaseController
 {
@@ -22,7 +21,7 @@ class UserController extends BaseController
 
     public function __construct()
     {
-        $this->middleware('auth:sanctum')->except(['store', 'resetPassword']);
+        $this->middleware('auth:sanctum')->except(['store']);
     }
 
     public function index(ListUser $service)
@@ -116,20 +115,6 @@ class UserController extends BaseController
             $user = $service->update($data);
 
             return response()->json(data: $user);
-        } catch (\Exception $e) {
-            return response()->json(data: $e, status: 400);
-        }
-    }
-
-    public function resetPassword(Request $request, ResetPassword $service)
-    {
-        $data = $request->validate(User::resetPasswordRules());
-        $email = data_get($data, 'email');
-
-        try {
-            $response = $service->reset($email);
-
-            return response()->json($response);
         } catch (\Exception $e) {
             return response()->json(data: $e, status: 400);
         }
