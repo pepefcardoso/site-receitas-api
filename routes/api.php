@@ -70,4 +70,4 @@ Route::post('/logout', [AuthController::class, 'logout']);
 | Customer Contact Route
 |--------------------------------------------------------------------------
 */
-Route::get('/contact', [CustomerContactController::class, 'register']);
+Route::post('/contact', [CustomerContactController::class, 'register']);
