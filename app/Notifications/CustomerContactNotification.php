@@ -27,13 +27,13 @@ class CustomerContactNotification extends Notification implements ShouldQueue
     public function toMail($notifiable)
     {
         return (new MailMessage)
-            ->subject('Thank You for Contacting Us!')
-            ->greeting('Hello ' . $this->customerContact->name . ',')
-            ->line('Thank you for reaching out to us. We have received your message and will get back to you shortly.')
-            ->line('**Your Contact Details:**')
-            ->line('Email: ' . $this->customerContact->email)
-            ->line('Phone: ' . $this->customerContact->phone)
-            ->line('Message: ' . $this->customerContact->message)
-            ->salutation('Regards, ' . config('app.name'));
+            ->subject('Agradecemos por entrar em contato!')
+            ->greeting('Olá ' . $this->customerContact->name . ',')
+            ->line('Agradecemos por entrar em contato conosco. Recebemos sua mensagem e retornaremos em breve.')
+            ->line('**Seus dados de contato:**')
+            ->line('E-mail: ' . $this->customerContact->email)
+            ->line('Telefone: ' . $this->customerContact->phone)
+            ->line('Mensagem: ' . $this->customerContact->message)
+            ->salutation('Atenciosamente, ' . config('app.name'));
     }
 }

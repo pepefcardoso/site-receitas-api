@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\NewsletterCustomer;
 use App\Models\User;
 
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
@@ -27,6 +28,7 @@ class DatabaseSeeder extends Seeder
             RecipeStepSeeder::class,
             ImageSeeder::class,
             CustomerContactSeeder::class,
+            NewsletterCustomerSeeder::class,
         ]);
     }
 }

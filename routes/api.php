@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\NewsletterCustomerController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\AuthController;
@@ -71,3 +72,4 @@ Route::post('/logout', [AuthController::class, 'logout']);
 |--------------------------------------------------------------------------
 */
 Route::post('/contact', [CustomerContactController::class, 'register']);
+Route::apiResource('newsletter', NewsletterCustomerController::class);

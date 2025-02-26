@@ -35,7 +35,9 @@ class ImageController extends BaseController
 
         try {
             $model = $data['imageable_type']::findOrFail($data['imageable_id']);
-            $image = $service->create($model, $data);
+            $file = $data['file'];
+
+            $image = $service->create($model, $file);
 
             return response()->json($image, 201);
         } catch (\Exception $e) {
@@ -57,8 +59,9 @@ class ImageController extends BaseController
         $data = $request->validate([
             'file' => 'required|file|mimes:jpeg,png,jpg,gif,svg|max:2048'
         ]);
+        $file = $data['file'];
 
-        $updatedImage = $service->update($image->id, $data);
+        $updatedImage = $service->update($image->id, $file);
 
         return response()->json($updatedImage);
     }

@@ -3,7 +3,6 @@
 namespace App\Services\PostCategory;
 
 use App\Models\PostCategory;
-use App\Services\Image\UpdateImage;
 use Illuminate\Support\Facades\DB;
 
 class UpdatePostCategory
