@@ -3,13 +3,13 @@
 namespace App\Http\Controllers;
 
 use App\Models\NewsletterCustomer;
+use App\Services\NewsletterCustomer\CreateNewsletterCustomer;
 use App\Services\NewsletterCustomer\DeleteNewsletterCustomer;
 use App\Services\NewsletterCustomer\ListNewsletterCustomer;
 use App\Services\NewsletterCustomer\ShowNewsletterCustomer;
 use App\Services\NewsletterCustomer\UpdateNewsletterCustomer;
-use CreateNewsletterCustomer;
+use Illuminate\Http\Request;
 use Illuminate\Routing\Controller as BaseController;
-use Request;
 
 class NewsletterCustomerController extends BaseController
 {

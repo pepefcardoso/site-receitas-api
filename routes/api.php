@@ -1,6 +1,5 @@
 <?php
 
-use App\Http\Controllers\NewsletterCustomerController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\AuthController;
@@ -15,6 +14,7 @@ use App\Http\Controllers\RecipeStepController;
 use App\Http\Controllers\RecipeUnitController;
 use App\Http\Controllers\ImageController;
 use App\Http\Controllers\CustomerContactController;
+use App\Http\Controllers\NewsletterCustomerController;
 
 /*
 |--------------------------------------------------------------------------

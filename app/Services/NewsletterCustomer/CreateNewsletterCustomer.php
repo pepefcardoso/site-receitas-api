@@ -1,5 +1,7 @@
 <?php
 
+namespace App\Services\NewsletterCustomer;
+
 use App\Models\NewsletterCustomer;
 use App\Notifications\CreateNewsletterCustomerNotification;
 use Exception;
