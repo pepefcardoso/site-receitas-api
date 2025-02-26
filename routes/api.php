@@ -13,6 +13,7 @@ use App\Http\Controllers\RecipeIngredientController;
 use App\Http\Controllers\RecipeStepController;
 use App\Http\Controllers\RecipeUnitController;
 use App\Http\Controllers\ImageController;
+use App\Http\Controllers\CustomerContactController;
 
 /*
 |--------------------------------------------------------------------------
@@ -63,3 +64,10 @@ Route::apiResource('images', ImageController::class);
 */
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/logout', [AuthController::class, 'logout']);
+
+/*
+|--------------------------------------------------------------------------
+| Customer Contact Route
+|--------------------------------------------------------------------------
+*/
+Route::get('/contact', [CustomerContactController::class, 'register']);
