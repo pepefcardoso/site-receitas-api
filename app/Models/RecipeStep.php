@@ -38,7 +38,6 @@ class RecipeStep extends Model
     {
         return [
             'steps.*.id' => 'nullable|exists:recipe_steps,id',
-            'steps.*.order' => self::createRules()["order"],
             'steps.*.description' => self::createRules()["description"],
         ];
     }

@@ -19,9 +19,10 @@ class CreateRecipe
 
     public function __construct(
         CreateRecipeIngredient $createRecipeIngredient,
-        CreateRecipeStep $createRecipeStep,
-        CreateImage $createImageService,
-    ) {
+        CreateRecipeStep       $createRecipeStep,
+        CreateImage            $createImageService,
+    )
+    {
         $this->createRecipeIngredient = $createRecipeIngredient;
         $this->createRecipeStep = $createRecipeStep;
         $this->createImageService = $createImageService;
@@ -85,13 +86,11 @@ class CreateRecipe
 
     protected function createSteps(Recipe $recipe, array $data): void
     {
-        $steps = data_get($data, 'steps');
-        throw_if(empty($steps), Exception::class, 'Steps are required');
+        $steps = $data['steps'] ?? [];
 
-        foreach ($steps as $step) {
-            $this->createRecipeStep->create([
-                'recipe_id' => $recipe->id,
-                'order' => $step['order'],
+        foreach ($steps as $index => $step) {
+            $recipe->steps()->create([
+                'order' => $index + 1,
                 'description' => $step['description'],
             ]);
         }

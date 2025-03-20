@@ -71,7 +71,7 @@ class UserController extends BaseController
     {
         $this->authorize('update', $user);
 
-        $data = $request->validate(User::updateRules());
+        $data = $request->validate(User::updateRules($user->id));
 
         $user = $service->update($user->id, $data);
 

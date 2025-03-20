@@ -25,7 +25,7 @@ class UpdateRecipe
         protected CreateRecipeStep       $createRecipeStep,
         protected UpdateRecipeStep       $updateRecipeStep,
         protected DeleteRecipeStep       $deleteRecipeStep,
-        protected UpdateImage $updateImageService
+        protected UpdateImage            $updateImageService
     )
     {
     }
@@ -117,44 +117,27 @@ class UpdateRecipe
 
     protected function handleSteps(Recipe $recipe, array $data): void
     {
-        if (!isset($data['steps'])) {
-            // If no steps are provided, delete all existing steps for the recipe
-            $recipe->steps->each(function ($step) {
-                $this->deleteRecipeStep->delete($step);
-            });
-            return;
-        }
+        $steps = $data['steps'] ?? [];
 
         $stepIds = [];
 
-        foreach ($data['steps'] as $step) {
+        foreach ($steps as $index => $step) {
+            $stepData = [
+                'order' => $index + 1,
+                'description' => $step['description'],
+                'recipe_id' => $recipe->id,
+            ];
+
             if (isset($step['id'])) {
-                // Update existing step
-                $currentStep = RecipeStep::findOrFail($step['id']);
-                $this->updateRecipeStep->update($currentStep, [
-                    'order' => $step['order'],
-                    'description' => $step['description'],
-                ]);
-                $stepIds[] = $step['id'];
+                $currentStep = $recipe->steps()->findOrFail($step['id']);
+                $currentStep->update($stepData);
+                $stepIds[] = $currentStep->id;
             } else {
-                // Create new step
-                $newStep = $this->createRecipeStep->create([
-                    'recipe_id' => $recipe->id,
-                    'order' => $step['order'],
-                    'description' => $step['description'],
-                ]);
+                $newStep = $recipe->steps()->create($stepData);
                 $stepIds[] = $newStep->id;
             }
         }
 
-        // Find steps to delete
-        $existingStepIds = $recipe->steps()->pluck('id')->toArray();
-        $stepsToDelete = array_diff($existingStepIds, $stepIds);
-
-        // Delete steps that were not included in the request
-        foreach ($stepsToDelete as $stepId) {
-            $step = RecipeStep::findOrFail($stepId);
-            $this->deleteRecipeStep->delete($step);
-        }
+        $recipe->steps()->whereNotIn('id', $stepIds)->delete();
     }
 }

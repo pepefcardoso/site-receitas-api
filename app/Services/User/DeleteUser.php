@@ -3,9 +3,11 @@
 namespace App\Services\User;
 
 use App\Models\User;
+use App\Notifications\DeletedUser;
 use App\Services\Image\DeleteImage;
 use Exception;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Notification;
 
 class DeleteUser
 {
@@ -28,6 +30,10 @@ class DeleteUser
             }
 
             $user->delete();
+
+            Notification::route('mail', $user->email)
+                ->notify(new DeletedUser($user));
+
             DB::commit();
 
             return $user;
