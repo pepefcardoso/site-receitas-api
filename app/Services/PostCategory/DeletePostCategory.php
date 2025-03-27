@@ -3,7 +3,6 @@
 namespace App\Services\PostCategory;
 
 use App\Models\PostCategory;
-use App\Services\Image\DeleteImage;
 use Exception;
 use Illuminate\Support\Facades\DB;
 
@@ -21,14 +20,12 @@ class DeletePostCategory
             }
 
             $postCategory->delete();
-
             DB::commit();
 
             return $postCategory;
         } catch (Exception $e) {
             DB::rollback();
-            return $e->getMessage();
+            throw $e;
         }
     }
-
 }

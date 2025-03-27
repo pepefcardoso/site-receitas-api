@@ -8,6 +8,7 @@ use App\Services\PostCategory\DeletePostCategory;
 use App\Services\PostCategory\ListPostCategory;
 use App\Services\PostCategory\ShowPostCategory;
 use App\Services\PostCategory\UpdatePostCategory;
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
@@ -66,9 +67,14 @@ class PostCategoryController extends BaseController
     {
         $this->authorize("delete", $postCategory);
 
-        $response = $service->delete($postCategory->id);
-
-        return response()->json($response);
+        try {
+            $response = $service->delete($postCategory->id);
+            return response()->json($response);
+        } catch (Exception $e) {
+            return response()->json([
+                "error" => true,
+                "message" => $e->getMessage(),
+            ], 500);
+        }
     }
-
 }
