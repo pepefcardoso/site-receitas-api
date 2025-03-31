@@ -23,8 +23,7 @@ use App\Http\Controllers\NewsletterCustomerController;
 */
 Route::apiResource('users', UserController::class);
 Route::get('user/me', [UserController::class, 'authUser']);
-Route::get('users/roles', [UserController::class, 'listRoles']);
-Route::post('user/role', [UserController::class, 'updateRole']);
+Route::post('users/update-role', [UserController::class, 'updateRole']);
 
 /*
 |--------------------------------------------------------------------------

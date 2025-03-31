@@ -97,15 +97,6 @@ class UserController extends BaseController
         return response()->json($user);
     }
 
-    public function listRoles(ListRoles $service)
-    {
-        $this->authorize('viewAny', User::class);
-
-        $roles = $service->list();
-
-        return response()->json($roles);
-    }
-
     public function updateRole(Request $request, UpdateRole $service)
     {
         try {
