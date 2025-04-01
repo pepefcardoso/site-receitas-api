@@ -8,11 +8,21 @@ class ShowPost
 {
     public function show($id)
     {
-        return Post::with([
+        $query = Post::with([
             'category',
             'topics',
             'image',
             'user.image'
-        ])->findOrFail($id);
+        ]);
+
+        if (auth()->check()) {
+            $query->withExists([
+                'favoritedByUsers as is_favorited' => function ($query) {
+                    $query->where('user_id', auth()->id());
+                }
+            ]);
+        }
+
+        return $query->findOrFail($id);
     }
 }

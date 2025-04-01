@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Recipe;
 use App\Services\Recipe\CreateRecipe;
 use App\Services\Recipe\DeleteRecipe;
+use App\Services\Recipe\ListFavorites;
 use App\Services\Recipe\ListRecipe;
 use App\Services\Recipe\ShowRecipe;
 use App\Services\Recipe\UpdateRecipe;
@@ -97,6 +98,23 @@ class RecipeController extends BaseController
             $recipes = $service->list($filters, $perPage);
 
             return response()->json($recipes);
+        });
+    }
+
+    public function favorites(ListFavorites $service)
+    {
+        return $this->execute(function () use ($service) {
+            $filters = [
+                'search' => request()->input('search'),
+                'order_by' => request()->input('order_by', 'created_at'),
+                'order_direction' => request()->input('order_direction', 'desc'),
+                'user_id' => Auth::id()
+            ];
+            $perPage = request()->input('per_page', 10);
+
+            $data = $service->list($filters, $perPage);
+
+            return response()->json($data);
         });
     }
 }

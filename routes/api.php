@@ -24,6 +24,8 @@ use App\Http\Controllers\NewsletterCustomerController;
 Route::apiResource('users', UserController::class);
 Route::get('user/me', [UserController::class, 'authUser']);
 Route::post('users/update-role', [UserController::class, 'updateRole']);
+Route::post('users/favorite-post', [UserController::class, 'toggleFavoritePost']);
+Route::post('users/favorite-recipe', [UserController::class, 'toggleFavoriteRecipe']);
 
 /*
 |--------------------------------------------------------------------------
@@ -32,6 +34,7 @@ Route::post('users/update-role', [UserController::class, 'updateRole']);
 */
 // Place static routes before resource routes to avoid conflicts with implicit model binding.
 Route::get('posts/my', [PostController::class, 'userPosts']);
+Route::get('posts/favorites', [PostController::class, 'favoritePosts']);
 Route::apiResource('posts', PostController::class);
 Route::apiResource('post-categories', PostCategoryController::class);
 Route::apiResource('post-topics', PostTopicController::class);
@@ -42,6 +45,7 @@ Route::apiResource('post-topics', PostTopicController::class);
 |--------------------------------------------------------------------------
 */
 Route::get('recipes/my', [RecipeController::class, 'userRecipes']);
+Route::get('recipes/favorites', [RecipeController::class, 'favoriteRecipes']);
 Route::apiResource('recipes', RecipeController::class);
 Route::apiResource('recipe-diets', RecipeDietController::class);
 Route::apiResource('recipe-categories', RecipeCategoryController::class);

@@ -24,6 +24,8 @@ class Post extends Model
         'user_id',
     ];
 
+    protected $appends = ['is_favorited'];
+
     public function scopeFilter($query, array $filters)
     {
         if (!empty($filters['search'])) {
@@ -83,6 +85,19 @@ class Post extends Model
             'user_id' => 'nullable|integer|exists:users,id',
             'per_page' => 'nullable|integer|min:1|max:100',
         ];
+    }
+
+    public function getIsFavoritedAttribute(): bool
+    {
+        if (!auth()->check()) {
+            return false;
+        }
+
+        if (array_key_exists('is_favorited', $this->attributes)) {
+            return (bool) $this->attributes['is_favorited'];
+        }
+
+        return $this->favoritedByUsers()->where('user_id', auth()->id())->exists();
     }
 
     public function user(): BelongsTo

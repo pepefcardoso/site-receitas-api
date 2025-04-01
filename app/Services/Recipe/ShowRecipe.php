@@ -8,13 +8,23 @@ class ShowRecipe
 {
     public function show($id)
     {
-        return Recipe::with([
+        $query = Recipe::with([
             'diets',
             'category',
             'steps',
             'ingredients.unit',
             'image',
             'user.image'
-        ])->findOrFail($id);
+        ]);
+
+        if (auth()->check()) {
+            $query->withExists([
+                'favoritedByUsers as is_favorited' => function ($query) {
+                    $query->where('user_id', auth()->id());
+                }
+            ]);
+        }
+
+        return $query->findOrFail($id);
     }
 }

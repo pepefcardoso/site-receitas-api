@@ -23,7 +23,7 @@ class AuthController extends BaseController
         return $this->execute(function () use ($request, $service) {
             $data = $request->validate(User::loginRules());
             $token = $service->login($data);
-            return response()->json(['token' => $token], 401);
+            return response()->json(['token' => $token]);
         });
     }
 

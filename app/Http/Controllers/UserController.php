@@ -2,11 +2,15 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Post;
+use App\Models\Recipe;
 use App\Models\User;
 use App\Services\User\CreateUser;
 use App\Services\User\DeleteUser;
 use App\Services\User\ListUser;
 use App\Services\User\ShowUser;
+use App\Services\User\ToggleFavoritePost;
+use App\Services\User\ToggleFavoriteRecipe;
 use App\Services\User\UpdateRole;
 use App\Services\User\UpdateUser;
 use Auth;
@@ -101,6 +105,35 @@ class UserController extends BaseController
             $data = $request->validate(User::setRoleRules());
             $userData = $service->update($data);
             return response()->json($userData);
+        });
+    }
+
+    public function toggleFavoritePost(Request $request, ToggleFavoritePost $service)
+    {
+        return $this->execute(function () use ($request, $service) {
+            $this->authorize('update', auth()->user());
+
+            $data = $request->validate([
+                'post_id' => 'required|exists:posts,id',
+            ]);
+
+            $response = $service->toggle($data);
+
+            return response()->json($response);
+        });
+    }
+    public function toggleFavoriteRecipe(Request $request, ToggleFavoriteRecipe $service)
+    {
+        return $this->execute(function () use ($request, $service) {
+            $this->authorize('update', auth()->user());
+
+            $data = $request->validate([
+                'recipe_id' => 'required|exists:recipes,id',
+            ]);
+
+            $response = $service->toggle($data);
+
+            return response()->json($response);
         });
     }
 }

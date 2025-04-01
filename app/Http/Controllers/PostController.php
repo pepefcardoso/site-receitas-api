@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Post;
 use App\Services\Post\CreatePost;
 use App\Services\Post\DeletePost;
+use App\Services\Post\ListFavorites;
 use App\Services\Post\ListPost;
 use App\Services\Post\ShowPost;
 use App\Services\Post\UpdatePost;
@@ -96,6 +97,23 @@ class PostController extends BaseController
             $posts = $service->list($filters, $perPage);
 
             return response()->json($posts);
+        });
+    }
+
+    public function favorites(ListFavorites $service)
+    {
+        return $this->execute(function () use ($service) {
+            $filters = [
+                'search' => request()->input('search'),
+                'order_by' => request()->input('order_by', 'created_at'),
+                'order_direction' => request()->input('order_direction', 'desc'),
+                'user_id' => Auth::id()
+            ];
+            $perPage = request()->input('per_page', 10);
+
+            $data = $service->list($filters, $perPage);
+
+            return response()->json($data);
         });
     }
 }
