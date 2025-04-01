@@ -25,7 +25,6 @@ class CreateCustomerContact
             return $customerContact;
         } catch (Exception $e) {
             DB::rollBack();
-
             throw $e;
         }
     }

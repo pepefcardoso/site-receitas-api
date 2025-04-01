@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use App\Services\User\CreateUser;
 use App\Services\User\DeleteUser;
-use App\Services\User\ListRoles;
 use App\Services\User\ListUser;
 use App\Services\User\ShowUser;
 use App\Services\User\UpdateRole;
@@ -13,7 +12,6 @@ use App\Services\User\UpdateUser;
 use Auth;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
-use Illuminate\Routing\Controller as BaseController;
 
 class UserController extends BaseController
 {
@@ -46,68 +44,63 @@ class UserController extends BaseController
 
     public function store(Request $request, CreateUser $service)
     {
-        $data = $request->validate(User::createRules());
+        return $this->execute(function () use ($request, $service) {
+            $data = $request->validate(User::createRules());
+            $user = $service->create($data);
+            $token = $user->createToken('auth_token');
 
-        $user = $service->create($data);
-
-        $token = $user->createToken('auth_token');
-
-        return response()->json([
-            'user' => $user,
-            'token' => $token->plainTextToken,
-        ], 201);
+            return response()->json([
+                'user' => $user,
+                'token' => $token->plainTextToken,
+            ], 201);
+        });
     }
 
     public function show(User $user, ShowUser $service)
     {
-        $this->authorize('view', $user);
-
-        $user = $service->show($user->id);
-
-        return response()->json($user);
+        return $this->execute(function () use ($user, $service) {
+            $this->authorize('view', $user);
+            $userData = $service->show($user->id);
+            return response()->json($userData);
+        });
     }
 
     public function update(Request $request, User $user, UpdateUser $service)
     {
-        $this->authorize('update', $user);
-
-        $data = $request->validate(User::updateRules($user->id));
-
-        $user = $service->update($user->id, $data);
-
-        return response()->json($user);
+        return $this->execute(function () use ($request, $user, $service) {
+            $this->authorize('update', $user);
+            $data = $request->validate(User::updateRules($user->id));
+            $userData = $service->update($user->id, $data);
+            return response()->json($userData);
+        });
     }
 
     public function destroy(User $user, DeleteUser $service)
     {
-        $this->authorize('delete', $user);
-
-        $response = $service->delete($user);
-
-        return response()->json($response);
+        return $this->execute(function () use ($user, $service) {
+            $this->authorize('delete', $user);
+            $response = $service->delete($user);
+            return response()->json($response);
+        });
     }
 
     public function authUser(ShowUser $service)
     {
-        $authUser = Auth::user();
-        $this->authorize('view', $authUser);
-
-        $user = $service->show($authUser->id);
-
-        return response()->json($user);
+        return $this->execute(function () use ($service) {
+            $authUser = Auth::user();
+            $this->authorize('view', $authUser);
+            $userData = $service->show($authUser->id);
+            return response()->json($userData);
+        });
     }
 
     public function updateRole(Request $request, UpdateRole $service)
     {
-        try {
-            $this->authorize('viewAny', arguments: User::class);
+        return $this->execute(function () use ($request, $service) {
+            $this->authorize('viewAny', User::class);
             $data = $request->validate(User::setRoleRules());
-
-            $user = $service->update($data);
-
-            return response()->json(data: $user);
-        } catch (\Exception $e) {
-            return response()->json(data: $e, status: 400);
-        }
+            $userData = $service->update($data);
+            return response()->json($userData);
+        });
     }
 }

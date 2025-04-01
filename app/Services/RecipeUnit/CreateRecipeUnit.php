@@ -19,7 +19,7 @@ class CreateRecipeUnit
             return $recipeUnit;
         } catch (\Exception $e) {
             DB::rollback();
-            return $e->getMessage();
+            throw $e;
         }
     }
 }

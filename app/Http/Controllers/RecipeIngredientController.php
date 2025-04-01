@@ -10,7 +10,6 @@ use App\Services\RecipeIngredient\ShowRecipeIngredient;
 use App\Services\RecipeIngredient\UpdateRecipeIngredient;
 use Illuminate\Http\Request;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
-use Illuminate\Routing\Controller as BaseController;
 
 class RecipeIngredientController extends BaseController
 {
@@ -21,48 +20,53 @@ class RecipeIngredientController extends BaseController
         $this->middleware('auth:sanctum')->except(['index', 'show']);
     }
 
-    public function index(ListRecipeIngredient $service)
+    public function index(Request $request, ListRecipeIngredient $service)
     {
-        $ingredients = $service->list();
-
-        return response()->json($ingredients);
+        return $this->execute(function () use ($service) {
+            $ingredients = $service->list();
+            return response()->json($ingredients);
+        });
     }
 
     public function store(Request $request, CreateRecipeIngredient $service)
     {
-        $this->authorize('create', RecipeIngredient::class);
+        return $this->execute(function () use ($request, $service) {
+            $this->authorize('create', RecipeIngredient::class);
 
-        $data = $request->validate(RecipeIngredient::createRules());
+            $data = $request->validate(RecipeIngredient::createRules());
+            $ingredient = $service->create($data);
 
-        $ingredient = $service->create($data);
-
-        return response()->json($ingredient, 201);
+            return response()->json($ingredient, 201);
+        });
     }
 
-    public function show(RecipeIngredient $RecipeIngredient, ShowRecipeIngredient $service)
+    public function show(RecipeIngredient $recipeIngredient, ShowRecipeIngredient $service)
     {
-        $ingredient = $service->show($RecipeIngredient->id);
-
-        return response()->json($ingredient);
+        return $this->execute(function () use ($recipeIngredient, $service) {
+            $ingredient = $service->show($recipeIngredient->id);
+            return response()->json($ingredient);
+        });
     }
 
-    public function update(Request $request, RecipeIngredient $RecipeIngredient, UpdateRecipeIngredient $service)
+    public function update(Request $request, RecipeIngredient $recipeIngredient, UpdateRecipeIngredient $service)
     {
-        $this->authorize("update", $RecipeIngredient);
+        return $this->execute(function () use ($request, $recipeIngredient, $service) {
+            $this->authorize('update', $recipeIngredient);
 
-        $data = $request->validate(RecipeIngredient::updateRules());
+            $data = $request->validate(RecipeIngredient::updateRules());
+            $ingredient = $service->update($recipeIngredient, $data);
 
-        $ingredient = $service->update($RecipeIngredient, $data);
-
-        return response()->json($ingredient);
+            return response()->json($ingredient);
+        });
     }
 
-    public function destroy(RecipeIngredient $RecipeIngredient, DeleteRecipeIngredient $service)
+    public function destroy(RecipeIngredient $recipeIngredient, DeleteRecipeIngredient $service)
     {
-        $this->authorize("delete", $RecipeIngredient);
+        return $this->execute(function () use ($recipeIngredient, $service) {
+            $this->authorize('delete', $recipeIngredient);
+            $response = $service->delete($recipeIngredient);
 
-        $response = $service->delete($RecipeIngredient);
-
-        return response()->json($response);
+            return response()->json($response);
+        });
     }
 }

@@ -11,7 +11,6 @@ use App\Services\Post\UpdatePost;
 use Auth;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
-use Illuminate\Routing\Controller as BaseController;
 
 class PostController extends BaseController
 {
@@ -24,76 +23,79 @@ class PostController extends BaseController
 
     public function index(Request $request, ListPost $service)
     {
-        $validatedFilters = $request->validate(Post::filtersRules());
+        return $this->execute(function () use ($request, $service) {
+            $validatedFilters = $request->validate(Post::filtersRules());
 
-        $filters = [
-            'search' => request()->input('search'),
-            'category_id' => $validatedFilters['category_id'] ?? null,
-            'order_by' => $validatedFilters['order_by'] ?? 'created_at',
-            'order_direction' => $validatedFilters['order_direction'] ?? 'desc',
-            'user_id' => $validatedFilters['user_id'] ?? null,
-        ];
+            $filters = [
+                'search' => request()->input('search'),
+                'category_id' => $validatedFilters['category_id'] ?? null,
+                'order_by' => $validatedFilters['order_by'] ?? 'created_at',
+                'order_direction' => $validatedFilters['order_direction'] ?? 'desc',
+                'user_id' => $validatedFilters['user_id'] ?? null,
+            ];
 
-        $perPage = $validatedFilters['per_page'] ?? 10;
+            $perPage = $validatedFilters['per_page'] ?? 10;
 
-        $posts = $service->list($filters, $perPage);
+            $posts = $service->list($filters, $perPage);
 
-        return response()->json($posts);
+            return response()->json($posts);
+        });
     }
 
     public function store(Request $request, CreatePost $service)
     {
-        $this->authorize('create', Post::class);
-
-        $data = $request->validate(Post::createRules());
-
-        $Post = $service->create($data);
-
-        return response()->json($Post, 201);
+        return $this->execute(function () use ($request, $service) {
+            $this->authorize('create', Post::class);
+            $data = $request->validate(Post::createRules());
+            $post = $service->create($data);
+            return response()->json($post, 201);
+        });
     }
 
-    public function show(Post $Post, ShowPost $service)
+    public function show(Post $post, ShowPost $service)
     {
-        $Post = $service->show($Post->id);
-
-        return response()->json($Post);
+        return $this->execute(function () use ($post, $service) {
+            $post = $service->show($post->id);
+            return response()->json($post);
+        });
     }
 
-    public function update(Request $request, Post $Post, UpdatePost $service)
+    public function update(Request $request, Post $post, UpdatePost $service)
     {
-        $this->authorize("update", $Post);
-
-        $data = $request->validate(Post::updateRules());
-
-        $Post = $service->update($Post->id, $data);
-
-        return response()->json($Post);
+        return $this->execute(function () use ($request, $post, $service) {
+            $this->authorize("update", $post);
+            $data = $request->validate(Post::updateRules());
+            $post = $service->update($post->id, $data);
+            return response()->json($post);
+        });
     }
 
-    public function destroy(Post $Post, DeletePost $service)
+    public function destroy(Post $post, DeletePost $service)
     {
-        $this->authorize("delete", $Post);
-
-        $response = $service->delete($Post);
-
-        return response()->json($response);
+        return $this->execute(function () use ($post, $service) {
+            $this->authorize("delete", $post);
+            $response = $service->delete($post);
+            return response()->json($response);
+        });
     }
 
     public function userPosts(ListPost $service)
     {
-        $filters = [
-            'title' => request()->input('title'),
-            'category_id' => request()->input('category_id'),
-            'topics' => request()->input('topics'),
-            'order_by' => request()->input('order_by', 'created_at'),
-            'order_direction' => request()->input('order_direction', 'desc'),
-            'user_id' => Auth::id()
-        ];
+        return $this->execute(function () use ($service) {
+            $filters = [
+                'title' => request()->input('title'),
+                'category_id' => request()->input('category_id'),
+                'topics' => request()->input('topics'),
+                'order_by' => request()->input('order_by', 'created_at'),
+                'order_direction' => request()->input('order_direction', 'desc'),
+                'user_id' => Auth::id()
+            ];
 
-        $perPage = request()->input('per_page', 10);
+            $perPage = request()->input('per_page', 10);
 
-        $posts = $service->list($filters, $perPage);
+            $posts = $service->list($filters, $perPage);
 
-        return response()->json($posts);
+            return response()->json($posts);
+        });
     }
 }

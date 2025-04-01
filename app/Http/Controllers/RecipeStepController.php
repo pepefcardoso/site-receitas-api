@@ -10,7 +10,6 @@ use App\Services\RecipeStep\ShowRecipeStep;
 use App\Services\RecipeStep\UpdateRecipeStep;
 use Illuminate\Http\Request;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
-use Illuminate\Routing\Controller as BaseController;
 
 class RecipeStepController extends BaseController
 {
@@ -21,48 +20,53 @@ class RecipeStepController extends BaseController
         $this->middleware('auth:sanctum')->except(['index', 'show']);
     }
 
-    public function index(ListRecipeStep $service)
+    public function index(Request $request, ListRecipeStep $service)
     {
-        $steps = $service->list();
-
-        return response()->json($steps);
+        return $this->execute(function () use ($service) {
+            $steps = $service->list();
+            return response()->json($steps);
+        });
     }
 
     public function store(Request $request, CreateRecipeStep $service)
     {
-        $this->authorize('create', RecipeStep::class);
+        return $this->execute(function () use ($request, $service) {
+            $this->authorize('create', RecipeStep::class);
 
-        $data = $request->validate(RecipeStep::createRules());
+            $data = $request->validate(RecipeStep::createRules());
+            $step = $service->create($data);
 
-        $step = $service->create($data);
-
-        return response()->json($step, 201);
+            return response()->json($step, 201);
+        });
     }
 
-    public function show(RecipeStep $RecipeStep, ShowRecipeStep $service)
+    public function show(RecipeStep $recipeStep, ShowRecipeStep $service)
     {
-        $step = $service->show($RecipeStep->id);
-
-        return response()->json($step);
+        return $this->execute(function () use ($recipeStep, $service) {
+            $step = $service->show($recipeStep->id);
+            return response()->json($step);
+        });
     }
 
-    public function update(Request $request, RecipeStep $RecipeStep, UpdateRecipeStep $service)
+    public function update(Request $request, RecipeStep $recipeStep, UpdateRecipeStep $service)
     {
-        $this->authorize('update', $RecipeStep);
+        return $this->execute(function () use ($request, $recipeStep, $service) {
+            $this->authorize('update', $recipeStep);
 
-        $data = $request->validate(RecipeStep::updateRules());
+            $data = $request->validate(RecipeStep::updateRules());
+            $step = $service->update($recipeStep, $data);
 
-        $step = $service->update($RecipeStep, $data);
-
-        return response()->json($step);
+            return response()->json($step);
+        });
     }
 
-    public function destroy(RecipeStep $RecipeStep, DeleteRecipeStep $service)
+    public function destroy(RecipeStep $recipeStep, DeleteRecipeStep $service)
     {
-        $this->authorize('delete', $RecipeStep);
+        return $this->execute(function () use ($recipeStep, $service) {
+            $this->authorize('delete', $recipeStep);
+            $response = $service->delete($recipeStep);
 
-        $response = $service->delete($RecipeStep);
-
-        return response()->json($response);
+            return response()->json($response);
+        });
     }
 }

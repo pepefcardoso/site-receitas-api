@@ -10,8 +10,13 @@ class GetTemporaryUrl
 {
     public function temporaryUrl(Image $image): string
     {
-        return Storage::disk('s3')->temporaryUrl(
-            $image->path, Carbon::now()->addMinutes(5)
-        );
+        try {
+            return Storage::disk('s3')->temporaryUrl(
+                $image->path,
+                Carbon::now()->addMinutes(5)
+            );
+        } catch (\Exception $e) {
+            throw $e;
+        }
     }
 }

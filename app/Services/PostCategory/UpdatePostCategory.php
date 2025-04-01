@@ -20,7 +20,7 @@ class UpdatePostCategory
             return $postCategory;
         } catch (\Exception $e) {
             DB::rollback();
-            return $e->getMessage();
+            throw $e;
         }
     }
 

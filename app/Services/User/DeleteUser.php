@@ -39,7 +39,7 @@ class DeleteUser
             return $user;
         } catch (Exception $e) {
             DB::rollback();
-            return $e->getMessage();
+            throw $e;
         }
     }
 }

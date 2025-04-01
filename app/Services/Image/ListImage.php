@@ -7,8 +7,10 @@ use Exception;
 
 class ListImage
 {
-    public function list(array $filters)
+    public function list(int $perPage = 10)
     {
-        return Image::all();
+        $query = Image::query();
+
+        return $query->paginate($perPage);
     }
 }

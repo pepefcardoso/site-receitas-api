@@ -20,7 +20,7 @@ class UpdateRecipeStep
             return $recipeStep;
         } catch (\Exception $e) {
             DB::rollBack();
-            return $e->getMessage();
+            throw $e;
         }
     }
 }

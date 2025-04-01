@@ -14,8 +14,7 @@ class CreatePost
 
     public function __construct(
         CreateImage $createImageService,
-    )
-    {
+    ) {
         $this->createImageService = $createImageService;
     }
 
@@ -40,7 +39,7 @@ class CreatePost
             return $post;
         } catch (Exception $e) {
             DB::rollback();
-            return $e->getMessage();
+            throw $e;
         }
     }
 }

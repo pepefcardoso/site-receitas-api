@@ -21,7 +21,7 @@ class UpdatePostTopic
             return $PostTopic;
         } catch (\Exception $e) {
             DB::rollback();
-            return $e->getMessage();
+            throw $e;
         }
     }
 }

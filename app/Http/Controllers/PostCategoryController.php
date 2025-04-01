@@ -8,11 +8,9 @@ use App\Services\PostCategory\DeletePostCategory;
 use App\Services\PostCategory\ListPostCategory;
 use App\Services\PostCategory\ShowPostCategory;
 use App\Services\PostCategory\UpdatePostCategory;
-use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
-use Illuminate\Routing\Controller as BaseController;
 
 class PostCategoryController extends BaseController
 {
@@ -25,56 +23,53 @@ class PostCategoryController extends BaseController
 
     public function index(Request $request, ListPostCategory $service)
     {
-        $perPage = request()->input('per_page', 10);
-
-        $categories = $service->list($perPage);
-
-        return response()->json($categories);
+        return $this->execute(function () use ($request, $service) {
+            $perPage = $request->input('per_page', 10);
+            $categories = $service->list($perPage);
+            return response()->json($categories);
+        });
     }
 
     public function store(Request $request, CreatePostCategory $service)
     {
-        $this->authorize('create', PostCategory::class);
+        return $this->execute(function () use ($request, $service) {
+            $this->authorize('create', PostCategory::class);
 
-        $request["normalized_name"] = Str::upper($request->name);
-        $data = $request->validate(PostCategory::createRules());
+            $request->merge(['normalized_name' => Str::upper($request->name)]);
+            $data = $request->validate(PostCategory::createRules());
 
-        $category = $service->create($data);
-
-        return response()->json($category, 201);
+            $category = $service->create($data);
+            return response()->json($category, 201);
+        });
     }
 
-    public function show(PostCategory $PostCategory, ShowPostCategory $service)
+    public function show(PostCategory $postCategory, ShowPostCategory $service)
     {
-        $category = $service->show($PostCategory->id);
-
-        return response()->json($category);
+        return $this->execute(function () use ($postCategory, $service) {
+            $category = $service->show($postCategory->id);
+            return response()->json($category);
+        });
     }
 
-    public function update(Request $request, PostCategory $PostCategory, UpdatePostCategory $service)
+    public function update(Request $request, PostCategory $postCategory, UpdatePostCategory $service)
     {
-        $this->authorize("update", $PostCategory);
+        return $this->execute(function () use ($request, $postCategory, $service) {
+            $this->authorize("update", $postCategory);
 
-        $request["normalized_name"] = Str::upper($request->name);
-        $data = $request->validate(PostCategory::updateRules());
+            $request->merge(['normalized_name' => Str::upper($request->name)]);
+            $data = $request->validate(PostCategory::updateRules());
 
-        $category = $service->update($PostCategory, $data);
-
-        return response()->json($category);
+            $category = $service->update($postCategory, $data);
+            return response()->json($category);
+        });
     }
 
     public function destroy(PostCategory $postCategory, DeletePostCategory $service)
     {
-        $this->authorize("delete", $postCategory);
-
-        try {
+        return $this->execute(function () use ($postCategory, $service) {
+            $this->authorize("delete", $postCategory);
             $response = $service->delete($postCategory->id);
             return response()->json($response);
-        } catch (Exception $e) {
-            return response()->json([
-                "error" => true,
-                "message" => $e->getMessage(),
-            ], 500);
-        }
+        });
     }
 }

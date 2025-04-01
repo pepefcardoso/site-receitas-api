@@ -11,7 +11,6 @@ use App\Services\PostTopics\UpdatePostTopic;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
-use Illuminate\Routing\Controller as BaseController;
 
 class PostTopicController extends BaseController
 {
@@ -24,50 +23,53 @@ class PostTopicController extends BaseController
 
     public function index(Request $request, ListPostTopic $service)
     {
-        $perPage = request()->input('per_page', 10);
-
-        $diets = $service->list($perPage);
-
-        return response()->json($diets);
+        return $this->execute(function () use ($request, $service) {
+            $perPage = $request->input('per_page', 10);
+            $topics = $service->list($perPage);
+            return response()->json($topics);
+        });
     }
 
     public function store(Request $request, CreatePostTopic $service)
     {
-        $this->authorize('create', PostTopic::class);
+        return $this->execute(function () use ($request, $service) {
+            $this->authorize('create', PostTopic::class);
 
-        $request["normalized_name"] = Str::upper($request->name);
-        $data = $request->validate(PostTopic::createRules());
+            $request->merge(['normalized_name' => Str::upper($request->name)]);
+            $data = $request->validate(PostTopic::createRules());
 
-        $diet = $service->create($data);
-
-        return response()->json($diet, 201);
+            $topic = $service->create($data);
+            return response()->json($topic, 201);
+        });
     }
 
-    public function show(PostTopic $PostTopic, ShowPostTopic $service)
+    public function show(PostTopic $postTopic, ShowPostTopic $service)
     {
-        $diet = $service->show($PostTopic->id);
-
-        return response()->json($diet);
+        return $this->execute(function () use ($postTopic, $service) {
+            $topic = $service->show($postTopic->id);
+            return response()->json($topic);
+        });
     }
 
-    public function update(Request $request, PostTopic $PostTopic, UpdatePostTopic $service)
+    public function update(Request $request, PostTopic $postTopic, UpdatePostTopic $service)
     {
-        $this->authorize("update", $PostTopic);
+        return $this->execute(function () use ($request, $postTopic, $service) {
+            $this->authorize("update", $postTopic);
 
-        $request["normalized_name"] = Str::upper($request->name);
-        $data = $request->validate(PostTopic::updateRules());
+            $request->merge(['normalized_name' => Str::upper($request->name)]);
+            $data = $request->validate(PostTopic::updateRules());
 
-        $diet = $service->update($PostTopic, $data);
-
-        return response()->json($diet);
+            $topic = $service->update($postTopic, $data);
+            return response()->json($topic);
+        });
     }
 
-    public function destroy(PostTopic $PostTopic, DeletePostTopic $service)
+    public function destroy(PostTopic $postTopic, DeletePostTopic $service)
     {
-        $this->authorize("delete", $PostTopic);
-
-        $response = $service->delete($PostTopic);
-
-        return response()->json($response);
+        return $this->execute(function () use ($postTopic, $service) {
+            $this->authorize("delete", $postTopic);
+            $response = $service->delete($postTopic);
+            return response()->json($response);
+        });
     }
 }

@@ -11,7 +11,6 @@ use App\Services\RecipeCategory\UpdateRecipeCategory;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
-use Illuminate\Routing\Controller as BaseController;
 
 class RecipeCategoryController extends BaseController
 {
@@ -24,50 +23,53 @@ class RecipeCategoryController extends BaseController
 
     public function index(Request $request, ListRecipeCategory $service)
     {
-        $perPage = request()->input('per_page', 10);
-
-        $categories = $service->list($perPage);
-
-        return response()->json($categories);
+        return $this->execute(function () use ($request, $service) {
+            $perPage = $request->input('per_page', 10);
+            $categories = $service->list($perPage);
+            return response()->json($categories);
+        });
     }
 
     public function store(Request $request, CreateRecipeCategory $service)
     {
-        $this->authorize('create', RecipeCategory::class);
+        return $this->execute(function () use ($request, $service) {
+            $this->authorize('create', RecipeCategory::class);
 
-        $request["normalized_name"] = Str::upper($request->name);
-        $data = $request->validate(RecipeCategory::createRules());
+            $request->merge(['normalized_name' => Str::upper($request->name)]);
+            $data = $request->validate(RecipeCategory::createRules());
 
-        $category = $service->create($data);
-
-        return response()->json($category, 201);
+            $category = $service->create($data);
+            return response()->json($category, 201);
+        });
     }
 
-    public function show(RecipeCategory $RecipeCategory, ShowRecipeCategory $service)
+    public function show(RecipeCategory $recipeCategory, ShowRecipeCategory $service)
     {
-        $category = $service->show($RecipeCategory->id);
-
-        return response()->json($category);
+        return $this->execute(function () use ($recipeCategory, $service) {
+            $category = $service->show($recipeCategory->id);
+            return response()->json($category);
+        });
     }
 
-    public function update(Request $request, RecipeCategory $RecipeCategory, UpdateRecipeCategory $service)
+    public function update(Request $request, RecipeCategory $recipeCategory, UpdateRecipeCategory $service)
     {
-        $this->authorize("update", $RecipeCategory);
+        return $this->execute(function () use ($request, $recipeCategory, $service) {
+            $this->authorize("update", $recipeCategory);
 
-        $request["normalized_name"] = Str::upper($request->name);
-        $data = $request->validate(RecipeCategory::updateRules());
+            $request->merge(['normalized_name' => Str::upper($request->name)]);
+            $data = $request->validate(RecipeCategory::updateRules());
 
-        $category = $service->update($RecipeCategory, $data);
-
-        return response()->json($category);
+            $category = $service->update($recipeCategory, $data);
+            return response()->json($category);
+        });
     }
 
-    public function destroy(RecipeCategory $RecipeCategory, DeleteRecipeCategory $service)
+    public function destroy(RecipeCategory $recipeCategory, DeleteRecipeCategory $service)
     {
-        $this->authorize("delete", $RecipeCategory);
-
-        $response = $service->delete($RecipeCategory);
-
-        return response()->json($response);
+        return $this->execute(function () use ($recipeCategory, $service) {
+            $this->authorize("delete", $recipeCategory);
+            $response = $service->delete($recipeCategory);
+            return response()->json($response);
+        });
     }
 }

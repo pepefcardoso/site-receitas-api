@@ -14,12 +14,6 @@ class UpdateRecipeIngredient
         try {
             DB::beginTransaction();
 
-            // Ensure the recipe belongs to the authenticated user
-            $recipe = Recipe::findOrFail($recipeIngredient->recipe_id);
-            if ($recipe->user_id !== Auth::id()) {
-                throw new \Exception('You do not have permission to update ingredients for this recipe.');
-            }
-
             $recipeIngredient->fill($data);
             $recipeIngredient->save();
 
@@ -28,7 +22,7 @@ class UpdateRecipeIngredient
             return $recipeIngredient;
         } catch (\Exception $e) {
             DB::rollback();
-            return $e->getMessage();
+            throw $e;
         }
     }
 }

@@ -6,8 +6,10 @@ use App\Models\RecipeStep;
 
 class ListRecipeStep
 {
-    public function list(array $filters = [])
+    public function list(int $perPage = 10)
     {
-        return RecipeStep::all();
+        $query = RecipeStep::query();
+
+        return $query->paginate($perPage);
     }
 }

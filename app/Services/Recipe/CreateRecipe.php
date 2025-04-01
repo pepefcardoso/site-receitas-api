@@ -46,7 +46,7 @@ class CreateRecipe
             return $recipe;
         } catch (Exception $e) {
             DB::rollback();
-            throw new Exception("Failed to create recipe: " . $e->getMessage());
+            throw $e;
         }
     }
 

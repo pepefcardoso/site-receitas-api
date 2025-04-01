@@ -15,15 +15,11 @@ class Login
             DB::beginTransaction();
 
             $email = data_get($data, "email");
-            $user = User::where('email', $email)->first();
-
-            if (!$user) {
-                throw new Exception("User not found.");
-            }
+            $user = User::where('email', $email)->firstOrFail();
 
             $password = data_get($data, 'password');
             if (!Hash::check($password, $user->password)) {
-                throw new Exception("Invalid credentials.");
+                throw new Exception("Credenciais inválidas");
             }
 
             $user->tokens()->delete();
@@ -35,7 +31,7 @@ class Login
             return $token;
         } catch (Exception $e) {
             DB::rollback();
-            throw new Exception("Login failed. Please try again.");
+            throw $e;
         }
     }
 }

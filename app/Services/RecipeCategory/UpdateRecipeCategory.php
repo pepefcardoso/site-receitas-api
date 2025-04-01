@@ -20,7 +20,7 @@ class UpdateRecipeCategory
             return $recipeCategory;
         } catch (\Exception $e) {
             DB::rollback();
-            return $e->getMessage();
+            throw $e;
         }
     }
 }

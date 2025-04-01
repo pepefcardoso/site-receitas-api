@@ -6,7 +6,7 @@ use App\Models\RecipeStep;
 
 class ShowRecipeStep
 {
-    public function show($id): RecipeStep
+    public function show($id)
     {
         return RecipeStep::findOrFail($id);
     }

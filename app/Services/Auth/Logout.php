@@ -2,9 +2,7 @@
 
 namespace App\Services\Auth;
 
-use App\Models\User;
 use Exception;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
 
 class Logout
@@ -19,7 +17,7 @@ class Logout
             return true;
         } catch (Exception $e) {
             DB::rollback();
-            return $e->getMessage();
+            throw $e;
         }
     }
 }

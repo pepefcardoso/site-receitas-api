@@ -20,7 +20,7 @@ class UpdateRecipeDiet
             return $recipeDiet;
         } catch (\Exception $e) {
             DB::rollback();
-            return $e->getMessage();
+            throw $e;
         }
     }
 }

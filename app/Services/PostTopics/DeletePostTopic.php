@@ -23,7 +23,7 @@ class DeletePostTopic
             return $postTopic;
         } catch (\Exception $e) {
             DB::rollback();
-            return $e->getMessage();
+            throw $e;
         }
     }
 }

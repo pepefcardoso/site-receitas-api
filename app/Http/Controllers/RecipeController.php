@@ -11,7 +11,6 @@ use App\Services\Recipe\UpdateRecipe;
 use Auth;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
-use Illuminate\Routing\Controller as BaseController;
 
 class RecipeController extends BaseController
 {
@@ -24,77 +23,80 @@ class RecipeController extends BaseController
 
     public function index(Request $request, ListRecipe $service)
     {
-        $validatedFilters = $request->validate(Recipe::filtersRules());
+        return $this->execute(function () use ($request, $service) {
+            $validatedFilters = $request->validate(Recipe::filtersRules());
 
-        $filters = [
-            'title' => $validatedFilters['title'] ?? null,
-            'category_id' => $validatedFilters['category_id'] ?? null,
-            'diets' => $validatedFilters['diets'] ?? null,
-            'order_by' => $validatedFilters['order_by'] ?? 'created_at',
-            'order_direction' => $validatedFilters['order_direction'] ?? 'desc',
-            'user_id' => $validatedFilters['user_id'] ?? null,
-        ];
+            $filters = [
+                'title' => $validatedFilters['title'] ?? null,
+                'category_id' => $validatedFilters['category_id'] ?? null,
+                'diets' => $validatedFilters['diets'] ?? null,
+                'order_by' => $validatedFilters['order_by'] ?? 'created_at',
+                'order_direction' => $validatedFilters['order_direction'] ?? 'desc',
+                'user_id' => $validatedFilters['user_id'] ?? null,
+            ];
 
-        $perPage = $validatedFilters['per_page'] ?? 10;
+            $perPage = $validatedFilters['per_page'] ?? 10;
 
-        $recipes = $service->list($filters, $perPage);
+            $recipes = $service->list($filters, $perPage);
 
-        return response()->json($recipes);
+            return response()->json($recipes);
+        });
     }
 
     public function store(Request $request, CreateRecipe $service)
     {
-        $this->authorize('create', Recipe::class);
-
-        $data = $request->validate(Recipe::createRules());
-
-        $recipe = $service->create($data);
-
-        return response()->json($recipe, 201);
+        return $this->execute(function () use ($request, $service) {
+            $this->authorize('create', Recipe::class);
+            $data = $request->validate(Recipe::createRules());
+            $recipe = $service->create($data);
+            return response()->json($recipe, 201);
+        });
     }
 
     public function show(Recipe $recipe, ShowRecipe $service)
     {
-        $recipe = $service->show($recipe->id);
-
-        return response()->json($recipe);
+        return $this->execute(function () use ($recipe, $service) {
+            $recipe = $service->show($recipe->id);
+            return response()->json($recipe);
+        });
     }
 
     public function update(Request $request, Recipe $recipe, UpdateRecipe $service)
     {
-        $this->authorize("update", $recipe);
-
-        $data = $request->validate(Recipe::updateRules());
-
-        $recipe = $service->update($recipe->id, $data);
-
-        return response()->json($recipe);
+        return $this->execute(function () use ($request, $recipe, $service) {
+            $this->authorize("update", $recipe);
+            $data = $request->validate(Recipe::updateRules());
+            $recipe = $service->update($recipe->id, $data);
+            return response()->json($recipe);
+        });
     }
 
     public function destroy(Recipe $recipe, DeleteRecipe $service)
     {
-        $this->authorize("delete", $recipe);
-
-        $response = $service->delete($recipe);
-
-        return response()->json($response);
+        return $this->execute(function () use ($recipe, $service) {
+            $this->authorize("delete", $recipe);
+            $response = $service->delete($recipe);
+            return response()->json($response);
+        });
     }
 
     public function userRecipes(ListRecipe $service)
     {
-        $filters = [
-            'title' => request()->input('title'),
-            'category_id' => request()->input('category_id'),
-            'diets' => request()->input('diets'),
-            'order_by' => request()->input('order_by', 'created_at'),
-            'order_direction' => request()->input('order_direction', 'desc'),
-            'user_id' => Auth::id()
-        ];
+        return $this->execute(function () use ($service) {
+            $filters = [
+                'title' => request()->input('title'),
+                'category_id' => request()->input('category_id'),
+                'diets' => request()->input('diets'),
+                'order_by' => request()->input('order_by', 'created_at'),
+                'order_direction' => request()->input('order_direction', 'desc'),
+                'user_id' => Auth::id()
+            ];
 
-        $perPage = request()->input('per_page', 10);
+            $perPage = request()->input('per_page', 10);
 
-        $recipes = $service->list($filters, $perPage);
+            $recipes = $service->list($filters, $perPage);
 
-        return response()->json($recipes);
+            return response()->json($recipes);
+        });
     }
 }

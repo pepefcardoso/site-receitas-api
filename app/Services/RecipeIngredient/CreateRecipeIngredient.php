@@ -26,7 +26,7 @@ class CreateRecipeIngredient
             return $recipeIngredient;
         } catch (\Exception $e) {
             DB::rollback();
-            return $e->getMessage();
+            throw $e;
         }
     }
 }

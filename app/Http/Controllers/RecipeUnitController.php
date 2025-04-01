@@ -11,7 +11,6 @@ use App\Services\RecipeUnit\UpdateRecipeUnit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
-use Illuminate\Routing\Controller as BaseController;
 
 class RecipeUnitController extends BaseController
 {
@@ -24,50 +23,53 @@ class RecipeUnitController extends BaseController
 
     public function index(Request $request, ListRecipeUnit $service)
     {
-        $perPage = request()->input('per_page', 10);
-
-        $units = $service->list($perPage);
-
-        return response()->json($units);
+        return $this->execute(function () use ($request, $service) {
+            $perPage = $request->input('per_page', 10);
+            $units = $service->list($perPage);
+            return response()->json($units);
+        });
     }
 
     public function store(Request $request, CreateRecipeUnit $service)
     {
-        $this->authorize('create', RecipeUnit::class);
+        return $this->execute(function () use ($request, $service) {
+            $this->authorize('create', RecipeUnit::class);
 
-        $request["normalized_name"] = Str::upper($request->name);
-        $data = $request->validate(RecipeUnit::rules());
+            $request->merge(['normalized_name' => Str::upper($request->name)]);
+            $data = $request->validate(RecipeUnit::rules());
 
-        $unit = $service->create($data);
-
-        return response()->json($unit, 201);
+            $unit = $service->create($data);
+            return response()->json($unit, 201);
+        });
     }
 
     public function show(RecipeUnit $recipeUnit, ShowRecipeUnit $service)
     {
-        $unit = $service->show($recipeUnit->id);
-
-        return response()->json($unit);
+        return $this->execute(function () use ($recipeUnit, $service) {
+            $unit = $service->show($recipeUnit->id);
+            return response()->json($unit);
+        });
     }
 
     public function update(Request $request, RecipeUnit $recipeUnit, UpdateRecipeUnit $service)
     {
-        $this->authorize("update", $recipeUnit);
+        return $this->execute(function () use ($request, $recipeUnit, $service) {
+            $this->authorize('update', $recipeUnit);
 
-        $request["normalized_name"] = Str::upper($request->name);
-        $data = $request->validate(RecipeUnit::rules());
+            $request->merge(['normalized_name' => Str::upper($request->name)]);
+            $data = $request->validate(RecipeUnit::rules());
 
-        $unit = $service->update($recipeUnit, $data);
-
-        return response()->json($unit);
+            $unit = $service->update($recipeUnit, $data);
+            return response()->json($unit);
+        });
     }
 
     public function destroy(RecipeUnit $recipeUnit, DeleteRecipeUnit $service)
     {
-        $this->authorize("delete", $recipeUnit);
-
-        $response = $service->delete($recipeUnit);
-
-        return response()->json($response);
+        return $this->execute(function () use ($recipeUnit, $service) {
+            $this->authorize('delete', $recipeUnit);
+            $response = $service->delete($recipeUnit);
+            return response()->json($response);
+        });
     }
 }

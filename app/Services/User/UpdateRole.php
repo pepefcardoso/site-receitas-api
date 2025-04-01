@@ -21,7 +21,7 @@ class UpdateRole
 
             return $user;
         } catch (Exception $e) {
-            return $e;
+            throw $e;
         }
     }
 }

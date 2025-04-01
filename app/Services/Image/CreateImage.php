@@ -36,7 +36,7 @@ class CreateImage
             return $image;
         } catch (Exception $e) {
             DB::rollBack();
-            return $e->getMessage();
+            throw $e;
         }
     }
 }
