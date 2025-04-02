@@ -33,9 +33,8 @@ Route::post('users/favorite-recipe', [UserController::class, 'toggleFavoriteReci
 | Post Routes
 |--------------------------------------------------------------------------
 */
-// Place static routes before resource routes to avoid conflicts with implicit model binding.
 Route::get('posts/my', [PostController::class, 'userPosts']);
-Route::get('posts/favorites', [PostController::class, 'favoritePosts']);
+Route::get('posts/favorites', [PostController::class, 'favorites']);
 Route::apiResource('posts', PostController::class);
 Route::apiResource('post-categories', PostCategoryController::class);
 Route::apiResource('post-topics', PostTopicController::class);
@@ -46,7 +45,7 @@ Route::apiResource('post-topics', PostTopicController::class);
 |--------------------------------------------------------------------------
 */
 Route::get('recipes/my', [RecipeController::class, 'userRecipes']);
-Route::get('recipes/favorites', [RecipeController::class, 'favoriteRecipes']);
+Route::get('recipes/favorites', [RecipeController::class, 'favorites']);
 Route::apiResource('recipes', RecipeController::class);
 Route::apiResource('recipe-diets', RecipeDietController::class);
 Route::apiResource('recipe-categories', RecipeCategoryController::class);

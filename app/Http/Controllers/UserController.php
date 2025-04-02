@@ -8,6 +8,7 @@ use App\Models\User;
 use App\Services\User\CreateUser;
 use App\Services\User\DeleteUser;
 use App\Services\User\ListUser;
+use App\Services\User\ShowAuthUser;
 use App\Services\User\ShowUser;
 use App\Services\User\ToggleFavoritePost;
 use App\Services\User\ToggleFavoriteRecipe;
@@ -88,13 +89,12 @@ class UserController extends BaseController
         });
     }
 
-    public function authUser(ShowUser $service)
+    public function authUser(User $user, ShowAuthUser $service)
     {
-        return $this->execute(function () use ($service) {
-            $authUser = Auth::user();
-            $this->authorize('view', $authUser);
-            $userData = $service->show($authUser->id);
-            return response()->json($userData);
+        return $this->execute(function () use ($user, $service) {
+            $this->authorize('view', $user);
+            $response = $service->show();
+            return response()->json($response);
         });
     }
 

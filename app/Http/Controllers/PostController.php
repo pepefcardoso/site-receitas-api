@@ -5,8 +5,9 @@ namespace App\Http\Controllers;
 use App\Models\Post;
 use App\Services\Post\CreatePost;
 use App\Services\Post\DeletePost;
-use App\Services\Post\ListFavorites;
+use App\Services\Post\ListFavoritePosts;
 use App\Services\Post\ListPost;
+use App\Services\Post\ListUserPosts;
 use App\Services\Post\ShowPost;
 use App\Services\Post\UpdatePost;
 use Auth;
@@ -80,40 +81,23 @@ class PostController extends BaseController
         });
     }
 
-    public function userPosts(ListPost $service)
+    public function userPosts(ListUserPosts $service)
     {
         return $this->execute(function () use ($service) {
-            $filters = [
-                'title' => request()->input('title'),
-                'category_id' => request()->input('category_id'),
-                'topics' => request()->input('topics'),
-                'order_by' => request()->input('order_by', 'created_at'),
-                'order_direction' => request()->input('order_direction', 'desc'),
-                'user_id' => Auth::id()
-            ];
-
             $perPage = request()->input('per_page', 10);
+            $userPosts = $service->list($perPage);
 
-            $posts = $service->list($filters, $perPage);
-
-            return response()->json($posts);
+            return response()->json($userPosts);
         });
     }
 
-    public function favorites(ListFavorites $service)
+    public function favorites(ListFavoritePosts $service)
     {
         return $this->execute(function () use ($service) {
-            $filters = [
-                'search' => request()->input('search'),
-                'order_by' => request()->input('order_by', 'created_at'),
-                'order_direction' => request()->input('order_direction', 'desc'),
-                'user_id' => Auth::id()
-            ];
             $perPage = request()->input('per_page', 10);
+            $favorites = $service->list($perPage);
 
-            $data = $service->list($filters, $perPage);
-
-            return response()->json($data);
+            return response()->json($favorites);
         });
     }
 }

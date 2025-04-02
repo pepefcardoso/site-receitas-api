@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Recipe;
+use App\Services\Post\ListFavoriteRecipes;
+use App\Services\Post\ListUserRecipes;
 use App\Services\Recipe\CreateRecipe;
 use App\Services\Recipe\DeleteRecipe;
 use App\Services\Recipe\ListFavorites;
@@ -81,40 +83,23 @@ class RecipeController extends BaseController
         });
     }
 
-    public function userRecipes(ListRecipe $service)
+    public function userPosts(ListUserRecipes $service)
     {
         return $this->execute(function () use ($service) {
-            $filters = [
-                'title' => request()->input('title'),
-                'category_id' => request()->input('category_id'),
-                'diets' => request()->input('diets'),
-                'order_by' => request()->input('order_by', 'created_at'),
-                'order_direction' => request()->input('order_direction', 'desc'),
-                'user_id' => Auth::id()
-            ];
-
             $perPage = request()->input('per_page', 10);
+            $userRecipes = $service->list($perPage);
 
-            $recipes = $service->list($filters, $perPage);
-
-            return response()->json($recipes);
+            return response()->json($userRecipes);
         });
     }
 
-    public function favorites(ListFavorites $service)
+    public function favorites(ListFavoriteRecipes $service)
     {
         return $this->execute(function () use ($service) {
-            $filters = [
-                'search' => request()->input('search'),
-                'order_by' => request()->input('order_by', 'created_at'),
-                'order_direction' => request()->input('order_direction', 'desc'),
-                'user_id' => Auth::id()
-            ];
             $perPage = request()->input('per_page', 10);
+            $favorites = $service->list($perPage);
 
-            $data = $service->list($filters, $perPage);
-
-            return response()->json($data);
+            return response()->json($favorites);
         });
     }
 }
