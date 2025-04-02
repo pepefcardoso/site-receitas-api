@@ -3,9 +3,10 @@
 namespace App\Services\Comment;
 
 use App\Models\Comment;
-use Auth;
+
 use Exception;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class CreateComment

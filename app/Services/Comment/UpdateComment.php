@@ -3,7 +3,7 @@
 namespace App\Services\Comment;
 
 use App\Models\Comment;
-use Auth;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Exception;
 
@@ -16,14 +16,8 @@ class UpdateComment
 
             $comment = Comment::findOrFail($commentId);
 
-            $user_id = Auth::id();
-            if (!$user_id) {
-                throw new Exception('User not authenticated');
-            }
-
             $comment->fill([
                 'content' => $newContent,
-                'user_id' => $user_id,
             ]);
             $comment->save();
 

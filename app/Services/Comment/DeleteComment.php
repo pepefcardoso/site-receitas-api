@@ -8,7 +8,7 @@ use Exception;
 
 class DeleteComment
 {
-    public function delete(string $commentId): Comment
+    public function delete(string $commentId)
     {
         try {
             DB::beginTransaction();
@@ -17,7 +17,7 @@ class DeleteComment
             $comment->delete();
 
             DB::commit();
-            return $comment;
+        return "Deleted comment with ID: $commentId";
         } catch (Exception $e) {
             DB::rollBack();
             throw $e;

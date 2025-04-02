@@ -8,8 +8,8 @@ class ListComments
 {
     public function list(int $perPage = 10)
     {
-        $query = Comment::query();
-
-        return $query->paginate($perPage);
+        return Comment::with(['user', 'user.image'])
+            ->orderBy('created_at', 'desc')
+            ->paginate($perPage);
     }
 }
