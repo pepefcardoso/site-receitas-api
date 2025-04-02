@@ -12,7 +12,8 @@ class ShowPost
             'category',
             'topics',
             'image',
-            'user.image'
+            'user.image',
+            'comments.user.image',
         ])
         ->withAvg('ratings', 'rating')
         ->withCount('ratings');

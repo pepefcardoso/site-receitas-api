@@ -14,10 +14,11 @@ class ShowRecipe
             'steps',
             'ingredients.unit',
             'image',
-            'user.image'
+            'user.image' .
+            'comments.user.image',
         ])
-        ->withAvg('ratings', 'rating')
-        ->withCount('ratings');
+            ->withAvg('ratings', 'rating')
+            ->withCount('ratings');
 
         if (auth()->check()) {
             $query->withExists([

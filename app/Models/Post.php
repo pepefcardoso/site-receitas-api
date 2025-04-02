@@ -130,4 +130,9 @@ class Post extends Model
     {
         return $this->ratings()->avg('rating') ?? 0;
     }
+
+    public function comments(): MorphMany
+    {
+        return $this->morphMany(Comment::class, 'commentable');
+    }
 }

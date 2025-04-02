@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\CommentController;
 use App\Http\Controllers\RatingController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UserController;
@@ -66,6 +67,13 @@ Route::apiResource('images', ImageController::class);
 |--------------------------------------------------------------------------
 */
 Route::apiResource('ratings', RatingController::class);
+
+/*
+|--------------------------------------------------------------------------
+| Comments Routes
+|--------------------------------------------------------------------------
+*/
+Route::apiResource('comments', CommentController::class);
 
 /*
 |--------------------------------------------------------------------------

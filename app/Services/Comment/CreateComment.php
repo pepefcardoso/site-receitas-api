@@ -1,16 +1,16 @@
 <?php
 
-namespace App\Services\Rating;
+namespace App\Services\Comment;
 
-use App\Models\Rating;
+use App\Models\Comment;
 use Auth;
 use Exception;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 
-class CreateRating
+class CreateComment
 {
-    public function create(Model $model, int $rating): Rating
+    public function create(Model $model, string $content): Comment
     {
         try {
             DB::beginTransaction();
@@ -20,14 +20,14 @@ class CreateRating
                 throw new Exception('User not authenticated');
             }
 
-            $ratingModel = $model->ratings()->create([
-                'rating' => $rating,
+            $comment = $model->comments()->create([
+                'content' => $content,
                 'user_id' => $userId,
             ]);
 
             DB::commit();
 
-            return $ratingModel;
+            return $comment;
         } catch (Exception $e) {
             DB::rollBack();
             throw $e;

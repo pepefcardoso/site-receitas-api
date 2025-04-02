@@ -26,6 +26,7 @@ class DatabaseSeeder extends Seeder
             CustomerContactSeeder::class,
             NewsletterCustomerSeeder::class,
             RatingSeeder::class,
+            CommentSeeder::class,
         ]);
     }
 }
