@@ -13,7 +13,9 @@ class ListPost
             'category',
             'topics',
             'image'
-        ]);
+        ])
+        ->withAvg('ratings', 'rating')
+        ->withCount('ratings');
 
         if (Auth::check()) {
             $userId = Auth::id();

@@ -13,7 +13,9 @@ class ListRecipe
             'diets',
             'category',
             'image',
-        ]);
+        ])
+        ->withAvg('ratings', 'rating')
+        ->withCount('ratings');
 
         if (Auth::check()) {
             $userId = Auth::id();

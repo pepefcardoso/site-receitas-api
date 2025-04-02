@@ -2,10 +2,6 @@
 
 namespace Database\Seeders;
 
-use App\Models\NewsletterCustomer;
-use App\Models\User;
-
-// use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
@@ -29,6 +25,7 @@ class DatabaseSeeder extends Seeder
             ImageSeeder::class,
             CustomerContactSeeder::class,
             NewsletterCustomerSeeder::class,
+            RatingSeeder::class,
         ]);
     }
 }

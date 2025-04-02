@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use App\Models\PostCategory;
 use App\Models\PostTopic;
+use App\Models\Rating;
 use App\Models\Recipe;
 use App\Models\RecipeCategory;
 use App\Models\RecipeDiet;
@@ -15,6 +16,7 @@ use App\Policies\ImagePolicy;
 use App\Policies\PostCategoryPolicy;
 use App\Policies\PostTopicPolicy;
 use App\Policies\PostPolicy;
+use App\Policies\RatingPolicy;
 use App\Policies\RecipeCategoryPolicy;
 use App\Policies\RecipeDietPolicy;
 use App\Policies\RecipeIngredientPolicy;
@@ -43,6 +45,7 @@ class AuthServiceProvider extends ServiceProvider
         PostCategory::class => PostCategoryPolicy::class,
         PostTopic::class => PostTopicPolicy::class,
         Image::class => ImagePolicy::class,
+        Rating::class => RatingPolicy::class,
     ];
 
     /**

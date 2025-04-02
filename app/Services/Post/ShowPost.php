@@ -13,7 +13,9 @@ class ShowPost
             'topics',
             'image',
             'user.image'
-        ]);
+        ])
+        ->withAvg('ratings', 'rating')
+        ->withCount('ratings');
 
         if (auth()->check()) {
             $query->withExists([

@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\RatingController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\AuthController;
@@ -59,6 +60,13 @@ Route::apiResource('recipe-units', RecipeUnitController::class);
 |--------------------------------------------------------------------------
 */
 Route::apiResource('images', ImageController::class);
+
+/*
+|--------------------------------------------------------------------------
+| Ratings Routes
+|--------------------------------------------------------------------------
+*/
+Route::apiResource('ratings', RatingController::class);
 
 /*
 |--------------------------------------------------------------------------

@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 // use Illuminate\Foundation\Testing\RefreshDatabase;
+use Log;
 use Tests\TestCase;
 
 class ExampleTest extends TestCase
@@ -10,9 +11,13 @@ class ExampleTest extends TestCase
     /**
      * A basic test example.
      */
-    public function test_the_application_returns_a_successful_response(): void
+    public function test_example()
     {
-        $response = $this->get('/');
+        $response = $this->get('/api/posts');
+
+        $response->assertJsonCount(10, 'data');
+
+        Log::info('Response data:', $response->json());
 
         $response->assertStatus(200);
     }
