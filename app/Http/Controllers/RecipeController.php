@@ -3,15 +3,13 @@
 namespace App\Http\Controllers;
 
 use App\Models\Recipe;
-use App\Services\Post\ListFavoriteRecipes;
-use App\Services\Post\ListUserRecipes;
+use App\Services\Recipe\ListFavoriteRecipes;
+use App\Services\Recipe\ListUserRecipes;
 use App\Services\Recipe\CreateRecipe;
 use App\Services\Recipe\DeleteRecipe;
-use App\Services\Recipe\ListFavorites;
 use App\Services\Recipe\ListRecipe;
 use App\Services\Recipe\ShowRecipe;
 use App\Services\Recipe\UpdateRecipe;
-use Auth;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
 

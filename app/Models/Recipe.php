@@ -33,6 +33,7 @@ class Recipe extends Model
     protected $casts = [
         'ingredients' => 'array',
         'steps' => 'array',
+        'is_favorited' => 'boolean',
     ];
 
     protected $appends = ['is_favorited'];
@@ -114,15 +115,7 @@ class Recipe extends Model
 
     public function getIsFavoritedAttribute(): bool
     {
-        if (!auth()->check()) {
-            return false;
-        }
-
-        if (array_key_exists('is_favorited', $this->attributes)) {
-            return (bool) $this->attributes['is_favorited'];
-        }
-
-        return $this->favoritedByUsers()->where('user_id', auth()->id())->exists();
+        return (bool) ($this->attributes['is_favorited'] ?? false);
     }
 
     public function user(): BelongsTo
@@ -169,4 +162,10 @@ class Recipe extends Model
     {
         return $this->morphMany(Comment::class, 'commentable');
     }
+
+    public function favoritedByUsers(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'rl_user_favorite_recipes', 'recipe_id', 'user_id');
+    }
+
 }

@@ -14,19 +14,15 @@ class ListRecipe
             'category',
             'image',
         ])
-        ->withAvg('ratings', 'rating')
-        ->withCount('ratings');
+            ->withAvg('ratings', 'rating')
+            ->withCount('ratings');
 
         if (Auth::check()) {
-            $userId = Auth::id();
-            $query->addSelect([
-                'is_favorited' => function ($query) use ($userId) {
-                    $query->selectRaw('COUNT(*)')
-                        ->from('rl_user_favorite_recipes')
-                        ->whereColumn('recipe_id', 'recipes.id')
-                        ->where('user_id', $userId);
+            $query->withExists([
+                'favoritedByUsers as is_favorited' => function ($query) {
+                    $query->where('user_id', Auth::id());
                 }
-            ])->withCasts(['is_favorited' => 'boolean']);
+            ]);
         }
 
         $query = $query->filter($filters);

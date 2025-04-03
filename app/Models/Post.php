@@ -27,6 +27,10 @@ class Post extends Model
 
     protected $appends = ['is_favorited'];
 
+    protected $casts = [
+        'is_favorited' => 'boolean',
+    ];
+
     public function scopeFilter($query, array $filters)
     {
         if (!empty($filters['search'])) {
@@ -90,15 +94,7 @@ class Post extends Model
 
     public function getIsFavoritedAttribute(): bool
     {
-        if (!auth()->check()) {
-            return false;
-        }
-
-        if (array_key_exists('is_favorited', $this->attributes)) {
-            return (bool) $this->attributes['is_favorited'];
-        }
-
-        return $this->favoritedByUsers()->where('user_id', auth()->id())->exists();
+        return (bool) ($this->attributes['is_favorited'] ?? false);
     }
 
     public function user(): BelongsTo
@@ -134,5 +130,10 @@ class Post extends Model
     public function comments(): MorphMany
     {
         return $this->morphMany(Comment::class, 'commentable');
+    }
+
+    public function favoritedByUsers(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'rl_user_favorite_posts', 'post_id', 'user_id');
     }
 }

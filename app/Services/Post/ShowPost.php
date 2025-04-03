@@ -12,11 +12,17 @@ class ShowPost
             'category',
             'topics',
             'image',
+            'user' => function ($query) {
+                $query->select('id', 'name');
+            },
             'user.image',
-            'comments.user.image',
+            'comments.user' => function ($query) {
+                $query->select('id', 'name');
+            },
+            'comments.user.image'
         ])
-        ->withAvg('ratings', 'rating')
-        ->withCount('ratings');
+            ->withAvg('ratings', 'rating')
+            ->withCount('ratings');
 
         if (auth()->check()) {
             $query->withExists([

@@ -14,8 +14,14 @@ class ShowRecipe
             'steps',
             'ingredients.unit',
             'image',
-            'user.image' .
-            'comments.user.image',
+            'user' => function ($query) {
+                $query->select('id', 'name');
+            },
+            'user.image',
+            'comments.user' => function ($query) {
+                $query->select('id', 'name');
+            },
+            'comments.user.image'
         ])
             ->withAvg('ratings', 'rating')
             ->withCount('ratings');

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Services\Post;
+namespace App\Services\Recipe;
 
 use App\Models\User;
 use Exception;
@@ -16,7 +16,6 @@ class ListFavoriteRecipes
 
         return User::find($userId)
             ->favoriteRecipes()
-            ->newQuery()
             ->with(['image'])
             ->paginate($perPage);
     }

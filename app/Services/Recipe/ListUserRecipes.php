@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Services\Post;
+namespace App\Services\Recipe;
 
 use App\Models\Recipe;
 use Exception;

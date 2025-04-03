@@ -14,19 +14,15 @@ class ListPost
             'topics',
             'image'
         ])
-        ->withAvg('ratings', 'rating')
-        ->withCount('ratings');
+            ->withAvg('ratings', 'rating')
+            ->withCount('ratings');
 
         if (Auth::check()) {
-            $userId = Auth::id();
-            $query->addSelect([
-                'is_favorited' => function ($query) use ($userId) {
-                    $query->selectRaw('COUNT(*)')
-                        ->from('rl_user_favorite_posts')
-                        ->whereColumn('post_id', 'posts.id')
-                        ->where('user_id', $userId);
+            $query->withExists([
+                'favoritedByUsers as is_favorited' => function ($query) {
+                    $query->where('user_id', Auth::id());
                 }
-            ])->withCasts(['is_favorited' => 'boolean']);
+            ]);
         }
 
         $query = $query->filter($filters);

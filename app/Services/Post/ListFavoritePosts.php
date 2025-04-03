@@ -16,7 +16,6 @@ class ListFavoritePosts
 
         return User::find($userId)
             ->favoritePosts()
-            ->newQuery()
             ->with(['image'])
             ->paginate($perPage);
     }

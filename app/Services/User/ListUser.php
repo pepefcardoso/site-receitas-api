@@ -8,9 +8,7 @@ class ListUser
 {
     public function list(array $filters = [], $perPage = 10)
     {
-        $query = User::with([
-            'image',
-        ]);
+        $query = User::query();
 
         $query = $query->filter($filters);
 
