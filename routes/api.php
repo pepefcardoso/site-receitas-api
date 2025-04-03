@@ -91,5 +91,7 @@ Route::post('/password/reset', [AuthController::class, 'resetPassword'])->withou
 |--------------------------------------------------------------------------
 */
 Route::post('/contact', [CustomerContactController::class, 'register']);
+Route::get('/contact', [CustomerContactController::class, 'index']);
+Route::get('/contact/{customer}', [CustomerContactController::class, 'show']);
 Route::post('/contact/update-status/{contactId}', [CustomerContactController::class, 'updateStatus']);
 Route::apiResource('newsletter', NewsletterCustomerController::class);
