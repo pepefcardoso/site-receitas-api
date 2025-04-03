@@ -10,7 +10,6 @@ use App\Services\Post\ListPost;
 use App\Services\Post\ListUserPosts;
 use App\Services\Post\ShowPost;
 use App\Services\Post\UpdatePost;
-use Auth;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
 

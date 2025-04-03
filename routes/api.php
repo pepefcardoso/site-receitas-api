@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\CommentController;
 use App\Http\Controllers\RatingController;
+use App\Http\Controllers\SocialAuthController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\AuthController;
@@ -84,6 +85,10 @@ Route::post('/login', [AuthController::class, 'login']);
 Route::post('/logout', [AuthController::class, 'logout']);
 Route::post('/password/forgot', [AuthController::class, 'sendResetLink'])->withoutMiddleware('auth:sanctum');
 Route::post('/password/reset', [AuthController::class, 'resetPassword'])->withoutMiddleware('auth:sanctum');
+Route::prefix('auth')->group(function () {
+    Route::get('/{provider}', [SocialAuthController::class, 'redirectToProvider']);
+    Route::get('/{provider}/callback', [SocialAuthController::class, 'handleProviderCallback']);
+});
 
 /*
 |--------------------------------------------------------------------------
