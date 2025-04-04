@@ -8,6 +8,7 @@ class ShowRating
 {
     public function show(int $id)
     {
-        return Rating::findOrfail($id);
+        return Rating::with(['user:id,name'])
+        ->findOrFail($id);
     }
 }

@@ -152,6 +152,15 @@ class User extends Authenticatable
         return $this->morphOne(Image::class, 'imageable');
     }
 
+    public function comments(): HasMany
+    {
+        return $this->hasMany(Comment::class);
+    }
+    public function ratings(): HasMany
+    {
+        return $this->hasMany(Rating::class);
+    }
+
     public function favoritePosts(): BelongsToMany
     {
         return $this->belongsToMany(Post::class, 'rl_user_favorite_posts', 'user_id', 'post_id');

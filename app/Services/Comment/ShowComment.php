@@ -8,8 +8,8 @@ class ShowComment
 {
     public function show(int $id)
     {
-        return Comment::with(['user', 'user.image'])
-            ->where('id', $id)
-            ->firstOrFail();
+        return Comment::with(['user:id,name'])
+        ->where('id', $id)
+        ->firstOrFail();
     }
 }
