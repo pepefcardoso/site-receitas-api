@@ -7,10 +7,12 @@ use Illuminate\Support\Facades\DB;
 
 class DeleteRecipeDiet
 {
-    public function delete(RecipeDiet $recipeDiet): RecipeDiet|string
+    public function delete(int $recipeDietId): RecipeDiet|string
     {
         try {
             DB::beginTransaction();
+
+            $recipeDiet = RecipeDiet::findOrFail($recipeDietId);
 
             if ($recipeDiet->recipes()->exists()) {
                 throw new \Exception('This diet cannot be deleted because it is associated with one or more recipes');

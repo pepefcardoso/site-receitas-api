@@ -4,8 +4,8 @@ namespace App\Services\RecipeIngredient;
 
 use App\Models\RecipeIngredient;
 use App\Models\Recipe;
+use Exception;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Auth;
 
 class CreateRecipeIngredient
 {
@@ -14,17 +14,18 @@ class CreateRecipeIngredient
         try {
             DB::beginTransaction();
 
-            $recipe = Recipe::findOrFail($data['recipe_id']);
-            if ($recipe->user_id !== Auth::id()) {
-                throw new \Exception('You do not have permission to add ingredients to this recipe.');
+            $recipeId = data_get($data, 'recipe_id');
+            if (!$recipeId) {
+                throw new Exception('Recipe ID is required');
             }
+            Recipe::findOrFail($recipeId);
 
             $recipeIngredient = RecipeIngredient::create($data);
 
             DB::commit();
 
             return $recipeIngredient;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             DB::rollback();
             throw $e;
         }

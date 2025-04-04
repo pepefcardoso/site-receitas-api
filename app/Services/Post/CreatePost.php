@@ -28,11 +28,13 @@ class CreatePost
 
             $post = Post::create($data);
 
-            $topics = data_get($data, 'topics');
+            $topics = data_get($data, 'topics', []);
             $post->topics()->sync($topics);
 
             $image = data_get($data, 'image');
-            $this->createImageService->create($post, $image);
+            if ($image) {
+                $this->createImageService->create($post, $image);
+            }
 
             DB::commit();
 

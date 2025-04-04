@@ -59,7 +59,7 @@ class PostTopicController extends BaseController
             $request->merge(['normalized_name' => Str::upper($request->name)]);
             $data = $request->validate(PostTopic::updateRules());
 
-            $topic = $service->update($postTopic, $data);
+            $topic = $service->update($postTopic->id, $data);
             return response()->json($topic);
         });
     }
@@ -68,7 +68,7 @@ class PostTopicController extends BaseController
     {
         return $this->execute(function () use ($postTopic, $service) {
             $this->authorize("delete", $postTopic);
-            $response = $service->delete($postTopic);
+            $response = $service->delete($postTopic->id);
             return response()->json($response);
         });
     }

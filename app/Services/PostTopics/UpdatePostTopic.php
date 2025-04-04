@@ -8,11 +8,12 @@ use Illuminate\Support\Facades\DB;
 class UpdatePostTopic
 {
 
-    public function update(PostTopic $PostTopic, array $data)
+    public function update(int $postTopicId, array $data)
     {
         try {
             DB::beginTransaction();
 
+            $PostTopic = PostTopic::findOrFail($postTopicId);
             $PostTopic->fill($data);
             $PostTopic->save();
 

@@ -3,17 +3,16 @@
 namespace App\Services\RecipeIngredient;
 
 use App\Models\RecipeIngredient;
-use App\Models\Recipe;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Auth;
 
 class UpdateRecipeIngredient
 {
-    public function update(RecipeIngredient $recipeIngredient, array $data)
+    public function update(int $recipeIngredientId, array $data)
     {
         try {
             DB::beginTransaction();
 
+            $recipeIngredient = RecipeIngredient::findOrFail($recipeIngredientId);
             $recipeIngredient->fill($data);
             $recipeIngredient->save();
 

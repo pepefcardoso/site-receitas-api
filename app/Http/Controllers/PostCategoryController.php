@@ -59,7 +59,7 @@ class PostCategoryController extends BaseController
             $request->merge(['normalized_name' => Str::upper($request->name)]);
             $data = $request->validate(PostCategory::updateRules());
 
-            $category = $service->update($postCategory, $data);
+            $category = $service->update($postCategory->id, $data);
             return response()->json($category);
         });
     }

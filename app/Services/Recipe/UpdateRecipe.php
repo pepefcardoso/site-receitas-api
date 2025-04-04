@@ -4,6 +4,7 @@ namespace App\Services\Recipe;
 
 use App\Models\Recipe;
 use App\Models\RecipeIngredient;
+use App\Services\Image\CreateImage;
 use App\Services\Image\UpdateImage;
 use App\Services\RecipeIngredient\CreateRecipeIngredient;
 use App\Services\RecipeIngredient\DeleteRecipeIngredient;
@@ -24,6 +25,7 @@ class UpdateRecipe
         protected CreateRecipeStep $createRecipeStep,
         protected UpdateRecipeStep $updateRecipeStep,
         protected DeleteRecipeStep $deleteRecipeStep,
+        protected CreateImage $createImageService,
         protected UpdateImage $updateImageService
     ) {
     }
@@ -42,8 +44,11 @@ class UpdateRecipe
 
             $newImageFile = data_get($data, 'image');
             if ($newImageFile) {
-                $currentImage = $recipe->image;
-                $this->updateImageService->update($currentImage->id, $newImageFile);
+                if ($recipe->image) {
+                    $this->updateImageService->update($recipe->image->id, $newImageFile);
+                } else {
+                    $this->createImageService->create($recipe, $newImageFile);
+                }
             }
 
             DB::commit();

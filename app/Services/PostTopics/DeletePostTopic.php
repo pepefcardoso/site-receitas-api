@@ -3,17 +3,20 @@
 namespace App\Services\PostTopics;
 
 use App\Models\PostTopic;
+use Exception;
 use Illuminate\Support\Facades\DB;
 
 class DeletePostTopic
 {
-    public function delete(PostTopic $postTopic): PostTopic|string
+    public function delete(int $postTopicId): PostTopic|string
     {
         try {
             DB::beginTransaction();
 
+            $postTopic = PostTopic::findOrFail($postTopicId);
+
             if ($postTopic->posts()->exists()) {
-                throw new \Exception('This topic cannot be deleted because it is associated with one or more posts');
+                throw new Exception('This topic cannot be deleted because it is associated with one or more posts');
             }
 
             $postTopic->delete();
@@ -21,7 +24,7 @@ class DeletePostTopic
             DB::commit();
 
             return $postTopic;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             DB::rollback();
             throw $e;
         }

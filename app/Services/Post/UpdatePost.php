@@ -3,17 +3,21 @@
 namespace App\Services\Post;
 
 use App\Models\Post;
+use App\Services\Image\CreateImage;
 use App\Services\Image\UpdateImage;
 use Illuminate\Support\Facades\DB;
 
 class UpdatePost
 {
     protected UpdateImage $updateImageService;
+    protected CreateImage $createImageService;
 
     public function __construct(
         UpdateImage $updateImageService,
+        CreateImage $createImageService
     ) {
         $this->updateImageService = $updateImageService;
+        $this->createImageService = $createImageService;
     }
 
     public function update(int $id, array $data)
@@ -31,7 +35,11 @@ class UpdatePost
             $newImageFile = data_get($data, 'image');
             if ($newImageFile) {
                 $currentImage = $post->image;
-                $this->updateImageService->update($currentImage->id, $newImageFile);
+                if ($currentImage) {
+                    $this->updateImageService->update($currentImage->id, $newImageFile);
+                } else {
+                    $this->createImageService->create($post, $newImageFile);
+                }
             }
 
             DB::commit();

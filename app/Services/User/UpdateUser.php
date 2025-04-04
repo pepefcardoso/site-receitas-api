@@ -33,8 +33,7 @@ class UpdateUser
             $newImageFile = data_get($data, 'image');
             if ($newImageFile) {
                 if ($user->image) {
-                    $currentImage = $user->image;
-                    $this->updateImageService->update($currentImage->id, $newImageFile);
+                    $this->updateImageService->update($user->image->id, $newImageFile);
                 } else {
                     $this->createImageService->create($user, $newImageFile);
                 }

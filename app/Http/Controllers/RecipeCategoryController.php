@@ -59,7 +59,7 @@ class RecipeCategoryController extends BaseController
             $request->merge(['normalized_name' => Str::upper($request->name)]);
             $data = $request->validate(RecipeCategory::updateRules());
 
-            $category = $service->update($recipeCategory, $data);
+            $category = $service->update($recipeCategory->id, $data);
             return response()->json($category);
         });
     }
@@ -68,7 +68,7 @@ class RecipeCategoryController extends BaseController
     {
         return $this->execute(function () use ($recipeCategory, $service) {
             $this->authorize("delete", $recipeCategory);
-            $response = $service->delete($recipeCategory);
+            $response = $service->delete($recipeCategory->id);
             return response()->json($response);
         });
     }

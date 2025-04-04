@@ -4,6 +4,7 @@ namespace App\Services\Post;
 
 use App\Models\Post;
 use App\Services\Image\DeleteImage;
+use Exception;
 use Illuminate\Support\Facades\DB;
 
 class DeletePost
@@ -16,10 +17,12 @@ class DeletePost
         $this->deleteImageService = $deleteImageService;
     }
 
-    public function delete(Post $post): Post|string
+    public function delete(int $postId): Post|string
     {
         try {
             DB::beginTransaction();
+
+            $post = Post::findOrFail($postId);
 
             $post->topics()->detach();
 
@@ -32,8 +35,8 @@ class DeletePost
 
             DB::commit();
 
-            return $post;
-        } catch (\Exception $e) {
+            return $postId;
+        } catch (Exception $e) {
             DB::rollBack();
             throw $e;
         }

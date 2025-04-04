@@ -59,7 +59,7 @@ class RecipeUnitController extends BaseController
             $request->merge(['normalized_name' => Str::upper($request->name)]);
             $data = $request->validate(RecipeUnit::rules());
 
-            $unit = $service->update($recipeUnit, $data);
+            $unit = $service->update($recipeUnit->id, $data);
             return response()->json($unit);
         });
     }
@@ -68,7 +68,7 @@ class RecipeUnitController extends BaseController
     {
         return $this->execute(function () use ($recipeUnit, $service) {
             $this->authorize('delete', $recipeUnit);
-            $response = $service->delete($recipeUnit);
+            $response = $service->delete($recipeUnit->id);
             return response()->json($response);
         });
     }

@@ -7,16 +7,17 @@ use Illuminate\Support\Facades\DB;
 
 class DeleteRecipeIngredient
 {
-    public function delete(RecipeIngredient $recipeIngredient)
+    public function delete(int $id)
     {
         try {
             DB::beginTransaction();
 
-            $recipeIngredient->delete();
+            $ingredient = RecipeIngredient::findOrFail($id);
+            $ingredient->delete();
 
             DB::commit();
 
-            return $recipeIngredient;
+            return $id;
         } catch (\Exception $e) {
             DB::rollback();
             throw $e;

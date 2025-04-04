@@ -39,7 +39,9 @@ class CreateRecipe
             $this->createSteps($recipe, $data);
 
             $image = data_get($data, 'image');
-            $this->createImageService->create($recipe, $image);
+            if ($image) {
+                $this->createImageService->create($recipe, $image);
+            }
 
             DB::commit();
 

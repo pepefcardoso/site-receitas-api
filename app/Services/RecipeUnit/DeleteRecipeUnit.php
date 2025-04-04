@@ -7,11 +7,12 @@ use Illuminate\Support\Facades\DB;
 
 class DeleteRecipeUnit
 {
-    public function delete(RecipeUnit $recipeUnit)
+    public function delete(int $recipeUnitId)
     {
         try {
             DB::beginTransaction();
 
+            $recipeUnit = RecipeUnit::findOrFail($recipeUnitId);
             if ($recipeUnit->ingredients()->exists()) {
                 throw new \Exception('This unit cannot be deleted because it is associated with one or more ingredients');
             }

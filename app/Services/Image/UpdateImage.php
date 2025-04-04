@@ -3,7 +3,6 @@
 namespace App\Services\Image;
 
 use App\Models\Image;
-use Auth;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
@@ -21,17 +20,17 @@ class UpdateImage
             $newName = uniqid() . '.' . $newFile->extension();
             $path = Storage::disk('s3')->putFileAs(Image::$S3Directory, $newFile, $newName);
 
-            if ($path && $image->name !== $newName) {
-                Storage::disk('s3')->delete(Image::$S3Directory . '/' . $image->name);
-            } else {
+            if (!$path) {
                 throw new Exception('Error uploading image');
             }
 
-            $user_id = Auth::id();
+            if ($image->name !== $newName) {
+                Storage::disk('s3')->delete(Image::$S3Directory . '/' . $image->name);
+            }
+
             $image->fill([
                 'path' => $path,
                 'name' => $newName,
-                'user_id' => $user_id,
             ]);
             $image->save();
 

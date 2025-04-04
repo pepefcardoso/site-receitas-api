@@ -54,7 +54,7 @@ class RecipeIngredientController extends BaseController
             $this->authorize('update', $recipeIngredient);
 
             $data = $request->validate(RecipeIngredient::updateRules());
-            $ingredient = $service->update($recipeIngredient, $data);
+            $ingredient = $service->update($recipeIngredient->id, $data);
 
             return response()->json($ingredient);
         });
@@ -64,7 +64,7 @@ class RecipeIngredientController extends BaseController
     {
         return $this->execute(function () use ($recipeIngredient, $service) {
             $this->authorize('delete', $recipeIngredient);
-            $response = $service->delete($recipeIngredient);
+            $response = $service->delete($recipeIngredient->id);
 
             return response()->json($response);
         });

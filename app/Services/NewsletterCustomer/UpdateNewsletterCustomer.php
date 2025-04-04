@@ -7,11 +7,12 @@ use Illuminate\Support\Facades\DB;
 
 class UpdateNewsletterCustomer
 {
-    public function update(NewsletterCustomer $newsletterCustomer, array $data): NewsletterCustomer|string
+    public function update(int $newsletterCustomerId, array $data): NewsletterCustomer|string
     {
         try {
             DB::beginTransaction();
 
+            $newsletterCustomer = NewsletterCustomer::findOrFail($newsletterCustomerId);
             $newsletterCustomer->fill($data);
             $newsletterCustomer->save();
 

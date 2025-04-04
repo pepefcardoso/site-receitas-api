@@ -52,7 +52,7 @@ class NewsletterCustomerController extends BaseController
         return $this->execute(function () use ($request, $customer, $service) {
             $this->authorize('update', $customer);
             $data = $request->validate(NewsletterCustomer::rules());
-            $customer = $service->update($customer, $data);
+            $customer = $service->update($customer->id, $data);
             return response()->json($customer);
         });
     }
@@ -61,7 +61,7 @@ class NewsletterCustomerController extends BaseController
     {
         return $this->execute(function () use ($customer, $service) {
             $this->authorize('delete', $customer);
-            $response = $service->delete($customer);
+            $response = $service->delete($customer->id);
             return response()->json($response);
         });
     }

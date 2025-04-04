@@ -7,11 +7,12 @@ use Illuminate\Support\Facades\DB;
 
 class UpdateRecipeStep
 {
-    public function update(RecipeStep $recipeStep, array $data): RecipeStep|string
+    public function update(int $recipeStepId, array $data): RecipeStep|string
     {
         try {
             DB::beginTransaction();
 
+            $recipeStep = RecipeStep::findOrFail($recipeStepId);
             unset($data['order']);
             $recipeStep->update($data);
 

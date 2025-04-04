@@ -19,11 +19,12 @@ class DeleteUser
         $this->deleteImageService = $deleteImageService;
     }
 
-    public function delete(User $user): User|string
+    public function delete(int $userId): User|string
     {
         try {
             DB::beginTransaction();
 
+            $user = User::findOrFail($userId);
             if ($user->image) {
                 $imageId = $user->image->id;
                 $this->deleteImageService->delete($imageId);

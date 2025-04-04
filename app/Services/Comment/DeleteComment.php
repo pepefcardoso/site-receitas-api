@@ -8,7 +8,7 @@ use Exception;
 
 class DeleteComment
 {
-    public function delete(string $commentId)
+    public function delete(int $commentId)
     {
         try {
             DB::beginTransaction();

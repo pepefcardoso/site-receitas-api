@@ -54,7 +54,7 @@ class RecipeStepController extends BaseController
             $this->authorize('update', $recipeStep);
 
             $data = $request->validate(RecipeStep::updateRules());
-            $step = $service->update($recipeStep, $data);
+            $step = $service->update($recipeStep->id, $data);
 
             return response()->json($step);
         });
@@ -64,7 +64,7 @@ class RecipeStepController extends BaseController
     {
         return $this->execute(function () use ($recipeStep, $service) {
             $this->authorize('delete', $recipeStep);
-            $response = $service->delete($recipeStep);
+            $response = $service->delete($recipeStep->id);
 
             return response()->json($response);
         });

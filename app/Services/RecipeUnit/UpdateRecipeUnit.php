@@ -7,11 +7,12 @@ use Illuminate\Support\Facades\DB;
 
 class UpdateRecipeUnit
 {
-    public function update(RecipeUnit $recipeUnit, array $data)
+    public function update(int $recipeUnitId, array $data)
     {
         try {
             DB::beginTransaction();
 
+            $recipeUnit = RecipeUnit::findOrFail($recipeUnitId);
             $recipeUnit->fill($data);
             $recipeUnit->save();
 

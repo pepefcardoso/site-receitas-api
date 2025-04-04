@@ -7,11 +7,12 @@ use Illuminate\Support\Facades\DB;
 
 class UpdatePostCategory
 {
-    public function update(PostCategory $postCategory, array $data)
+    public function update(int $postCategoryId, array $data)
     {
         try {
             DB::beginTransaction();
 
+            $postCategory = PostCategory::findOrFail($postCategoryId);
             $postCategory->fill($data);
             $postCategory->save();
 

@@ -17,10 +17,12 @@ class DeleteRecipe
         $this->deleteImageService = $deleteImageService;
     }
 
-    public function delete(Recipe $recipe): Recipe|string
+    public function delete(int $recipeId): Recipe|string
     {
         try {
             DB::beginTransaction();
+
+            $recipe = Recipe::findOrFail($recipeId);
 
             $recipe->steps()->delete();
             $recipe->ingredients()->delete();

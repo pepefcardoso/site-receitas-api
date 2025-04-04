@@ -7,11 +7,12 @@ use Illuminate\Support\Facades\DB;
 
 class DeleteRecipeStep
 {
-    public function delete(RecipeStep $recipeStep): RecipeStep|string
+    public function delete(int $recipeStepId): RecipeStep|string
     {
         try {
             DB::beginTransaction();
 
+            $recipeStep = RecipeStep::findOrFail($recipeStepId);
             $recipeStep->delete();
 
             DB::commit();

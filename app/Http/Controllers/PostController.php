@@ -75,7 +75,7 @@ class PostController extends BaseController
     {
         return $this->execute(function () use ($post, $service) {
             $this->authorize("delete", $post);
-            $response = $service->delete($post);
+            $response = $service->delete($post->id);
             return response()->json($response);
         });
     }
