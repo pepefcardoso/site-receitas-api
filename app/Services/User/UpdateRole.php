@@ -16,10 +16,10 @@ class UpdateRole
 
             $newRoleId = data_get($data, 'role');
 
-            $user->role = $newRoleId;
+            $user->role = RolesEnum::from($newRoleId);
             $user->save();
 
-            return $user;
+            return "User role updated successfully";
         } catch (Exception $e) {
             throw $e;
         }

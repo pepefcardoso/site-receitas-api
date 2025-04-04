@@ -24,11 +24,11 @@ use App\Http\Controllers\NewsletterCustomerController;
 | User Routes
 |--------------------------------------------------------------------------
 */
-Route::apiResource('users', UserController::class);
 Route::get('user/me', [UserController::class, 'authUser']);
-Route::post('users/update-role', [UserController::class, 'updateRole']);
+Route::put('users/update-role', [UserController::class, 'updateRole']);
 Route::post('users/favorite-post', [UserController::class, 'toggleFavoritePost']);
 Route::post('users/favorite-recipe', [UserController::class, 'toggleFavoriteRecipe']);
+Route::apiResource('users', UserController::class);
 
 /*
 |--------------------------------------------------------------------------

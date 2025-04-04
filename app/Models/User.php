@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Validation\Rule;
 use Laravel\Sanctum\HasApiTokens;
 
 class User extends Authenticatable
@@ -111,9 +112,11 @@ class User extends Authenticatable
 
     public static function setRoleRules(): array
     {
+        $roleValues = array_map(fn($case) => $case->value, RolesEnum::cases());
+
         return [
-            'role' => 'required|integer|in:' . implode(',', RolesEnum::cases()),
             'user_id' => 'required|exists:users,id',
+            'role' => ['required', Rule::in($roleValues)]
         ];
     }
 
