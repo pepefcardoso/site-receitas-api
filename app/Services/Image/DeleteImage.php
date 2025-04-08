@@ -3,29 +3,33 @@
 namespace App\Services\Image;
 
 use App\Models\Image;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Storage;
 use Exception;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 
 class DeleteImage
 {
-    public function delete(int $imageId): Image|string
+    public function delete(int $imageId): Image
     {
         try {
-            DB::beginTransaction();
-
-            $image = Image::findOrFail($imageId);
-
-            $image->delete();
-
-            Storage::disk('s3')->delete(Image::$S3Directory . '/' . $image->name);
-
-            DB::commit();
-
-            return $image;
+            return DB::transaction(function () use ($imageId) {
+                $image = Image::findOrFail($imageId);
+                $this->deleteFromStorage($image);
+                return tap($image)->delete();
+            });
         } catch (Exception $e) {
-            DB::rollBack();
+            Log::error("Image deletion failed: {$imageId} - " . $e->getMessage());
             throw $e;
+        }
+    }
+
+    private function deleteFromStorage(Image $image): void
+    {
+        $filePath = Image::$S3Directory . '/' . $image->name;
+
+        if (Storage::disk('s3')->exists($filePath)) {
+            Storage::disk('s3')->delete($filePath);
         }
     }
 }

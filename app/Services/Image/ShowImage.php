@@ -3,7 +3,6 @@
 namespace App\Services\Image;
 
 use App\Models\Image;
-use Exception;
 
 class ShowImage
 {

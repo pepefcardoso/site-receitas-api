@@ -3,35 +3,30 @@
 namespace App\Services\Post;
 
 use App\Models\Post;
+use Illuminate\Support\Facades\Cache;
 
 class ShowPost
 {
     public function show($id)
     {
-        $query = Post::with([
-            'category',
-            'topics',
-            'image',
-            'user' => function ($query) {
-                $query->select('id', 'name');
-            },
-            'user.image',
-            'comments.user' => function ($query) {
-                $query->select('id', 'name');
-            },
-            'comments.user.image'
-        ])
-            ->withAvg('ratings', 'rating')
-            ->withCount('ratings');
-
-        if (auth()->check()) {
-            $query->withExists([
-                'favoritedByUsers as is_favorited' => function ($query) {
-                    $query->where('user_id', auth()->id());
-                }
-            ]);
-        }
-
-        return $query->findOrFail($id);
+        return Cache::remember("post.{$id}", now()->addHour(), function () use ($id) {
+            return Post::select('id', 'title', 'summary', 'user_id', 'category_id')
+                ->with([
+                    'category' => fn($q) => $q->select('id', 'name'),
+                    'topics' => fn($q) => $q->select('id', 'name'),
+                    'image' => fn($q) => $q->select('id', 'path', 'imageable_id', 'imageable_type')->makeHidden('path'),
+                    'user' => fn($q) => $q->select('id', 'name'),
+                    'user.image' => fn($q) => $q->select('id', 'path', 'imageable_id', 'imageable_type')->makeHidden('path'),
+                    'comments' => fn($q) => $q->latest()->limit(5),
+                    'comments.user' => fn($q) => $q->select('id', 'name'),
+                    'comments.user.image' => fn($q) => $q->select('id', 'path', 'imageable_id', 'imageable_type')->makeHidden('path'),
+                ])
+                ->when(auth()->check(), fn($q) => $q->withExists([
+                    'favoritedByUsers as is_favorited' => fn($q) => $q->where('user_id', auth()->id())
+                ]))
+                ->withAvg('ratings', 'rating')
+                ->withCount('ratings')
+                ->findOrFail($id);
+        });
     }
 }
