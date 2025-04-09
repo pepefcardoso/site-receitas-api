@@ -8,7 +8,7 @@ class ListRecipeUnit
 {
     public function list(int $perPage = 10)
     {
-        $query = RecipeUnit::query();
+        $query = RecipeUnit::select('id', 'name');
 
         return $query->paginate($perPage);
     }

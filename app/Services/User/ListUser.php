@@ -8,9 +8,11 @@ class ListUser
 {
     public function list(array $filters = [], $perPage = 10)
     {
-        $query = User::query();
-
-        $query = $query->filter($filters);
+        $query = User::select('id', 'name', 'email', 'phone', 'role')
+            ->with([
+                'image' => fn($q) => $q->select('id', 'path as url', 'imageable_id', 'imageable_type')
+            ])
+            ->filter($filters);
 
         if (isset($filters['order_by']) && isset($filters['order_direction'])) {
             $query->orderBy($filters['order_by'], $filters['order_direction']);

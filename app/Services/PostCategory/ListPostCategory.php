@@ -8,8 +8,6 @@ class ListPostCategory
 {
     public function list(int $perPage = 10)
     {
-        $query = PostCategory::query();
-
-        return $query->paginate($perPage);
+        return PostCategory::select('id', 'name')->paginate($perPage);
     }
 }

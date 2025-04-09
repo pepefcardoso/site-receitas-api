@@ -8,7 +8,7 @@ class ListRecipeCategory
 {
     public function list(int $perPage = 10)
     {
-        $query = RecipeCategory::query();
+        $query = RecipeCategory::select('id', 'name');
 
         return $query->paginate($perPage);
     }

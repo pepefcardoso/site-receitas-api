@@ -9,11 +9,16 @@ class ShowAuthUser
 {
     public function show()
     {
-        $userId = auth()->user()->id;
+        $userId = auth()->id();
+
         if (!$userId) {
             throw new Exception('User not authenticated');
         }
 
-        return User::with('image')->findOrFail($userId);
+        return User::select('id', 'name', 'email', 'phone', 'birthday', 'created_at')
+            ->with([
+                'image' => fn($q) => $q->select('id', 'path', 'imageable_id', 'imageable_type'),
+            ])
+            ->findOrFail($userId);
     }
 }

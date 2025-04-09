@@ -8,8 +8,6 @@ class ListPostTopic
 {
     public function list(int $perPage = 10)
     {
-        $query = PostTopic::query();
-
-        return $query->paginate($perPage);
+        return PostTopic::select('id', 'name')->paginate($perPage);
     }
 }

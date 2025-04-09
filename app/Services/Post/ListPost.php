@@ -9,11 +9,12 @@ class ListPost
 {
     public function list(array $filters = [], $perPage = 10)
     {
-        $query = Post::with([
-            'category',
-            'topics',
-            'image'
-        ])
+        $query = Post::select('id', 'title', 'summary', 'user_id', 'category_id')
+            ->with([
+                'category:id,name',
+                'topics:id,name',
+                'image:id,path,imageable_id,imageable_type'
+            ])
             ->withAvg('ratings', 'rating')
             ->withCount('ratings');
 

@@ -8,6 +8,10 @@ class ShowUser
 {
     public function show($id)
     {
-        return User::with('image')->findOrFail($id);
+        return User::select('id', 'name')
+        ->with([
+            'image' => fn ($query) => $query->select('id', 'path', 'imageable_id', 'imageable_type')
+        ])
+            ->findOrFail($id);
     }
 }

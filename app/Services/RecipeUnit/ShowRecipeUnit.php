@@ -8,6 +8,6 @@ class ShowRecipeUnit
 {
     public function show($id)
     {
-        return RecipeUnit::findOrFail($id);
+        return RecipeUnit::select('id', 'name')->findOrFail($id);
     }
 }

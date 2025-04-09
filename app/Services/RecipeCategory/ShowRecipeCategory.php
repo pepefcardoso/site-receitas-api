@@ -8,6 +8,6 @@ class ShowRecipeCategory
 {
     public function show($id)
     {
-        return RecipeCategory::findOrFail($id);
+        return RecipeCategory::select('id', 'name')->findOrFail($id);
     }
 }

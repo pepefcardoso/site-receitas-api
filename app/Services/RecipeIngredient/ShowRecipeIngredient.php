@@ -8,6 +8,8 @@ class ShowRecipeIngredient
 {
     public function show($id)
     {
-        return RecipeIngredient::with('unit')->findOrFail($id);
+        return RecipeIngredient::with([
+            'unit' => fn($q) => $q->select('id', 'name')
+        ])->findOrFail($id);
     }
 }

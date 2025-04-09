@@ -9,19 +9,18 @@ class ListRecipe
 {
     public function list(array $filters = [], int $perPage = 10)
     {
-        $query = Recipe::with([
-            'diets',
-            'category',
-            'image',
-        ])
+        $query = Recipe::select('id', 'title', 'description', 'user_id', 'category_id')
+            ->with([
+                'diets' => fn($q) => $q->select('id', 'name'),
+                'category' => fn($q) => $q->select('id', 'name'),
+                'image' => fn($q) => $q->select('id', 'path', 'imageable_id', 'imageable_type'),
+            ])
             ->withAvg('ratings', 'rating')
             ->withCount('ratings');
 
         if (Auth::check()) {
             $query->withExists([
-                'favoritedByUsers as is_favorited' => function ($query) {
-                    $query->where('user_id', Auth::id());
-                }
+                'favoritedByUsers as is_favorited' => fn($q) => $q->where('user_id', Auth::id()),
             ]);
         }
 

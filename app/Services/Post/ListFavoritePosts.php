@@ -14,9 +14,19 @@ class ListFavoritePosts
             throw new Exception('User not authenticated');
         }
 
-        return User::find($userId)
+        return User::findOrFail($userId)
             ->favoritePosts()
-            ->with(['image'])
+            ->select('id', 'title')
+            ->with([
+                'image' => fn($q) => $q
+                    ->select('id', 'path', 'imageable_id', 'imageable_type', 'created_at', 'updated_at')
+                    ->makeHidden('path'),
+            ])
+            ->withExists([
+                'favoritedByUsers as is_favorited' => fn($q) => $q->where('user_id', $userId),
+            ])
+            ->withAvg('ratings', 'rating')
+            ->withCount('ratings')
             ->paginate($perPage);
     }
 }

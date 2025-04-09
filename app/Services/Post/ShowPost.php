@@ -10,16 +10,12 @@ class ShowPost
     public function show($id)
     {
         return Cache::remember("post.{$id}", now()->addHour(), function () use ($id) {
-            return Post::select('id', 'title', 'summary', 'user_id', 'category_id')
-                ->with([
+            return Post::with([
                     'category' => fn($q) => $q->select('id', 'name'),
                     'topics' => fn($q) => $q->select('id', 'name'),
                     'image' => fn($q) => $q->select('id', 'path', 'imageable_id', 'imageable_type')->makeHidden('path'),
                     'user' => fn($q) => $q->select('id', 'name'),
                     'user.image' => fn($q) => $q->select('id', 'path', 'imageable_id', 'imageable_type')->makeHidden('path'),
-                    'comments' => fn($q) => $q->latest()->limit(5),
-                    'comments.user' => fn($q) => $q->select('id', 'name'),
-                    'comments.user.image' => fn($q) => $q->select('id', 'path', 'imageable_id', 'imageable_type')->makeHidden('path'),
                 ])
                 ->when(auth()->check(), fn($q) => $q->withExists([
                     'favoritedByUsers as is_favorited' => fn($q) => $q->where('user_id', auth()->id())
