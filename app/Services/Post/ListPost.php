@@ -3,11 +3,13 @@
 namespace App\Services\Post;
 
 use App\Models\Post;
+use App\Models\User;
 use Illuminate\Support\Facades\Auth;
+use Log;
 
 class ListPost
 {
-    public function list(array $filters = [], $perPage = 10)
+    public function list(array $filters = [], int $perPage = 10)
     {
         $query = Post::select('id', 'title', 'summary', 'user_id', 'category_id')
             ->with([
@@ -18,11 +20,10 @@ class ListPost
             ->withAvg('ratings', 'rating')
             ->withCount('ratings');
 
-        if (Auth::check()) {
+        $userId = auth('sanctum')->id();
+        if ($userId) {
             $query->withExists([
-                'favoritedByUsers as is_favorited' => function ($query) {
-                    $query->where('user_id', Auth::id());
-                }
+                'favoritedByUsers as is_favorited' => fn($q) => $q->where('user_id', $userId),
             ]);
         }
 

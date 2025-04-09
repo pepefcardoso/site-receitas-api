@@ -18,8 +18,6 @@ class Recipe extends Model
 
     public const VALID_SORT_COLUMNS = ['title', 'created_at', 'time', 'difficulty'];
 
-    public mixed $user;
-
     protected $fillable = [
         'title',
         'description',
@@ -33,10 +31,7 @@ class Recipe extends Model
     protected $casts = [
         'ingredients' => 'array',
         'steps' => 'array',
-        'is_favorited' => 'boolean',
     ];
-
-    protected $appends = ['is_favorited'];
 
     public function scopeFilter($query, array $filters)
     {

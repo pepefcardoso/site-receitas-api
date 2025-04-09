@@ -3,7 +3,6 @@
 namespace App\Services\Recipe;
 
 use App\Models\Recipe;
-use Illuminate\Support\Facades\Auth;
 
 class ListRecipe
 {
@@ -11,16 +10,19 @@ class ListRecipe
     {
         $query = Recipe::select('id', 'title', 'description', 'user_id', 'category_id')
             ->with([
-                'diets' => fn($q) => $q->select('id', 'name'),
+                'diets' => function ($q) {
+                    $q->select('recipe_diets.id', 'recipe_diets.name');
+                },
                 'category' => fn($q) => $q->select('id', 'name'),
                 'image' => fn($q) => $q->select('id', 'path', 'imageable_id', 'imageable_type'),
             ])
             ->withAvg('ratings', 'rating')
             ->withCount('ratings');
 
-        if (Auth::check()) {
+        $userId = auth('sanctum')->id();
+        if ($userId) {
             $query->withExists([
-                'favoritedByUsers as is_favorited' => fn($q) => $q->where('user_id', Auth::id()),
+                'favoritedByUsers as is_favorited' => fn($q) => $q->where('user_id', $userId),
             ]);
         }
 
@@ -29,6 +31,7 @@ class ListRecipe
 
         return $query->paginate($perPage);
     }
+
 
     protected function applySorting($query, array $filters)
     {

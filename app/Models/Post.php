@@ -15,20 +15,12 @@ class Post extends Model
 
     public const VALID_SORT_COLUMNS = ['title', 'created_at'];
 
-    public mixed $user;
-
     protected $fillable = [
         'title',
         'summary',
         'content',
         'category_id',
         'user_id',
-    ];
-
-    protected $appends = ['is_favorited'];
-
-    protected $casts = [
-        'is_favorited' => 'boolean',
     ];
 
     public function scopeFilter($query, array $filters)
@@ -122,7 +114,7 @@ class Post extends Model
         return $this->morphMany(Rating::class, 'rateable');
     }
 
-    public function getAverageRatingAttribute()
+    public function getAverageRatingAttribute(): float
     {
         return $this->ratings()->avg('rating') ?? 0;
     }
