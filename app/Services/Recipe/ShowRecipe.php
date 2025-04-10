@@ -11,21 +11,18 @@ class ShowRecipe
     {
         return Cache::remember("recipe.{$id}", now()->addHour(), function () use ($id) {
             $recipe = Recipe::with([
-                'diets' => fn($q) => $q->select('id', 'name', 'created_at', 'updated_at'),
-                'category' => fn($q) => $q->select('id', 'name', 'created_at', 'updated_at'),
-                'steps' => fn($q) => $q->select('id', 'order', 'description', 'recipe_id', 'created_at', 'updated_at'),
-                'ingredients' => fn($q) => $q->select('id', 'name', 'quantity', 'unit_id', 'recipe_id', 'created_at', 'updated_at'),
-                'ingredients.unit' => fn($q) => $q->select('id', 'name', 'created_at', 'updated_at'),
-                'image' => fn($q) => $q
-                    ->select('id', 'path', 'imageable_id', 'imageable_type', 'created_at', 'updated_at')
-                    ->makeHidden('path'),
-                'user' => fn($q) => $q->select('id', 'name', 'created_at', 'updated_at'),
-                'user.image' => fn($q) => $q
-                    ->select('id', 'path', 'imageable_id', 'imageable_type', 'created_at', 'updated_at')
-                    ->makeHidden('path'),
+                'diets' => fn($q) => $q->select('recipe_diets.id', 'recipe_diets.name'),
+                'category' => fn($q) => $q->select('id', 'name'),
+                'steps' => fn($q) => $q->select('id', 'order', 'description', 'recipe_id'),
+                'ingredients' => fn($q) => $q->select('id', 'name', 'quantity', 'unit_id', 'recipe_id'),
+                'ingredients.unit' => fn($q) => $q->select('id', 'name'),
+                'image' => fn($q) => $q->select('id', 'path', 'imageable_id', 'imageable_type'),
+                'user' => fn($q) => $q->select('id', 'name'),
+                'user.image' => fn($q) => $q->select('id', 'path', 'imageable_id', 'imageable_type'),
             ])
                 ->withAvg('ratings', 'rating')
-                ->withCount('ratings');
+                ->withCount('ratings')
+                ->findOrFail($id);
 
             $userId = auth('sanctum')->id();
             if ($userId) {
@@ -38,7 +35,15 @@ class ShowRecipe
                 $recipe->is_favorited = false;
             }
 
-            return $recipe;
+            if ($recipe->image) {
+                $recipe->image->makeHidden('path');
+            }
+
+            if ($recipe->user && $recipe->user->image) {
+                $recipe->user->image->makeHidden('path');
+            }
+
+            return $recipe->toArray();
         });
     }
 }

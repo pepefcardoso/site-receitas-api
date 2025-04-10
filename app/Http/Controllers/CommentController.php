@@ -10,6 +10,7 @@ use App\Services\Comment\ShowComment;
 use App\Services\Comment\UpdateComment;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class CommentController extends BaseController
 {
@@ -24,7 +25,11 @@ class CommentController extends BaseController
     {
         return $this->execute(function () use ($request, $service) {
             $perPage = $request->input('per_page', 10);
-            $comments = $service->list($perPage);
+            $filters = [
+                'commentable_id' => $request->input('commentable_id'),
+                'commentable_type' => $request->input('commentable_type'),
+            ];
+            $comments = $service->list($filters, $perPage);
             return response()->json($comments);
         });
     }
@@ -34,9 +39,10 @@ class CommentController extends BaseController
         return $this->execute(function () use ($request, $service) {
             $this->authorize('create', Comment::class);
 
-            $data = $request->validate(Comment::createRules());
+            $data = $request->validate(Comment::rules());
 
-            $model = $data['commentable_type']::findOrFail($data['commentable_id']);
+            $modelClass = 'App\\Models\\' . $data['commentable_type'];
+            $model = $modelClass::findOrFail($data['commentable_id']);
             $content = $data['content'];
 
             $comment = $service->create($model, $content);

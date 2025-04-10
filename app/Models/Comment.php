@@ -22,7 +22,7 @@ class Comment extends Model
     {
         return [
             'commentable_id' => 'required|integer',
-            'commentable_type' => 'required|string',
+            'commentable_type' => 'required|in:Post,Recipe',
             'content' => 'required|string|max:255',
         ];
     }
