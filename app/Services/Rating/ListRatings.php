@@ -6,7 +6,7 @@ use App\Models\Rating;
 
 class ListRatings
 {
-    public function list(int $perPage = 10)
+    public function list(array $filters = [], int $perPage = 10)
     {
         $query = Rating::select('id', 'rating', '_id', '_type', 'user_id', 'created_at', 'updated_at')
             ->with([

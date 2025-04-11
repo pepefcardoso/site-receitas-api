@@ -10,7 +10,6 @@ use App\Services\Comment\ShowComment;
 use App\Services\Comment\UpdateComment;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
 
 class CommentController extends BaseController
 {
@@ -18,7 +17,7 @@ class CommentController extends BaseController
 
     public function __construct()
     {
-        $this->middleware('auth:sanctum');
+        $this->middleware('auth:sanctum')->except(['index', 'show']);
     }
 
     public function index(Request $request, ListComments $service)
