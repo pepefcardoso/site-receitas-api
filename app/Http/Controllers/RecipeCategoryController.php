@@ -2,74 +2,60 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\RecipeCategory\StoreRequest;
+use App\Http\Requests\RecipeCategory\UpdateRequest;
+use App\Http\Resources\RecipeCategoryResource;
 use App\Models\RecipeCategory;
-use App\Services\RecipeCategory\CreateRecipeCategory;
-use App\Services\RecipeCategory\DeleteRecipeCategory;
-use App\Services\RecipeCategory\ListRecipeCategory;
-use App\Services\RecipeCategory\ShowRecipeCategory;
-use App\Services\RecipeCategory\UpdateRecipeCategory;
-use Illuminate\Http\Request;
-use Illuminate\Support\Str;
-use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Routing\Controller;
+use Illuminate\Validation\ValidationException;
 
-class RecipeCategoryController extends BaseController
+class RecipeCategoryController extends Controller
 {
-    use AuthorizesRequests;
-
     public function __construct()
     {
         $this->middleware('auth:sanctum')->except(['index', 'show']);
     }
 
-    public function index(Request $request, ListRecipeCategory $service)
+    public function index(): AnonymousResourceCollection
     {
-        return $this->execute(function () use ($request, $service) {
-            $perPage = $request->input('per_page', 10);
-            $categories = $service->list($perPage);
-            return response()->json($categories);
+        $categories = cache()->remember('recipe_categories_list', now()->addHour(), function () {
+            return RecipeCategory::all();
         });
+        return RecipeCategoryResource::collection($categories);
     }
 
-    public function store(Request $request, CreateRecipeCategory $service)
+    public function store(StoreRequest $request): JsonResponse
     {
-        return $this->execute(function () use ($request, $service) {
-            $this->authorize('create', RecipeCategory::class);
-
-            $request->merge(['normalized_name' => Str::upper($request->name)]);
-            $data = $request->validate(RecipeCategory::createRules());
-
-            $category = $service->create($data);
-            return response()->json($category, 201);
-        });
+        $category = RecipeCategory::create($request->validated());
+        return (new RecipeCategoryResource($category))
+            ->response()
+            ->setStatusCode(201);
     }
 
-    public function show(RecipeCategory $recipeCategory, ShowRecipeCategory $service)
+    public function show(RecipeCategory $recipeCategory): RecipeCategoryResource
     {
-        return $this->execute(function () use ($recipeCategory, $service) {
-            $category = $service->show($recipeCategory->id);
-            return response()->json($category);
-        });
+        return new RecipeCategoryResource($recipeCategory);
     }
 
-    public function update(Request $request, RecipeCategory $recipeCategory, UpdateRecipeCategory $service)
+    public function update(UpdateRequest $request, RecipeCategory $recipeCategory): RecipeCategoryResource
     {
-        return $this->execute(function () use ($request, $recipeCategory, $service) {
-            $this->authorize("update", $recipeCategory);
-
-            $request->merge(['normalized_name' => Str::upper($request->name)]);
-            $data = $request->validate(RecipeCategory::updateRules());
-
-            $category = $service->update($recipeCategory->id, $data);
-            return response()->json($category);
-        });
+        $recipeCategory->update($request->validated());
+        return new RecipeCategoryResource($recipeCategory);
     }
 
-    public function destroy(RecipeCategory $recipeCategory, DeleteRecipeCategory $service)
+    public function destroy(RecipeCategory $recipeCategory): JsonResponse
     {
-        return $this->execute(function () use ($recipeCategory, $service) {
-            $this->authorize("delete", $recipeCategory);
-            $response = $service->delete($recipeCategory->id);
-            return response()->json($response);
-        });
+        $this->authorize('delete', $recipeCategory);
+
+        if ($recipeCategory->recipes()->exists()) {
+            throw ValidationException::withMessages([
+                'category' => 'This category cannot be deleted because it is associated with recipes.',
+            ]);
+        }
+
+        $recipeCategory->delete();
+        return response()->json(null, 204);
     }
 }

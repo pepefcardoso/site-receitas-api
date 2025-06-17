@@ -3,15 +3,8 @@
 namespace App\Services\Recipe;
 
 use App\Models\Recipe;
-use App\Models\RecipeIngredient;
 use App\Services\Image\CreateImage;
 use App\Services\Image\UpdateImage;
-use App\Services\RecipeIngredient\CreateRecipeIngredient;
-use App\Services\RecipeIngredient\DeleteRecipeIngredient;
-use App\Services\RecipeIngredient\UpdateRecipeIngredient;
-use App\Services\RecipeStep\CreateRecipeStep;
-use App\Services\RecipeStep\DeleteRecipeStep;
-use App\Services\RecipeStep\UpdateRecipeStep;
 use Exception;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Arr;
@@ -19,18 +12,12 @@ use Illuminate\Support\Arr;
 class UpdateRecipe
 {
     public function __construct(
-        protected CreateRecipeIngredient $createRecipeIngredient,
-        protected UpdateRecipeIngredient $updateRecipeIngredient,
-        protected DeleteRecipeIngredient $deleteRecipeIngredient,
-        protected CreateRecipeStep $createRecipeStep,
-        protected UpdateRecipeStep $updateRecipeStep,
-        protected DeleteRecipeStep $deleteRecipeStep,
         protected CreateImage $createImageService,
         protected UpdateImage $updateImageService
     ) {
     }
 
-    public function update(int $id, array $data): Recipe|string
+    public function update(int $id, array $data): Recipe
     {
         DB::beginTransaction();
 
@@ -42,13 +29,9 @@ class UpdateRecipe
             $this->handleIngredients($recipe, $data);
             $this->handleSteps($recipe, $data);
 
-            $newImageFile = data_get($data, 'image');
-            if ($newImageFile) {
-                if ($recipe->image) {
-                    $this->updateImageService->update($recipe->image->id, $newImageFile);
-                } else {
-                    $this->createImageService->create($recipe, $newImageFile);
-                }
+            if ($newImageFile = data_get($data, 'image')) {
+                $recipe->image ? $this->updateImageService->update($recipe->image->id, $newImageFile)
+                    : $this->createImageService->create($recipe, $newImageFile);
             }
 
             DB::commit();
@@ -62,79 +45,43 @@ class UpdateRecipe
 
     protected function updateRecipeDetails(Recipe $recipe, array $data): void
     {
-        $recipeData = Arr::only($data, ['title', 'description', 'time', 'portion', 'difficulty', 'image', 'category_id']);
+        $recipeData = Arr::only($data, ['title', 'description', 'time', 'portion', 'difficulty', 'category_id']);
         $recipe->update($recipeData);
     }
 
     protected function syncDiets(Recipe $recipe, array $data): void
     {
         $diets = Arr::get($data, 'diets');
-        throw_if(empty($diets), Exception::class, 'Diets are required');
+        throw_if(empty($diets), new Exception('Diets are required'));
         $recipe->diets()->sync($diets);
     }
 
     protected function handleIngredients(Recipe $recipe, array $data): void
     {
-        if (!isset($data['ingredients'])) {
-            $recipe->ingredients->each(function ($ingredient) {
-                $this->deleteRecipeIngredient->delete($ingredient->id);
-            });
-            return;
-        }
+        $incomingIngredients = collect($data['ingredients'] ?? []);
+        $upsertData = $incomingIngredients->map(fn($item) => [
+            'id' => $item['id'] ?? null,
+            'recipe_id' => $recipe->id,
+            'name' => $item['name'],
+            'quantity' => $item['quantity'],
+            'unit_id' => $item['unit_id'],
+        ])->toArray();
 
-        $ingredientIds = [];
-
-        foreach ($data['ingredients'] as $ingredient) {
-            if (isset($ingredient['id'])) {
-                $currentIngredient = RecipeIngredient::findOrFail($ingredient['id']);
-                $this->updateRecipeIngredient->update($currentIngredient->id, [
-                    'quantity' => $ingredient['quantity'],
-                    'name' => $ingredient['name'],
-                    'unit_id' => $ingredient['unit_id'],
-                ]);
-                $ingredientIds[] = $ingredient['id'];
-            } else {
-                $newIngredient = $this->createRecipeIngredient->create([
-                    'recipe_id' => $recipe->id,
-                    'quantity' => $ingredient['quantity'],
-                    'name' => $ingredient['name'],
-                    'unit_id' => $ingredient['unit_id'],
-                ]);
-                $ingredientIds[] = $newIngredient->id;
-            }
-        }
-
-        $recipe->ingredients()
-            ->whereNotIn('id', $ingredientIds)
-            ->get()
-            ->each(function ($ingredient) {
-                $this->deleteRecipeIngredient->delete($ingredient->id);
-            });
+        $recipe->ingredients()->upsert($upsertData, ['id'], ['name', 'quantity', 'unit_id']);
+        $recipe->ingredients()->whereNotIn('id', $incomingIngredients->pluck('id')->filter())->delete();
     }
 
     protected function handleSteps(Recipe $recipe, array $data): void
     {
-        $steps = $data['steps'] ?? [];
+        $incomingSteps = collect($data['steps'] ?? []);
+        $upsertData = $incomingSteps->map(fn($item, $index) => [
+            'id' => $item['id'] ?? null,
+            'recipe_id' => $recipe->id,
+            'order' => $index + 1,
+            'description' => $item['description'],
+        ])->toArray();
 
-        $stepIds = [];
-
-        foreach ($steps as $index => $step) {
-            $stepData = [
-                'order' => $index + 1,
-                'description' => $step['description'],
-                'recipe_id' => $recipe->id,
-            ];
-
-            if (isset($step['id'])) {
-                $currentStep = $recipe->steps()->findOrFail($step['id']);
-                $currentStep->update($stepData);
-                $stepIds[] = $currentStep->id;
-            } else {
-                $newStep = $recipe->steps()->create($stepData);
-                $stepIds[] = $newStep->id;
-            }
-        }
-
-        $recipe->steps()->whereNotIn('id', $stepIds)->delete();
+        $recipe->steps()->upsert($upsertData, ['id'], ['order', 'description']);
+        $recipe->steps()->whereNotIn('id', $incomingSteps->pluck('id')->filter())->delete();
     }
 }
