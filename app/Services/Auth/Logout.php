@@ -3,20 +3,17 @@
 namespace App\Services\Auth;
 
 use Exception;
-use Illuminate\Support\Facades\DB;
 
 class Logout
 {
-    public function logout()
+    public function logout(): bool
     {
         try {
-            DB::beginTransaction();
-
-            auth()->user()->tokens()->delete();
+            auth()->user()->currentAccessToken()->delete();
 
             return true;
         } catch (Exception $e) {
-            DB::rollback();
+            report($e);
             throw $e;
         }
     }
