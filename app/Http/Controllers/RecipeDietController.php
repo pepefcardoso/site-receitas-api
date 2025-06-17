@@ -2,74 +2,60 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\RecipeDiet\StoreRequest;
+use App\Http\Requests\RecipeDiet\UpdateRequest;
+use App\Http\Resources\RecipeDietResource;
 use App\Models\RecipeDiet;
-use App\Services\RecipeDiets\CreateRecipeDiet;
-use App\Services\RecipeDiets\DeleteRecipeDiet;
-use App\Services\RecipeDiets\ListRecipeDiet;
-use App\Services\RecipeDiets\ShowRecipeDiet;
-use App\Services\RecipeDiets\UpdateRecipeDiet;
-use Illuminate\Http\Request;
-use Illuminate\Support\Str;
-use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Routing\Controller;
+use Illuminate\Validation\ValidationException;
 
-class RecipeDietController extends BaseController
+class RecipeDietController extends Controller
 {
-    use AuthorizesRequests;
-
     public function __construct()
     {
         $this->middleware('auth:sanctum')->except(['index', 'show']);
     }
 
-    public function index(Request $request, ListRecipeDiet $service)
+    public function index(): AnonymousResourceCollection
     {
-        return $this->execute(function () use ($request, $service) {
-            $perPage = $request->input('per_page', 10);
-            $diets = $service->list($perPage);
-            return response()->json($diets);
+        $diets = cache()->remember('recipe_diets_list', now()->addHour(), function () {
+            return RecipeDiet::all();
         });
+        return RecipeDietResource::collection($diets);
     }
 
-    public function store(Request $request, CreateRecipeDiet $service)
+    public function store(StoreRequest $request): JsonResponse
     {
-        return $this->execute(function () use ($request, $service) {
-            $this->authorize('create', RecipeDiet::class);
-
-            $request->merge(['normalized_name' => Str::upper($request->name)]);
-            $data = $request->validate(RecipeDiet::createRules());
-
-            $diet = $service->create($data);
-            return response()->json($diet, 201);
-        });
+        $diet = RecipeDiet::create($request->validated());
+        return (new RecipeDietResource($diet))
+            ->response()
+            ->setStatusCode(201);
     }
 
-    public function show(RecipeDiet $recipeDiet, ShowRecipeDiet $service)
+    public function show(RecipeDiet $recipeDiet): RecipeDietResource
     {
-        return $this->execute(function () use ($recipeDiet, $service) {
-            $diet = $service->show($recipeDiet->id);
-            return response()->json($diet);
-        });
+        return new RecipeDietResource($recipeDiet);
     }
 
-    public function update(Request $request, RecipeDiet $recipeDiet, UpdateRecipeDiet $service)
+    public function update(UpdateRequest $request, RecipeDiet $recipeDiet): RecipeDietResource
     {
-        return $this->execute(function () use ($request, $recipeDiet, $service) {
-            $this->authorize('update', $recipeDiet);
-
-            $request->merge(['normalized_name' => Str::upper($request->name)]);
-            $data = $request->validate(RecipeDiet::updateRules());
-
-            $diet = $service->update($recipeDiet->id, $data);
-            return response()->json($diet);
-        });
+        $recipeDiet->update($request->validated());
+        return new RecipeDietResource($recipeDiet);
     }
 
-    public function destroy(RecipeDiet $recipeDiet, DeleteRecipeDiet $service)
+    public function destroy(RecipeDiet $recipeDiet): JsonResponse
     {
-        return $this->execute(function () use ($recipeDiet, $service) {
-            $this->authorize('delete', $recipeDiet);
-            $response = $service->delete($recipeDiet->id);
-            return response()->json($response);
-        });
+        $this->authorize('delete', $recipeDiet);
+
+        if ($recipeDiet->recipes()->exists()) {
+            throw ValidationException::withMessages([
+                'diet' => 'This diet cannot be deleted because it is associated with recipes.',
+            ]);
+        }
+
+        $recipeDiet->delete();
+        return response()->json(null, 204);
     }
 }

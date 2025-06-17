@@ -8,26 +8,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class RecipeDiet extends Model
 {
-    /** @use HasFactory<RecipeDietFactory> */
     use HasFactory;
 
     protected $fillable = ['name', 'normalized_name'];
-
-    public static function createRules(): array
-    {
-        return [
-            'name' => 'required|string|max:50|unique:post_categories',
-            'normalized_name' => 'required|string|max:50|unique:post_categories',
-        ];
-    }
-
-    public static function updateRules(): array
-    {
-        return [
-            'name' => 'required|string|max:50|unique:post_categories',
-            'normalized_name' => 'required|string|max:50|unique:post_categories',
-        ];
-    }
 
     public function recipes(): BelongsToMany
     {
