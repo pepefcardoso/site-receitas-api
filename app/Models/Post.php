@@ -46,49 +46,6 @@ class Post extends Model
         return $query;
     }
 
-    public static function createRules(): array
-    {
-        return [
-            'title' => 'required|string|max:100',
-            'summary' => 'required|string|max:255',
-            'content' => 'required|string',
-            'category_id' => 'required|exists:post_categories,id',
-            'topics' => 'array|required',
-            'topics.*' => 'exists:post_topics,id',
-            'image' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
-        ];
-    }
-
-    public static function updateRules(): array
-    {
-        return [
-            'title' => 'required|string|max:100',
-            'summary' => 'required|string|max:255',
-            'content' => 'required|string',
-            'category_id' => 'required|exists:post_categories,id',
-            'topics' => 'array|required',
-            'topics.*' => 'exists:post_topics,id',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
-        ];
-    }
-
-    public static function filtersRules(): array
-    {
-        return [
-            'search' => 'nullable|string|max:255',
-            'category_id' => 'nullable|integer|exists:post_categories,id',
-            'order_by' => 'nullable|string|in:title,created_at',
-            'order_direction' => 'nullable|string|in:asc,desc',
-            'user_id' => 'nullable|integer|exists:users,id',
-            'per_page' => 'nullable|integer|min:1|max:100',
-        ];
-    }
-
-    public function getIsFavoritedAttribute(): bool
-    {
-        return (bool) ($this->attributes['is_favorited'] ?? false);
-    }
-
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
@@ -112,11 +69,6 @@ class Post extends Model
     public function ratings(): MorphMany
     {
         return $this->morphMany(Rating::class, 'rateable');
-    }
-
-    public function getAverageRatingAttribute(): float
-    {
-        return $this->ratings()->avg('rating') ?? 0;
     }
 
     public function comments(): MorphMany

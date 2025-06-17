@@ -2,6 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\Post\FilterPostRequest;
+use App\Http\Requests\Post\StorePostRequest;
+use App\Http\Requests\Post\UpdatePostRequest;
+use App\Http\Resources\PostCollectionResource;
+use App\Http\Resources\PostResource;
 use App\Models\Post;
 use App\Services\Post\CreatePost;
 use App\Services\Post\DeletePost;
@@ -10,93 +15,64 @@ use App\Services\Post\ListPost;
 use App\Services\Post\ListUserPosts;
 use App\Services\Post\ShowPost;
 use App\Services\Post\UpdatePost;
-use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
-use Illuminate\Http\Request;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Routing\Controller;
 
-class PostController extends BaseController
+class PostController extends Controller
 {
-    use AuthorizesRequests;
-
     public function __construct()
     {
         $this->middleware('auth:sanctum')->except(['index', 'show']);
     }
 
-    public function index(Request $request, ListPost $service)
+    public function index(FilterPostRequest $request, ListPost $service): AnonymousResourceCollection
     {
-        return $this->execute(function () use ($request, $service) {
-            $validatedFilters = $request->validate(Post::filtersRules());
+        $filters = $request->validated();
+        $perPage = $filters['per_page'] ?? 10;
 
-            $filters = [
-                'search' => request()->input('search'),
-                'category_id' => $validatedFilters['category_id'] ?? null,
-                'order_by' => $validatedFilters['order_by'] ?? 'created_at',
-                'order_direction' => $validatedFilters['order_direction'] ?? 'desc',
-                'user_id' => $validatedFilters['user_id'] ?? null,
-            ];
+        $posts = $service->list($filters, $perPage);
 
-            $perPage = $validatedFilters['per_page'] ?? 10;
-
-            $posts = $service->list($filters, $perPage);
-
-            return response()->json($posts);
-        });
+        return PostCollectionResource::collection($posts);
     }
 
-    public function store(Request $request, CreatePost $service)
+    public function store(StorePostRequest $request, CreatePost $service): PostResource
     {
-        return $this->execute(function () use ($request, $service) {
-            $this->authorize('create', Post::class);
-            $data = $request->validate(Post::createRules());
-            $post = $service->create($data);
-            return response()->json($post, 201);
-        });
+        $post = $service->create($request->validated());
+        $post->load(['user.image', 'category', 'topics', 'image']);
+        return new PostResource($post);
     }
 
-    public function show(Post $post, ShowPost $service)
+    public function show(Post $post, ShowPost $service): PostResource
     {
-        return $this->execute(function () use ($post, $service) {
-            $post = $service->show($post->id);
-            return response()->json($post);
-        });
+        $detailedPost = $service->show($post->id);
+        return new PostResource($detailedPost);
     }
 
-    public function update(Request $request, Post $post, UpdatePost $service)
+    public function update(UpdatePostRequest $request, Post $post, UpdatePost $service): PostResource
     {
-        return $this->execute(function () use ($request, $post, $service) {
-            $this->authorize("update", $post);
-            $data = $request->validate(Post::updateRules());
-            $post = $service->update($post->id, $data);
-            return response()->json($post);
-        });
+        $updatedPost = $service->update($post->id, $request->validated());
+        $updatedPost->load(['user.image', 'category', 'topics', 'image']);
+        return new PostResource($updatedPost);
     }
 
     public function destroy(Post $post, DeletePost $service)
     {
-        return $this->execute(function () use ($post, $service) {
-            $this->authorize("delete", $post);
-            $response = $service->delete($post->id);
-            return response()->json($response);
-        });
+        $this->authorize("delete", $post);
+        $service->delete($post->id);
+        return response()->json(null, 204);
     }
 
-    public function userPosts(ListUserPosts $service)
+    public function userPosts(ListUserPosts $service): AnonymousResourceCollection
     {
-        return $this->execute(function () use ($service) {
-            $perPage = request()->input('per_page', 10);
-            $userPosts = $service->list($perPage);
-
-            return response()->json($userPosts);
-        });
+        $perPage = request()->input('per_page', 10);
+        $userPosts = $service->list($perPage);
+        return PostCollectionResource::collection($userPosts);
     }
 
-    public function favorites(ListFavoritePosts $service)
+    public function favorites(ListFavoritePosts $service): AnonymousResourceCollection
     {
-        return $this->execute(function () use ($service) {
-            $perPage = request()->input('per_page', 10);
-            $favorites = $service->list($perPage);
-
-            return response()->json($favorites);
-        });
+        $perPage = request()->input('per_page', 10);
+        $favorites = $service->list($perPage);
+        return PostCollectionResource::collection($favorites);
     }
 }

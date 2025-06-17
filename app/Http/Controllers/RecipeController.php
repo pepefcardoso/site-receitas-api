@@ -2,102 +2,80 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\RecipeCollectionResource;
+use App\Http\Resources\RecipeResource;
 use App\Models\Recipe;
-use App\Services\Recipe\ListFavoriteRecipes;
-use App\Services\Recipe\ListUserRecipes;
 use App\Services\Recipe\CreateRecipe;
 use App\Services\Recipe\DeleteRecipe;
+use App\Services\Recipe\ListFavoriteRecipes;
 use App\Services\Recipe\ListRecipe;
+use App\Services\Recipe\ListUserRecipes;
 use App\Services\Recipe\ShowRecipe;
 use App\Services\Recipe\UpdateRecipe;
-use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Routing\Controller;
 
-class RecipeController extends BaseController
+class RecipeController extends Controller
 {
-    use AuthorizesRequests;
-
     public function __construct()
     {
         $this->middleware('auth:sanctum')->except(['index', 'show']);
     }
 
-    public function index(Request $request, ListRecipe $service)
+    public function index(FilterRecipeRequest $request, ListRecipe $service): AnonymousResourceCollection
     {
-        return $this->execute(function () use ($request, $service) {
-            $validatedFilters = $request->validate(Recipe::filtersRules());
+        $filters = $request->validated();
+        $perPage = $filters['per_page'] ?? 10;
 
-            $filters = [
-                'title' => $validatedFilters['title'] ?? null,
-                'category_id' => $validatedFilters['category_id'] ?? null,
-                'diets' => $validatedFilters['diets'] ?? null,
-                'order_by' => $validatedFilters['order_by'] ?? 'created_at',
-                'order_direction' => $validatedFilters['order_direction'] ?? 'desc',
-                'user_id' => $validatedFilters['user_id'] ?? null,
-            ];
+        $recipes = $service->list($filters, $perPage);
 
-            $perPage = $validatedFilters['per_page'] ?? 10;
-
-            $recipes = $service->list($filters, $perPage);
-
-            return response()->json($recipes);
-        });
+        return RecipeCollectionResource::collection($recipes);
     }
 
-    public function store(Request $request, CreateRecipe $service)
+    public function store(StoreRecipeRequest $request, CreateRecipe $service): RecipeResource
     {
-        return $this->execute(function () use ($request, $service) {
-            $this->authorize('create', Recipe::class);
-            $data = $request->validate(Recipe::createRules());
-            $recipe = $service->create($data);
-            return response()->json($recipe, 201);
-        });
+        $recipe = $service->create($request->validated());
+
+        $recipe->load(['user.image', 'category', 'diets', 'ingredients.unit', 'steps', 'image']);
+
+        return new RecipeResource($recipe);
     }
 
-    public function show(Recipe $recipe, ShowRecipe $service)
+    public function show(Recipe $recipe, ShowRecipe $service): RecipeResource
     {
-        return $this->execute(function () use ($recipe, $service) {
-            $recipe = $service->show($recipe->id);
-            return response()->json($recipe);
-        });
+        $detailedRecipe = $service->show($recipe->id);
+        return new RecipeResource($detailedRecipe);
     }
 
-    public function update(Request $request, Recipe $recipe, UpdateRecipe $service)
+    public function update(UpdateRecipeRequest $request, Recipe $recipe, UpdateRecipe $service): RecipeResource
     {
-        return $this->execute(function () use ($request, $recipe, $service) {
-            $this->authorize("update", $recipe);
-            $data = $request->validate(Recipe::updateRules());
-            $recipe = $service->update($recipe->id, $data);
-            return response()->json($recipe);
-        });
+        $updatedRecipe = $service->update($recipe->id, $request->validated());
+
+        $updatedRecipe->load(['user.image', 'category', 'diets', 'ingredients.unit', 'steps', 'image']);
+
+        return new RecipeResource($updatedRecipe);
     }
 
     public function destroy(Recipe $recipe, DeleteRecipe $service)
     {
-        return $this->execute(function () use ($recipe, $service) {
-            $this->authorize("delete", $recipe);
-            $response = $service->delete($recipe->id);
-            return response()->json($response);
-        });
+        $this->authorize("delete", $recipe);
+        $service->delete($recipe->id);
+
+        return response()->json(null, 204);
     }
 
-    public function userPosts(ListUserRecipes $service)
+    public function userRecipes(ListUserRecipes $service): AnonymousResourceCollection
     {
-        return $this->execute(function () use ($service) {
-            $perPage = request()->input('per_page', 10);
-            $userRecipes = $service->list($perPage);
-
-            return response()->json($userRecipes);
-        });
+        $perPage = request()->input('per_page', 10);
+        $userRecipes = $service->list($perPage);
+        return RecipeCollectionResource::collection($userRecipes);
     }
 
-    public function favorites(ListFavoriteRecipes $service)
+    public function favorites(ListFavoriteRecipes $service): AnonymousResourceCollection
     {
-        return $this->execute(function () use ($service) {
-            $perPage = request()->input('per_page', 10);
-            $favorites = $service->list($perPage);
-
-            return response()->json($favorites);
-        });
+        $perPage = request()->input('per_page', 10);
+        $favorites = $service->list($perPage);
+        return RecipeCollectionResource::collection($favorites);
     }
 }

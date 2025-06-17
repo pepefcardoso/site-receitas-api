@@ -8,26 +8,22 @@ class ListRecipe
 {
     public function list(array $filters = [], int $perPage = 10)
     {
-        $query = Recipe::select('id', 'title', 'description', 'user_id', 'category_id')
-            ->with([
-                'diets' => function ($q) {
-                    $q->select('recipe_diets.id', 'recipe_diets.name');
-                },
-                'category' => fn($q) => $q->select('id', 'name'),
-                'image' => fn($q) => $q->select('id', 'path', 'imageable_id', 'imageable_type'),
-            ])
+        $query = Recipe::with([
+            'diets',
+            'category',
+            'image',
+        ])
             ->withAvg('ratings', 'rating')
             ->withCount('ratings');
 
-        $userId = auth('sanctum')->id();
-        if ($userId) {
+        if ($userId = auth('sanctum')->id()) {
             $query->withExists([
                 'favoritedByUsers as is_favorited' => fn($q) => $q->where('user_id', $userId),
             ]);
         }
 
-        $query = $query->filter($filters);
-        $query = $this->applySorting($query, $filters);
+        $query->filter($filters);
+        $this->applySorting($query, $filters);
 
         return $query->paginate($perPage);
     }

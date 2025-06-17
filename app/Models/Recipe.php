@@ -28,11 +28,6 @@ class Recipe extends Model
         'user_id',
     ];
 
-    protected $casts = [
-        'ingredients' => 'array',
-        'steps' => 'array',
-    ];
-
     public function scopeFilter($query, array $filters)
     {
         if (!empty($filters['title'])) {
@@ -56,63 +51,6 @@ class Recipe extends Model
         return $query;
     }
 
-    public static function createRules(): array
-    {
-        return [
-            'title' => 'required|string|max:255',
-            'description' => 'required|string',
-            'time' => 'required|integer',
-            'portion' => 'required|integer',
-            'difficulty' => ['required', 'integer', Rule::enum(RecipeDifficultyEnum::class)],
-            'category_id' => 'required|exists:recipe_categories,id',
-            'diets' => 'array|required',
-            'diets.*' => 'exists:recipe_diets,id',
-            'steps' => 'required|array',
-            ...RecipeStep::recipeRules(),
-            'ingredients' => 'required|array',
-            ...RecipeIngredient::recipeRules(),
-            'image' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
-        ];
-    }
-
-    public static function updateRules(): array
-    {
-        return [
-            'title' => 'required|string|max:255',
-            'description' => 'required|string',
-            'time' => 'required|integer',
-            'portion' => 'required|integer',
-            'difficulty' => ['required', 'integer', Rule::enum(RecipeDifficultyEnum::class)],
-            'category_id' => 'required|exists:recipe_categories,id',
-            'diets' => 'array|required',
-            'diets.*' => 'exists:recipe_diets,id',
-            'steps' => 'required|array',
-            ...RecipeStep::recipeRules(),
-            'ingredients' => 'required|array',
-            ...RecipeIngredient::recipeRules(),
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
-        ];
-    }
-
-    public static function filtersRules(): array
-    {
-        return [
-            'title' => 'nullable|string|max:255',
-            'category_id' => 'nullable|integer|exists:recipe_categories,id',
-            'diets' => 'nullable|array',
-            'diets.*' => 'integer|exists:recipe_diets,id',
-            'order_by' => 'nullable|string|in:title,created_at,time,difficulty',
-            'order_direction' => 'nullable|string|in:asc,desc',
-            'user_id' => 'nullable|integer|exists:users,id',
-            'per_page' => 'nullable|integer|min:1|max:100',
-        ];
-    }
-
-    public function getIsFavoritedAttribute(): bool
-    {
-        return (bool) ($this->attributes['is_favorited'] ?? false);
-    }
-
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
@@ -130,7 +68,7 @@ class Recipe extends Model
 
     public function steps(): HasMany
     {
-        return $this->hasMany(RecipeStep::class);
+        return $this->hasMany(RecipeStep::class)->orderBy('order');
     }
 
     public function ingredients(): HasMany
@@ -148,11 +86,6 @@ class Recipe extends Model
         return $this->morphMany(Rating::class, 'rateable');
     }
 
-    public function getAverageRatingAttribute()
-    {
-        return $this->ratings()->avg('rating') ?? 0;
-    }
-
     public function comments(): MorphMany
     {
         return $this->morphMany(Comment::class, 'commentable');
@@ -162,5 +95,4 @@ class Recipe extends Model
     {
         return $this->belongsToMany(User::class, 'rl_user_favorite_recipes', 'recipe_id', 'user_id');
     }
-
 }
