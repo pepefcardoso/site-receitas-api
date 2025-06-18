@@ -69,6 +69,7 @@ Route::middleware('auth:sanctum')->group(function () {
     });
     Route::apiResource('posts', PostController::class);
     Route::apiResource('post-categories', PostCategoryController::class);
+    Route::apiResource('post-topics', PostTopicController::class);
 
     // Receitas e seus sub-recursos
     Route::controller(RecipeController::class)->prefix('recipes')->group(function () {

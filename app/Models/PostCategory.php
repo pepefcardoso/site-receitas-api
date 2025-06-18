@@ -12,22 +12,6 @@ class PostCategory extends Model
 
     protected $fillable = ['name', 'normalized_name'];
 
-    public static function createRules(): array
-    {
-        return [
-            'name' => 'required|string|max:50|unique:post_categories',
-            'normalized_name' => 'required|string|max:50|unique:post_categories',
-        ];
-    }
-
-    public static function updateRules(): array
-    {
-        return [
-            'name' => 'required|string|max:50|unique:post_categories',
-            'normalized_name' => 'required|string|max:50|unique:post_categories',
-        ];
-    }
-
     public function posts(): HasMany
     {
         return $this->hasMany(Post::class, 'category_id');

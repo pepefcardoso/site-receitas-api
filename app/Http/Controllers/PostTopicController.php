@@ -2,74 +2,50 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\PostTopic\StoreRequest;
+use App\Http\Requests\PostTopic\UpdateRequest;
+use App\Http\Resources\PostTopicResource;
 use App\Models\PostTopic;
-use App\Services\PostTopics\CreatePostTopic;
-use App\Services\PostTopics\DeletePostTopic;
-use App\Services\PostTopics\ListPostTopic;
-use App\Services\PostTopics\ShowPostTopic;
-use App\Services\PostTopics\UpdatePostTopic;
-use Illuminate\Http\Request;
-use Illuminate\Support\Str;
-use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Routing\Controller;
+use Illuminate\Validation\ValidationException;
 
-class PostTopicController extends BaseController
+class PostTopicController extends Controller
 {
-    use AuthorizesRequests;
-
     public function __construct()
     {
         $this->middleware('auth:sanctum')->except(['index', 'show']);
     }
 
-    public function index(Request $request, ListPostTopic $service)
+    public function index()
     {
-        return $this->execute(function () use ($request, $service) {
-            $perPage = $request->input('per_page', 10);
-            $topics = $service->list($perPage);
-            return response()->json($topics);
-        });
+        return PostTopicResource::collection(PostTopic::all());
     }
 
-    public function store(Request $request, CreatePostTopic $service)
+    public function store(StoreRequest $request): JsonResponse
     {
-        return $this->execute(function () use ($request, $service) {
-            $this->authorize('create', PostTopic::class);
-
-            $request->merge(['normalized_name' => Str::upper($request->name)]);
-            $data = $request->validate(PostTopic::createRules());
-
-            $topic = $service->create($data);
-            return response()->json($topic, 201);
-        });
+        $topic = PostTopic::create($request->validated());
+        return (new PostTopicResource($topic))->response()->setStatusCode(201);
     }
 
-    public function show(PostTopic $postTopic, ShowPostTopic $service)
+    public function show(PostTopic $postTopic)
     {
-        return $this->execute(function () use ($postTopic, $service) {
-            $topic = $service->show($postTopic->id);
-            return response()->json($topic);
-        });
+        return new PostTopicResource($postTopic);
     }
 
-    public function update(Request $request, PostTopic $postTopic, UpdatePostTopic $service)
+    public function update(UpdateRequest $request, PostTopic $postTopic)
     {
-        return $this->execute(function () use ($request, $postTopic, $service) {
-            $this->authorize("update", $postTopic);
-
-            $request->merge(['normalized_name' => Str::upper($request->name)]);
-            $data = $request->validate(PostTopic::updateRules());
-
-            $topic = $service->update($postTopic->id, $data);
-            return response()->json($topic);
-        });
+        $postTopic->update($request->validated());
+        return new PostTopicResource($postTopic);
     }
 
-    public function destroy(PostTopic $postTopic, DeletePostTopic $service)
+    public function destroy(PostTopic $postTopic)
     {
-        return $this->execute(function () use ($postTopic, $service) {
-            $this->authorize("delete", $postTopic);
-            $response = $service->delete($postTopic->id);
-            return response()->json($response);
-        });
+        $this->authorize('delete', $postTopic);
+        if ($postTopic->posts()->exists()) {
+            throw ValidationException::withMessages(['topic' => 'This topic is in use and cannot be deleted.']);
+        }
+        $postTopic->delete();
+        return response()->json(null, 204);
     }
 }

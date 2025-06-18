@@ -11,25 +11,16 @@ class ListPost
 {
     public function list(array $filters = [], int $perPage = 10)
     {
-        $query = Post::select('id', 'title', 'summary', 'user_id', 'category_id')
-            ->with([
-                'category:id,name',
-                'topics:id,name',
-                'image:id,path,imageable_id,imageable_type'
-            ])
+        $query = Post::with(['category', 'topics', 'image'])
             ->withAvg('ratings', 'rating')
             ->withCount('ratings');
 
-        $userId = auth('sanctum')->id();
-        if ($userId) {
-            $query->withExists([
-                'favoritedByUsers as is_favorited' => fn($q) => $q->where('user_id', $userId),
-            ]);
+        if ($userId = auth('sanctum')->id()) {
+            $query->withExists(['favoritedByUsers as is_favorited' => fn($q) => $q->where('user_id', $userId)]);
         }
 
-        $query = $query->filter($filters);
-        $query = $this->applySorting($query, $filters);
-
+        $query->filter($filters);
+        $this->applySorting($query, $filters);
         return $query->paginate($perPage);
     }
 
