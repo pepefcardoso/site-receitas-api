@@ -14,7 +14,8 @@ class UpdateRecipe
     public function __construct(
         protected CreateImage $createImageService,
         protected UpdateImage $updateImageService
-    ) {
+    )
+    {
     }
 
     public function update(int $id, array $data): Recipe

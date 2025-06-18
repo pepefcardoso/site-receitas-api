@@ -69,6 +69,6 @@ class CreateRecipe
                 'description' => $step['description'],
             ];
         });
-        $recipe->steps()->createMany($stepsData);
+        $recipe->steps()->createMany($stepsData->toArray());
     }
 }
