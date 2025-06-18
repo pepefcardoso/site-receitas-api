@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Resources;
+namespace App\Http\Resources\Post;
 
 use App\Http\Resources\Post\AuthorResource;
 use App\Http\Resources\Post\CategoryResource;

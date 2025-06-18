@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Requests;
+namespace App\Http\Requests\User;
 
 use Illuminate\Foundation\Http\FormRequest;
 
@@ -24,7 +24,6 @@ class StoreUserRequest extends FormRequest
      */
     public function rules(): array
     {
-        // Regras movidas do modelo User para cá.
         return [
             'name' => 'required|string|min:3|max:100',
             'email' => 'required|email|unique:users,email',

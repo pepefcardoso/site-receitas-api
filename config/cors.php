@@ -15,7 +15,7 @@ return [
     // Em vez de '*', usamos uma variável de ambiente.
     // No seu arquivo .env, adicione a linha:
     // CORS_ALLOWED_ORIGINS=http://localhost:3000,http://127.0.0.1:8000
-    'allowed_origins' => explode(',', $_ENV('CORS_ALLOWED_ORIGINS', '')),
+    'allowed_origins' => explode(',', env('CORS_ALLOWED_ORIGINS', '')),
 
     'allowed_origins_patterns' => [],
 

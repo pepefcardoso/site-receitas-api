@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Resources;
+namespace App\Http\Resources\Recipe;
 
 use App\Http\Resources\Recipe\CategoryResource;
 use Illuminate\Http\Request;
