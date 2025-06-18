@@ -8,7 +8,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class RecipeIngredient extends Model
 {
-    /** @use HasFactory<\Database\Factories\RecipeIngredientFactory> */
     use HasFactory;
 
     protected $fillable = [
@@ -17,35 +16,6 @@ class RecipeIngredient extends Model
         'unit_id',
         'recipe_id'
     ];
-
-    public static function createRules(): array
-    {
-        return [
-            'quantity' => 'required|integer|min:1',
-            'name' => 'required|string',
-            'unit_id' => 'required|exists:recipe_units,id',
-            'recipe_id' => 'required|exists:recipes,id',
-        ];
-    }
-
-    public static function updateRules(): array
-    {
-        return [
-            'quantity' => 'required|integer|min:1',
-            'name' => 'required|string',
-            'unit_id' => 'required|exists:recipe_units,id',
-        ];
-    }
-
-    public static function recipeRules(): array
-    {
-        return [
-            'ingredients.*.id' => 'nullable|exists:recipe_ingredients,id',
-            'ingredients.*.name' => self::createRules()["name"],
-            'ingredients.*.quantity' => self::createRules()["quantity"],
-            'ingredients.*.unit_id' => self::createRules()["unit_id"],
-        ];
-    }
 
     public function recipe(): BelongsTo
     {
