@@ -2,74 +2,60 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\RecipeUnit\StoreRequest;
+use App\Http\Requests\RecipeUnit\UpdateRequest;
+use App\Http\Resources\RecipeUnitResource;
 use App\Models\RecipeUnit;
-use App\Services\RecipeUnit\CreateRecipeUnit;
-use App\Services\RecipeUnit\DeleteRecipeUnit;
-use App\Services\RecipeUnit\ListRecipeUnit;
-use App\Services\RecipeUnit\ShowRecipeUnit;
-use App\Services\RecipeUnit\UpdateRecipeUnit;
-use Illuminate\Http\Request;
-use Illuminate\Support\Str;
-use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Routing\Controller;
+use Illuminate\Validation\ValidationException;
 
-class RecipeUnitController extends BaseController
+class RecipeUnitController extends Controller
 {
-    use AuthorizesRequests;
-
     public function __construct()
     {
         $this->middleware('auth:sanctum')->except(['index', 'show']);
     }
 
-    public function index(Request $request, ListRecipeUnit $service)
+    public function index(): AnonymousResourceCollection
     {
-        return $this->execute(function () use ($request, $service) {
-            $perPage = $request->input('per_page', 10);
-            $units = $service->list($perPage);
-            return response()->json($units);
+        $units = cache()->remember('recipe_units_list', now()->addHour(), function () {
+            return RecipeUnit::all();
         });
+        return RecipeUnitResource::collection($units);
     }
 
-    public function store(Request $request, CreateRecipeUnit $service)
+    public function store(StoreRequest $request): JsonResponse
     {
-        return $this->execute(function () use ($request, $service) {
-            $this->authorize('create', RecipeUnit::class);
-
-            $request->merge(['normalized_name' => Str::upper($request->name)]);
-            $data = $request->validate(RecipeUnit::rules());
-
-            $unit = $service->create($data);
-            return response()->json($unit, 201);
-        });
+        $unit = RecipeUnit::create($request->validated());
+        return (new RecipeUnitResource($unit))
+            ->response()
+            ->setStatusCode(201);
     }
 
-    public function show(RecipeUnit $recipeUnit, ShowRecipeUnit $service)
+    public function show(RecipeUnit $recipeUnit): RecipeUnitResource
     {
-        return $this->execute(function () use ($recipeUnit, $service) {
-            $unit = $service->show($recipeUnit->id);
-            return response()->json($unit);
-        });
+        return new RecipeUnitResource($recipeUnit);
     }
 
-    public function update(Request $request, RecipeUnit $recipeUnit, UpdateRecipeUnit $service)
+    public function update(UpdateRequest $request, RecipeUnit $recipeUnit): RecipeUnitResource
     {
-        return $this->execute(function () use ($request, $recipeUnit, $service) {
-            $this->authorize('update', $recipeUnit);
-
-            $request->merge(['normalized_name' => Str::upper($request->name)]);
-            $data = $request->validate(RecipeUnit::rules());
-
-            $unit = $service->update($recipeUnit->id, $data);
-            return response()->json($unit);
-        });
+        $recipeUnit->update($request->validated());
+        return new RecipeUnitResource($recipeUnit);
     }
 
-    public function destroy(RecipeUnit $recipeUnit, DeleteRecipeUnit $service)
+    public function destroy(RecipeUnit $recipeUnit): JsonResponse
     {
-        return $this->execute(function () use ($recipeUnit, $service) {
-            $this->authorize('delete', $recipeUnit);
-            $response = $service->delete($recipeUnit->id);
-            return response()->json($response);
-        });
+        $this->authorize('delete', $recipeUnit);
+
+        if ($recipeUnit->ingredients()->exists()) {
+            throw ValidationException::withMessages([
+                'unit' => 'This unit cannot be deleted because it is associated with one or more ingredients.',
+            ]);
+        }
+
+        $recipeUnit->delete();
+        return response()->json(null, 204);
     }
 }
