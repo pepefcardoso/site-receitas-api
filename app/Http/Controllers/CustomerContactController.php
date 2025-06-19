@@ -2,65 +2,45 @@
 
 namespace App\Http\Controllers;
 
-use App\Enum\CustomerContactStatusEnum;
+use App\Http\Requests\CustomerContact\StoreRequest;
+use App\Http\Requests\CustomerContact\UpdateStatusRequest;
+use App\Http\Resources\CustomerContact\CustomerContactResource;
 use App\Models\CustomerContact;
 use App\Services\CustomerContact\CreateCustomerContact;
-use App\Services\CustomerContact\ListCustomerContacts;
-use App\Services\CustomerContact\ShowCustomerContact;
 use App\Services\CustomerContact\UpdateCustomerContactStatus;
-use Illuminate\Http\Request;
-use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
-use Illuminate\Validation\Rule;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Routing\Controller;
 
-class CustomerContactController extends BaseController
+class CustomerContactController extends Controller
 {
-    use AuthorizesRequests;
-
     public function __construct()
     {
         $this->middleware('auth:sanctum')->except(['store']);
     }
 
-    public function index(Request $request, ListCustomerContacts $service)
+    public function index(): AnonymousResourceCollection
     {
-        return $this->execute(function () use ($request, $service) {
-            $perPage = $request->input('per_page', 10);
-            $response = $service->list($perPage);
-            return response()->json($response);
-        });
+        $this->authorize('viewAny', CustomerContact::class);
+        $contacts = CustomerContact::latest()->paginate();
+        return CustomerContactResource::collection($contacts);
     }
 
-    public function register(Request $request, CreateCustomerContact $service)
+    public function store(StoreRequest $request, CreateCustomerContact $service): JsonResponse
     {
-        return $this->execute(function () use ($request, $service) {
-            $data = $request->validate(CustomerContact::rules());
-            $customerContact = $service->create($data);
-            return response()->json($customerContact, 201);
-        });
+        $contact = $service->create($request->validated());
+        return (new CustomerContactResource($contact))->response()->setStatusCode(201);
     }
 
-    public function show(CustomerContact $customer, ShowCustomerContact $service)
+    public function show(CustomerContact $customerContact): CustomerContactResource
     {
-        return $this->execute(function () use ($customer, $service) {
-            $this->authorize('view', $customer);
-            $customer = $service->show($customer->id);
-            return response()->json($customer);
-        });
+        $this->authorize('view', $customerContact);
+        return new CustomerContactResource($customerContact);
     }
 
-    public function updateStatus(Request $request, UpdateCustomerContactStatus $service, $contactId)
+    public function updateStatus(UpdateStatusRequest $request, CustomerContact $customerContact, UpdateCustomerContactStatus $service): CustomerContactResource
     {
-        return $this->execute(function () use ($request, $service, $contactId) {
-            $data = $request->validate([
-                'status' => [
-                    'required',
-                    'integer',
-                    Rule::in(array_map(fn($case) => $case->value, CustomerContactStatusEnum::cases()))
-                ],
-            ]);
-
-            $updatedContact = $service->update($contactId, $data['status']);
-            return response()->json($updatedContact);
-        });
+        $updatedContact = $service->update($customerContact->id, $request->validated('status'));
+        return new CustomerContactResource($updatedContact);
     }
 }

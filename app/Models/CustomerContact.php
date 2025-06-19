@@ -10,14 +10,4 @@ class CustomerContact extends Model
     use HasFactory;
 
     protected $fillable = ['name', 'email', 'phone', 'message', 'status'];
-
-    public static function rules(): array
-    {
-        return [
-            'name' => 'required|string',
-            'email' => 'required|email',
-            'phone' => 'required|string',
-            'message' => 'required|string',
-        ];
-    }
 }
