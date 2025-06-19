@@ -2,103 +2,90 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\StoreUserRequest;
-use App\Http\Requests\ToggleFavoriteRequest;
-use App\Http\Requests\UpdateUserRequest;
-use App\Http\Requests\UpdateUserRoleRequest;
+use App\Http\Requests\User\FilterUsersRequest;
+use App\Http\Requests\User\StoreUserRequest;
+use App\Http\Requests\User\ToggleFavoriteRequest;
+use App\Http\Requests\User\UpdateUserRequest;
+use App\Http\Requests\User\UpdateUserRoleRequest;
+use App\Http\Resources\User\AuthUserResource;
+use App\Http\Resources\User\UserResource;
 use App\Models\User;
 use App\Services\User\CreateUser;
 use App\Services\User\DeleteUser;
 use App\Services\User\ListUser;
-use App\Services\User\ShowAuthUser;
-use App\Services\User\ShowUser;
-use App\Services\User\ToggleFavoritePost;
-use App\Services\User\ToggleFavoriteRecipe;
-use App\Services\User\UpdateRole;
 use App\Services\User\UpdateUser;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Routing\Controller;
 
-// O controller agora herda diretamente do Controller do Laravel.
 class UserController extends Controller
 {
     public function __construct()
     {
-        // Middleware de autenticação para todas as rotas, exceto 'store' (registro).
         $this->middleware('auth:sanctum')->except(['store']);
     }
 
-    public function index(Request $request, ListUser $service): JsonResponse
+    public function index(FilterUsersRequest $request, ListUser $service): AnonymousResourceCollection
     {
         $this->authorize('viewAny', User::class);
-
-        // A validação dos filtros pode ser movida para um FormRequest se ficar complexa.
-        $filters = $request->only(['search', 'role', 'birthday_start', 'birthday_end', 'order_by', 'order_direction']);
-        $perPage = $request->input('per_page', 10);
-
-        $users = $service->list($filters, $perPage);
-        return response()->json($users);
+        $users = $service->list($request->validated());
+        return UserResource::collection($users);
     }
 
-    public function store(StoreUserRequest $request, CreateUser $service): JsonResponse
+    public function store(StoreUserRequest $request, CreateUser $service): AuthUserResource
     {
-        // A validação é feita automaticamente pelo StoreUserRequest.
         $user = $service->create($request->validated());
         $token = $user->createToken('auth_token')->plainTextToken;
-
-        return response()->json([
-            'user' => $user,
-            'token' => $token->plainTextToken,
-        ], 201);
+        return (new AuthUserResource($user))->withToken($token);
     }
 
-    public function show(User $user, ShowUser $service): JsonResponse
+    public function show(User $user): UserResource
     {
         $this->authorize('view', $user);
-        $userData = $service->show($user->id);
-        return response()->json($userData);
+        $user->load('image');
+        return new UserResource($user);
     }
 
-    public function update(UpdateUserRequest $request, User $user, UpdateUser $service): JsonResponse
+    public function update(UpdateUserRequest $request, User $user, UpdateUser $service): UserResource
     {
-        // A autorização e validação são feitas pelo UpdateUserRequest.
-        $userData = $service->update($user, $request->validated());
-        return response()->json($userData);
+        $updatedUser = $service->update($user->id, $request->validated());
+        return new UserResource($updatedUser);
     }
 
     public function destroy(User $user, DeleteUser $service): JsonResponse
     {
         $this->authorize('delete', $user);
-        $response = $service->delete($user->id);
-        return response()->json($response);
+        $service->delete($user->id);
+        return response()->json(null, 204);
     }
 
-    public function authUser(ShowAuthUser $service): JsonResponse
+    public function authUser(): UserResource
     {
-        // Não é necessário autorizar aqui, pois já está protegido pelo middleware.
-        $response = $service->show(auth()->id());
-        return response()->json($response);
+        $user = auth()->user()->load('image');
+        return new UserResource($user);
     }
 
-    public function updateRole(UpdateUserRoleRequest $request, UpdateRole $service): JsonResponse
+    public function updateRole(UpdateUserRoleRequest $request): UserResource
     {
-        // A autorização e validação são feitas pelo UpdateUserRoleRequest.
-        $userData = $service->update($request->validated());
-        return response()->json($userData);
+        $validated = $request->validated();
+        $user = User::findOrFail($validated['user_id']);
+        $user->update(['role' => $validated['role']]);
+        return new UserResource($user);
     }
 
-    public function toggleFavoritePost(ToggleFavoriteRequest $request, ToggleFavoritePost $service): JsonResponse
+    public function toggleFavoritePost(ToggleFavoriteRequest $request): JsonResponse
     {
-        $this->authorize('update', auth()->user());
-        $response = $service->toggle($request->validated());
-        return response()->json($response);
+        $user = auth()->user();
+        $this->authorize('update', $user);
+        $user->favoritePosts()->toggle($request->validated('post_id'));
+        return response()->json(['message' => 'Favorite status toggled successfully.']);
     }
 
-    public function toggleFavoriteRecipe(ToggleFavoriteRequest $request, ToggleFavoriteRecipe $service): JsonResponse
+    public function toggleFavoriteRecipe(ToggleFavoriteRequest $request): JsonResponse
     {
-        $this->authorize('update', auth()->user());
-        $response = $service->toggle($request->validated());
-        return response()->json($response);
+        $user = auth()->user();
+        $this->authorize('update', $user);
+        $user->favoriteRecipes()->toggle($request->validated('recipe_id'));
+        return response()->json(['message' => 'Favorite status toggled successfully.']);
     }
 }

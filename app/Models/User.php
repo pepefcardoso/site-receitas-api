@@ -10,38 +10,17 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use Illuminate\Validation\Rule;
 use Laravel\Sanctum\HasApiTokens;
 
 class User extends Authenticatable
 {
     use HasFactory, Notifiable, HasApiTokens;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array<int, string>
-     */
     protected $fillable = [
-        'name',
-        'email',
-        'birthday',
-        'phone',
-        'password',
-        'role',
-        'provider',
-        'provider_id',
+        'name', 'email', 'birthday', 'phone', 'password', 'role', 'provider', 'provider_id',
     ];
 
-    /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var array<int, string>
-     */
-    protected $hidden = [
-        'password',
-        'remember_token',
-    ];
+    protected $hidden = ['password', 'remember_token'];
 
     protected $casts = [
         'email_verified_at' => 'datetime',
@@ -78,55 +57,6 @@ class User extends Authenticatable
         return $query;
     }
 
-
-    public static function createRules(): array
-    {
-        return [
-            'name' => 'required|string|min:3|max:100',
-            'email' => 'required|email|unique:users,email',
-            'phone' => 'required|string|regex:/^\d{10,11}$/|unique:users,phone',
-            'password' => 'required|string|min:8|max:99',
-            'confirm_password' => 'required|string|same:password',
-        ];
-    }
-
-    public static function updateRules($userId = null): array
-    {
-        return [
-            'name' => 'required|string|min:3|max:100',
-            'birthday' => 'nullable|date|before:today',
-            'phone' => 'required|string|regex:/^\d{10,11}$/|unique:users,phone,' . $userId,
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
-            'password' => 'nullable|string|min:8|max:99',
-            'confirm_password' => 'nullable|string|same:password',
-        ];
-    }
-
-    public static function loginRules(): array
-    {
-        return [
-            'email' => 'required|email|exists:users,email',
-            'password' => 'required|string',
-        ];
-    }
-
-    public static function setRoleRules(): array
-    {
-        $roleValues = array_map(fn($case) => $case->value, RolesEnum::cases());
-
-        return [
-            'user_id' => 'required|exists:users,id',
-            'role' => ['required', Rule::in($roleValues)]
-        ];
-    }
-
-    public static function resetPasswordRules(): array
-    {
-        return [
-            'email' => 'required|email|exists:users,email',
-        ];
-    }
-
     public function isInternal(): bool
     {
         return $this->role->value <= RolesEnum::INTERNAL->value;
@@ -156,6 +86,7 @@ class User extends Authenticatable
     {
         return $this->hasMany(Comment::class);
     }
+
     public function ratings(): HasMany
     {
         return $this->hasMany(Rating::class);

@@ -13,9 +13,6 @@ class ToggleFavoriteRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        // A autorização para esta ação é simples e pode ser mantida no controller
-        // ou movida para cá. Para consistência, podemos deixar no controller.
-        // Se movida para cá, seria: return $this->user()->can('update', $this->user());
         return true;
     }
 

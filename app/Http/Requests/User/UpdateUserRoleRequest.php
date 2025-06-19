@@ -16,8 +16,6 @@ class UpdateUserRoleRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        // Apenas usuários autorizados a ver qualquer usuário (internos)
-        // podem alterar uma role.
         return $this->user()->can('viewAny', User::class);
     }
 
