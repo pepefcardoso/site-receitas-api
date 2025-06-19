@@ -81,10 +81,15 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('recipe-diets', RecipeDietController::class);
     Route::apiResource('recipe-units', RecipeUnitController::class);
 
-    // Outros Recursos
-    Route::apiResource('images', ImageController::class);
-    Route::apiResource('ratings', RatingController::class);
-    Route::apiResource('comments', CommentController::class);
+    // Comentários (Aninhados e Polimórficos)
+    Route::get('/{type}/{commentable}/comments', [CommentController::class, 'index'])->withoutMiddleware('auth:sanctum');
+    Route::post('/{type}/{commentable}/comments', [CommentController::class, 'store']);
+    Route::apiResource('comments', CommentController::class)->except(['index', 'store']);
+
+    // Avaliações (Aninhadas e Polimórficas)
+    Route::post('/{type}/{rateable}/ratings', [RatingController::class, 'store']);
+    Route::put('/ratings/{rating}', [RatingController::class, 'update']);
+    Route::delete('/ratings/{rating}', [RatingController::class, 'destroy']);
 
     // Contato e Newsletter (gerenciamento)
     Route::get('/contact', [CustomerContactController::class, 'index']);

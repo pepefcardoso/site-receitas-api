@@ -8,7 +8,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Comment extends Model
 {
-    /** @use HasFactory<\Database\Factories\RatingFactory> */
     use HasFactory;
 
     protected $fillable = [
@@ -17,15 +16,6 @@ class Comment extends Model
         'commentable_type',
         'content',
     ];
-
-    public static function rules(): array
-    {
-        return [
-            'commentable_id' => 'required|integer',
-            'commentable_type' => 'required|in:Post,Recipe',
-            'content' => 'required|string|max:255',
-        ];
-    }
 
     public function commentable()
     {

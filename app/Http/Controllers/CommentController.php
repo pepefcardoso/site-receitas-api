@@ -2,82 +2,52 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\Comment\StoreCommentRequest;
+use App\Http\Requests\Comment\UpdateCommentRequest;
+use App\Http\Resources\Comment\CommentResource;
 use App\Models\Comment;
-use App\Services\Comment\CreateComment;
-use App\Services\Comment\DeleteComment;
-use App\Services\Comment\ListComments;
-use App\Services\Comment\ShowComment;
-use App\Services\Comment\UpdateComment;
-use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
-use Illuminate\Http\Request;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Routing\Controller;
 
-class CommentController extends BaseController
+class CommentController extends Controller
 {
-    use AuthorizesRequests;
-
     public function __construct()
     {
-        $this->middleware('auth:sanctum')->except(['index', 'show']);
+        $this->middleware('auth:sanctum')->except('index');
     }
 
-    public function index(Request $request, ListComments $service)
+    public function index(Model $commentable): AnonymousResourceCollection
     {
-        return $this->execute(function () use ($request, $service) {
-            $perPage = $request->input('per_page', 10);
-            $filters = [
-                'commentable_id' => $request->input('commentable_id'),
-                'commentable_type' => $request->input('commentable_type'),
-            ];
-            $comments = $service->list($filters, $perPage);
-            return response()->json($comments);
-        });
+        $comments = $commentable->comments()->with('user.image')->latest()->paginate();
+        return CommentResource::collection($comments);
     }
 
-    public function store(Request $request, CreateComment $service)
+    public function store(StoreCommentRequest $request, Model $commentable): JsonResponse
     {
-        return $this->execute(function () use ($request, $service) {
-            $this->authorize('create', Comment::class);
-
-            $data = $request->validate(Comment::rules());
-
-            $modelClass = 'App\\Models\\' . $data['commentable_type'];
-            $model = $modelClass::findOrFail($data['commentable_id']);
-            $content = $data['content'];
-
-            $comment = $service->create($model, $content);
-            return response()->json($comment, 201);
-        });
+        $comment = $commentable->comments()->create([
+            'user_id' => auth()->id(),
+            'content' => $request->validated('content'),
+        ]);
+        return (new CommentResource($comment->load('user.image')))->response()->setStatusCode(201);
     }
 
-    public function show(Comment $comment, ShowComment $service)
+    public function show(Comment $comment): CommentResource
     {
-        return $this->execute(function () use ($comment, $service) {
-            $comment = $service->show($comment->id);
-            return response()->json($comment);
-        });
+        return new CommentResource($comment->load('user.image'));
     }
 
-    public function update(Request $request, Comment $comment, UpdateComment $service)
+    public function update(UpdateCommentRequest $request, Comment $comment): CommentResource
     {
-        return $this->execute(function () use ($request, $comment, $service) {
-            $this->authorize('update', $comment);
-
-            $data = $request->validate([
-                'content' => 'required|string|max:255',
-            ]);
-            $content = $data['content'];
-
-            $updatedComment = $service->update($comment->id, $content);
-            return response()->json($updatedComment);
-        });
+        $comment->update($request->validated());
+        return new CommentResource($comment->load('user.image'));
     }
 
-    public function destroy(Comment $comment, DeleteComment $service)
+    public function destroy(Comment $comment): JsonResponse
     {
-        return $this->execute(function () use ($comment, $service) {
-            $this->authorize('delete', $comment);
-            $response = $service->delete($comment->id);
-            return response()->json($response);
-        });
+        $this->authorize('delete', $comment);
+        $comment->delete();
+        return response()->json(null, 204);
     }
 }

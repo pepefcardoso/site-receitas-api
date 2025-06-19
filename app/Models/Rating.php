@@ -8,7 +8,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Rating extends Model
 {
-    /** @use HasFactory<\Database\Factories\RatingFactory> */
     use HasFactory;
 
     protected $fillable = [
@@ -18,22 +17,13 @@ class Rating extends Model
         'rating',
     ];
 
-    public static function rules(): array
+    public function rateable()
     {
-        return [
-            'rateable_id' => 'required|integer',
-            'rateable_type' => 'required|string',
-            'rating' => 'required|integer|min:0|max:5',
-        ];
+        return $this->morphTo();
     }
 
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
-    }
-
-    public function rateable()
-    {
-        return $this->morphTo();
     }
 }
