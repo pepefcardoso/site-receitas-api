@@ -30,11 +30,19 @@ class UserController extends Controller
         $users = $service->list($request->validated());
         return UserResource::collection($users);
     }
-    public function store(StoreUserRequest $request, CreateUser $service): AuthUserResource
+    public function store(StoreUserRequest $request, CreateUser $service)
     {
         $user = $service->create($request->validated());
+
         $token = $user->createToken('auth_token')->plainTextToken;
-        return (new AuthUserResource($user->load('image')))->withToken($token);
+
+        // return (new AuthUserResource($user))->withToken($token);
+
+        $userArray = (new UserResource($user->load('image')))->resolve();
+        return response()->json([
+            'token' => $token,
+            'user' => $userArray,
+        ], 201);
     }
     public function show(User $user): UserResource
     {

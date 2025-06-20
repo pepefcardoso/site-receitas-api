@@ -7,17 +7,25 @@ use Illuminate\Http\Resources\Json\JsonResource;
 
 class AuthUserResource extends JsonResource
 {
-    public static string $token;
+    public static $wrap = null;
+
+    private string $token;
+
+    public function withToken(string $token): self
+    {
+        $this->token = $token;
+        return $this->additional(['token' => $token]);
+    }
+
     public function toArray(Request $request): array
     {
         return [
-            'token' => self::$token,
-            'user' => new UserResource($this->resource),
+            'user' => new UserResource($this->resource->load('image')),
         ];
     }
-    public function withToken(string $token): self
+
+    public function withResponse($request, $response): void
     {
-        self::$token = $token;
-        return $this;
+        $response->setStatusCode(201);
     }
 }

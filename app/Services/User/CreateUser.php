@@ -4,9 +4,9 @@ namespace App\Services\User;
 
 use App\Models\User;
 use App\Notifications\CreatedUser;
+use Illuminate\Support\Arr;
 use Exception;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Notification;
 
 class CreateUser
 {
@@ -15,14 +15,14 @@ class CreateUser
         try {
             DB::beginTransaction();
 
-            $user = User::create($data);
+            $userData = Arr::except($data, ['password_confirmation']);
+            $user = User::create($userData);
 
-            Notification::route('mail', $user->email)
-                ->notify(new CreatedUser($user));
+            $user->notify(new CreatedUser($user));
 
             DB::commit();
 
-            return $user;
+            return $user->refresh();
         } catch (Exception $e) {
             DB::rollBack();
             throw $e;
