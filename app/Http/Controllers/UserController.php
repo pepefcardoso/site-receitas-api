@@ -27,44 +27,35 @@ class UserController extends Controller
 
     public function index(FilterUsersRequest $request, ListUser $service): AnonymousResourceCollection
     {
-        $this->authorize('viewAny', User::class);
         $users = $service->list($request->validated());
         return UserResource::collection($users);
     }
-
     public function store(StoreUserRequest $request, CreateUser $service): AuthUserResource
     {
         $user = $service->create($request->validated());
         $token = $user->createToken('auth_token')->plainTextToken;
-        return (new AuthUserResource($user))->withToken($token);
+        return (new AuthUserResource($user->load('image')))->withToken($token);
     }
-
     public function show(User $user): UserResource
     {
         $this->authorize('view', $user);
-        $user->load('image');
-        return new UserResource($user);
+        return new UserResource($user->load('image'));
     }
-
     public function update(UpdateUserRequest $request, User $user, UpdateUser $service): UserResource
     {
         $updatedUser = $service->update($user->id, $request->validated());
-        return new UserResource($updatedUser);
+        return new UserResource($updatedUser->load('image'));
     }
-
     public function destroy(User $user, DeleteUser $service): JsonResponse
     {
         $this->authorize('delete', $user);
         $service->delete($user->id);
         return response()->json(null, 204);
     }
-
     public function authUser(): UserResource
     {
-        $user = auth()->user()->load('image');
-        return new UserResource($user);
+        return new UserResource(auth()->user()->load('image'));
     }
-
     public function updateRole(UpdateUserRoleRequest $request): UserResource
     {
         $validated = $request->validated();
@@ -72,20 +63,14 @@ class UserController extends Controller
         $user->update(['role' => $validated['role']]);
         return new UserResource($user);
     }
-
     public function toggleFavoritePost(ToggleFavoriteRequest $request): JsonResponse
     {
-        $user = auth()->user();
-        $this->authorize('update', $user);
-        $user->favoritePosts()->toggle($request->validated('post_id'));
+        auth()->user()->favoritePosts()->toggle($request->validated('post_id'));
         return response()->json(['message' => 'Favorite status toggled successfully.']);
     }
-
     public function toggleFavoriteRecipe(ToggleFavoriteRequest $request): JsonResponse
     {
-        $user = auth()->user();
-        $this->authorize('update', $user);
-        $user->favoriteRecipes()->toggle($request->validated('recipe_id'));
+        auth()->user()->favoriteRecipes()->toggle($request->validated('recipe_id'));
         return response()->json(['message' => 'Favorite status toggled successfully.']);
     }
 }

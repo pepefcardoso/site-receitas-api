@@ -5,12 +5,19 @@ namespace App\Services\Auth;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
+
 class Login
 {
     /**
+     * O usuário autenticado.
+     * @var \App\Models\User|null
+     */
+    protected ?User $user = null;
+
+    /**
      * @throws ValidationException
      */
-    public function login(array $data)
+    public function login(array $data): string
     {
         $email = data_get($data, "email");
         $password = data_get($data, 'password');
@@ -23,8 +30,15 @@ class Login
             ]);
         }
 
+        $this->user = $user;
+
         $token = $user->createToken('auth_token')->plainTextToken;
 
         return $token;
+    }
+
+    public function getUser(): ?User
+    {
+        return $this->user;
     }
 }
