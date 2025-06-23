@@ -6,6 +6,7 @@ use App\Http\Requests\Auth\ForgotPasswordRequest;
 use App\Http\Requests\Auth\LoginRequest;
 use App\Http\Requests\Auth\ResetPasswordRequest;
 use App\Http\Resources\User\AuthUserResource;
+use App\Http\Resources\User\UserResource;
 use App\Services\Auth\Login;
 use App\Services\Auth\Logout;
 use Illuminate\Http\JsonResponse;
@@ -19,12 +20,16 @@ class AuthController extends Controller
         $this->middleware('auth:sanctum')->only('logout');
     }
 
-    public function login(LoginRequest $request, Login $service): AuthUserResource
+    public function login(LoginRequest $request, Login $service)
     {
         $token = $service->login($request->validated());
         $user = $service->getUser();
 
-        return (new AuthUserResource($user->load('image')))->withToken($token);
+        $userArray = (new UserResource($user->load('image')))->resolve();
+        return response()->json([
+            'token' => $token,
+            'user' => $userArray,
+        ], 201);
     }
 
     public function logout(Logout $service): JsonResponse
