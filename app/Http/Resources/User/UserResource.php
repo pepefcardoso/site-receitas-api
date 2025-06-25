@@ -20,7 +20,6 @@ class UserResource extends JsonResource
             'image' => new ImageResource($this->whenLoaded('image')),
             'phone' => $this->when($authenticatedUser && $authenticatedUser->can('view', $this->resource), $this->phone),
             'birthday' => $this->when($authenticatedUser && $authenticatedUser->can('view', $this->resource), $this->birthday),
-
             'created_at' => $this->created_at->toIso8601String(),
         ];
     }
