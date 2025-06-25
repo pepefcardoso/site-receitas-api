@@ -24,17 +24,19 @@ class Login
 
         $user = User::where('email', $email)->first();
 
-        if (!$user || !Hash::check($password, $user->password)) {
+        if (
+            !$user
+            || !Hash::check($password, $user->getAuthPassword())
+        ) {
             throw ValidationException::withMessages([
                 'email' => [__('auth.failed')],
             ]);
         }
 
+
         $this->user = $user;
 
-        $token = $user->createToken('auth_token')->plainTextToken;
-
-        return $token;
+        return $user->createToken('auth_token')->plainTextToken;
     }
 
     public function getUser(): ?User

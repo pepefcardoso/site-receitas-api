@@ -4,13 +4,12 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\PostTopic\StoreRequest;
 use App\Http\Requests\PostTopic\UpdateRequest;
-use App\Http\Resources\PostTopicResource;
+use App\Http\Resources\PostTopic\PostTopicResource;
 use App\Models\PostTopic;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Routing\Controller;
 use Illuminate\Validation\ValidationException;
 
-class PostTopicController extends Controller
+class PostTopicController extends BaseController
 {
     public function __construct()
     {

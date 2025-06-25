@@ -5,8 +5,8 @@ namespace App\Http\Controllers;
 use App\Http\Requests\Post\FilterPostRequest;
 use App\Http\Requests\Post\StorePostRequest;
 use App\Http\Requests\Post\UpdatePostRequest;
-use App\Http\Resources\PostCollectionResource;
-use App\Http\Resources\PostResource;
+use App\Http\Resources\Post\PostCollectionResource;
+use App\Http\Resources\Post\PostResource;
 use App\Models\Post;
 use App\Services\Post\CreatePost;
 use App\Services\Post\DeletePost;
@@ -16,9 +16,8 @@ use App\Services\Post\ListUserPosts;
 use App\Services\Post\ShowPost;
 use App\Services\Post\UpdatePost;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
-use Illuminate\Routing\Controller;
 
-class PostController extends Controller
+class PostController extends BaseController
 {
     public function __construct()
     {

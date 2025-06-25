@@ -2,9 +2,10 @@
 
 namespace App\Http\Resources\Post;
 
-use App\Http\Resources\Post\AuthorResource;
+use App\Http\Resources\Recipe\AuthorResource;
 use App\Http\Resources\Post\CategoryResource;
 use App\Http\Resources\Post\TopicResource;
+use App\Http\Resources\Recipe\ImageResource;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 

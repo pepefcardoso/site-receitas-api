@@ -2,8 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Resources\RecipeCollectionResource;
-use App\Http\Resources\RecipeResource;
+use App\Http\Requests\Recipe\FilterRecipeRequest;
+use App\Http\Requests\Recipe\StoreRecipeRequest;
+use App\Http\Requests\Recipe\UpdateRecipeRequest;
+use App\Http\Resources\Recipe\RecipeCollectionResource;
+use App\Http\Resources\Recipe\RecipeResource;
 use App\Models\Recipe;
 use App\Services\Recipe\CreateRecipe;
 use App\Services\Recipe\DeleteRecipe;
@@ -12,11 +15,9 @@ use App\Services\Recipe\ListRecipe;
 use App\Services\Recipe\ListUserRecipes;
 use App\Services\Recipe\ShowRecipe;
 use App\Services\Recipe\UpdateRecipe;
-use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
-use Illuminate\Routing\Controller;
 
-class RecipeController extends Controller
+class RecipeController extends BaseController
 {
     public function __construct()
     {

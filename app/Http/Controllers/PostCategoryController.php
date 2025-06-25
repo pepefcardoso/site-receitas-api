@@ -4,13 +4,12 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\PostCategory\StoreRequest;
 use App\Http\Requests\PostCategory\UpdateRequest;
-use App\Http\Resources\PostCategoryResource;
+use App\Http\Resources\PostCategory\PostCategoryResource;
 use App\Models\PostCategory;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Routing\Controller;
 use Illuminate\Validation\ValidationException;
 
-class PostCategoryController extends Controller
+class PostCategoryController extends BaseController
 {
     public function __construct()
     {

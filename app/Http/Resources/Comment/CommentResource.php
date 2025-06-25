@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources\Comment;
 
+use App\Http\Resources\Recipe\AuthorResource;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 

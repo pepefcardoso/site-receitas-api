@@ -4,14 +4,13 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\RecipeDiet\StoreRequest;
 use App\Http\Requests\RecipeDiet\UpdateRequest;
-use App\Http\Resources\RecipeDietResource;
+use App\Http\Resources\RecipeDiet\RecipeDietResource;
 use App\Models\RecipeDiet;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
-use Illuminate\Routing\Controller;
 use Illuminate\Validation\ValidationException;
 
-class RecipeDietController extends Controller
+class RecipeDietController extends BaseController
 {
     public function __construct()
     {

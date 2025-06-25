@@ -7,9 +7,8 @@ use App\Http\Requests\Rating\UpdateRatingRequest;
 use App\Models\Rating;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Routing\Controller;
 
-class RatingController extends Controller
+class RatingController extends BaseController
 {
     public function __construct()
     {

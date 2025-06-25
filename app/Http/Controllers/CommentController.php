@@ -9,9 +9,8 @@ use App\Models\Comment;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
-use Illuminate\Routing\Controller;
 
-class CommentController extends Controller
+class CommentController extends BaseController
 {
     public function __construct()
     {

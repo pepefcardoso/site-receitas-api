@@ -7,6 +7,7 @@ use App\Http\Controllers\ImageController;
 use App\Http\Controllers\NewsletterCustomerController;
 use App\Http\Controllers\PostCategoryController;
 use App\Http\Controllers\PostController;
+use App\Http\Controllers\PostTopicController;
 use App\Http\Controllers\RatingController;
 use App\Http\Controllers\RecipeCategoryController;
 use App\Http\Controllers\RecipeController;

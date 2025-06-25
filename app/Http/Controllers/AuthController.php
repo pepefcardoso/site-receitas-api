@@ -6,14 +6,12 @@ use App\Http\Requests\Auth\ForgotPasswordRequest;
 use App\Http\Requests\Auth\LoginRequest;
 use App\Http\Requests\Auth\ResetPasswordRequest;
 use App\Http\Resources\User\AuthUserResource;
-use App\Http\Resources\User\UserResource;
 use App\Services\Auth\Login;
 use App\Services\Auth\Logout;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Password;
 
-class AuthController extends Controller
+class AuthController extends BaseController
 {
     public function __construct()
     {
@@ -25,11 +23,7 @@ class AuthController extends Controller
         $token = $service->login($request->validated());
         $user = $service->getUser();
 
-        $userArray = (new UserResource($user->load('image')))->resolve();
-        return response()->json([
-            'token' => $token,
-            'user' => $userArray,
-        ], 201);
+        return new AuthUserResource($user->load('image'), $token);
     }
 
     public function logout(Logout $service): JsonResponse

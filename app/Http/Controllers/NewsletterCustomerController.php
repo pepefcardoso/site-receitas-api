@@ -9,9 +9,8 @@ use App\Services\NewsletterCustomer\CreateNewsletterCustomer;
 use App\Services\NewsletterCustomer\DeleteNewsletterCustomer;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
-use Illuminate\Routing\Controller;
 
-class NewsletterCustomerController extends Controller
+class NewsletterCustomerController extends BaseController
 {
     public function __construct()
     {

@@ -10,9 +10,8 @@ use App\Services\CustomerContact\CreateCustomerContact;
 use App\Services\CustomerContact\UpdateCustomerContactStatus;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
-use Illuminate\Routing\Controller;
 
-class CustomerContactController extends Controller
+class CustomerContactController extends BaseController
 {
     public function __construct()
     {

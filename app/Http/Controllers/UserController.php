@@ -17,9 +17,8 @@ use App\Services\User\UpdateUser;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
-use Illuminate\Routing\Controller;
 
-class UserController extends Controller
+class UserController extends BaseController
 {
     public function __construct()
     {
@@ -36,7 +35,8 @@ class UserController extends Controller
     {
         $user = $service->create($request->validated());
         $token = $user->createToken('auth_token')->plainTextToken;
-        return (new AuthUserResource($user->load('image')))->withToken($token);
+
+        return new AuthUserResource($user->load('image'), $token);
     }
 
     public function show(User $user): UserResource

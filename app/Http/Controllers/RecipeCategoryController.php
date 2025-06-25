@@ -4,14 +4,13 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\RecipeCategory\StoreRequest;
 use App\Http\Requests\RecipeCategory\UpdateRequest;
-use App\Http\Resources\RecipeCategoryResource;
+use App\Http\Resources\RecipeCategory\RecipeCategoryResource;
 use App\Models\RecipeCategory;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
-use Illuminate\Routing\Controller;
 use Illuminate\Validation\ValidationException;
 
-class RecipeCategoryController extends Controller
+class RecipeCategoryController extends BaseController
 {
     public function __construct()
     {
