@@ -31,15 +31,15 @@ class CustomerContactController extends BaseController
         return (new CustomerContactResource($contact))->response()->setStatusCode(201);
     }
 
-    public function show(CustomerContact $customerContact): CustomerContactResource
+    public function show(CustomerContact $customer_contact): CustomerContactResource
     {
-        $this->authorize('view', $customerContact);
-        return new CustomerContactResource($customerContact);
+        $this->authorize('view', $customer_contact);
+        return new CustomerContactResource($customer_contact);
     }
 
-    public function updateStatus(UpdateStatusRequest $request, CustomerContact $customerContact, UpdateCustomerContactStatus $service): CustomerContactResource
+    public function updateStatus(UpdateStatusRequest $request, CustomerContact $customer_contact, UpdateCustomerContactStatus $service): CustomerContactResource
     {
-        $updatedContact = $service->update($customerContact->id, $request->validated('status'));
+        $updatedContact = $service->update($customer_contact->id, $request->validated('status'));
         return new CustomerContactResource($updatedContact);
     }
 }

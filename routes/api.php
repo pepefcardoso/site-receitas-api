@@ -40,7 +40,7 @@ Route::controller(SocialAuthController::class)->prefix('auth/social')->group(fun
 Route::post('/users', [UserController::class, 'store'])->name('users.store');
 
 // Contato e Newsletter (geralmente públicos)
-Route::post('/contact', [CustomerContactController::class, 'register']);
+Route::post('/contact', [CustomerContactController::class, 'store']);
 Route::post('/newsletter', [NewsletterCustomerController::class, 'store'])->name('newsletter.store');
 
 // Categorias de Posts
@@ -114,7 +114,8 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Contato e Newsletter (gerenciamento)
     Route::get('/contact', [CustomerContactController::class, 'index']);
-    Route::get('/contact/{customer}', [CustomerContactController::class, 'show']);
-    Route::patch('/contact/{contact}', [CustomerContactController::class, 'updateStatus']); // Mais RESTful
+    Route::get('/contact/{customer_contact}', [CustomerContactController::class, 'show']);
+    Route::patch('/contact/{customer_contact}', [CustomerContactController::class, 'updateStatus']);
+
     Route::apiResource('newsletter', NewsletterCustomerController::class)->except(['store']);
 });

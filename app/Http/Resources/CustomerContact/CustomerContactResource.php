@@ -16,7 +16,7 @@ class CustomerContactResource extends JsonResource
             'phone' => $this->phone,
             'message' => $this->message,
             'status' => $this->status,
-            'created_at' => $this->created_at->toIso8601String(),
+            'created_at' => $this->created_at?->toIso8601String(),
         ];
     }
 }

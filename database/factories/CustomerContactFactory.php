@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Enum\CustomerContactStatusEnum;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -21,6 +22,7 @@ class CustomerContactFactory extends Factory
             'email' => $this->faker->unique()->safeEmail,
             'phone' => $this->faker->phoneNumber,
             'message' => $this->faker->text,
+            'status' => CustomerContactStatusEnum::RECEIVED->value,
         ];
     }
 }

@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use App\Models\Comment;
+use App\Models\CustomerContact;
 use App\Models\PostCategory;
 use App\Models\PostTopic;
 use App\Models\Rating;
@@ -14,6 +15,7 @@ use App\Models\RecipeStep;
 use App\Models\RecipeUnit;
 use App\Models\User;
 use App\Policies\CommentPolicy;
+use App\Policies\CustomerContactPolicy;
 use App\Policies\ImagePolicy;
 use App\Policies\PostCategoryPolicy;
 use App\Policies\PostTopicPolicy;
@@ -49,6 +51,7 @@ class AuthServiceProvider extends ServiceProvider
         Image::class => ImagePolicy::class,
         Rating::class => RatingPolicy::class,
         Comment::class => CommentPolicy::class,
+        CustomerContact::class => CustomerContactPolicy::class,
     ];
 
     /**

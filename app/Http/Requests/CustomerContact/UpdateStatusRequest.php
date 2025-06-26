@@ -10,7 +10,8 @@ class UpdateStatusRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return $this->user()->can('update', $this->route('customer_contact'));
+        $contact = $this->route('customer_contact');
+        return $this->user()->can('update', $contact);
     }
 
     public function rules(): array
