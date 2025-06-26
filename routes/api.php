@@ -47,6 +47,10 @@ Route::post('/newsletter', [NewsletterCustomerController::class, 'store'])->name
 Route::get('/post-categories', [PostCategoryController::class, 'index']);
 Route::get('/post-categories/{postCategory}', [PostCategoryController::class, 'show']);
 
+// Topicos de Posts
+Route::get('/post-topics', [PostTopicController::class, 'index']);
+Route::get('/post-topics/{postTopic}', [PostTopicController::class, 'show']);
+
 /*
 |--------------------------------------------------------------------------
 | Rotas Protegidas (Exigem autenticação via Sanctum)
@@ -74,7 +78,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('posts', PostController::class);
     Route::apiResource('post-categories', PostCategoryController::class)
         ->except(['index', 'show']);
-    Route::apiResource('post-topics', PostTopicController::class);
+    Route::apiResource('post-topics', PostTopicController::class)
+        ->except(['index', 'show']);
 
     // Receitas e seus sub-recursos
     Route::controller(RecipeController::class)->prefix('recipes')->group(function () {
