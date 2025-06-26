@@ -29,16 +29,16 @@ class NewsletterCustomerController extends BaseController
         return (new NewsletterCustomerResource($customer))->response()->setStatusCode(201);
     }
 
-    public function show(NewsletterCustomer $newsletterCustomer): NewsletterCustomerResource
+    public function show(NewsletterCustomer $newsletter): NewsletterCustomerResource
     {
-        $this->authorize('view', $newsletterCustomer);
-        return new NewsletterCustomerResource($newsletterCustomer);
+        $this->authorize('view', $newsletter);
+        return new NewsletterCustomerResource($newsletter);
     }
 
-    public function destroy(NewsletterCustomer $newsletterCustomer, DeleteNewsletterCustomer $service): JsonResponse
+    public function destroy(NewsletterCustomer $newsletter, DeleteNewsletterCustomer $service): JsonResponse
     {
-        $this->authorize('delete', $newsletterCustomer);
-        $service->delete($newsletterCustomer->id);
+        $this->authorize('delete', $newsletter);
+        $service->delete($newsletter->id);
         return response()->json(null, 204);
     }
 }

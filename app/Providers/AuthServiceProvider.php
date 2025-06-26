@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use App\Models\Comment;
 use App\Models\CustomerContact;
+use App\Models\NewsletterCustomer;
 use App\Models\PostCategory;
 use App\Models\PostTopic;
 use App\Models\Rating;
@@ -17,6 +18,7 @@ use App\Models\User;
 use App\Policies\CommentPolicy;
 use App\Policies\CustomerContactPolicy;
 use App\Policies\ImagePolicy;
+use App\Policies\NewsletterCustomerPolicy;
 use App\Policies\PostCategoryPolicy;
 use App\Policies\PostTopicPolicy;
 use App\Policies\PostPolicy;
@@ -52,6 +54,7 @@ class AuthServiceProvider extends ServiceProvider
         Rating::class => RatingPolicy::class,
         Comment::class => CommentPolicy::class,
         CustomerContact::class => CustomerContactPolicy::class,
+        NewsletterCustomer::class => NewsletterCustomerPolicy::class,
     ];
 
     /**
