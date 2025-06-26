@@ -46,18 +46,18 @@ Route::post('/newsletter', [NewsletterCustomerController::class, 'store'])->name
 // Categorias de Posts
 Route::get('/post-categories', [PostCategoryController::class, 'index']);
 Route::get('/post-categories/{postCategory}', [PostCategoryController::class, 'show']);
-
 // Topicos de Posts
 Route::get('/post-topics', [PostTopicController::class, 'index']);
 Route::get('/post-topics/{postTopic}', [PostTopicController::class, 'show']);
-
 // Categorias de Receitas
 Route::get('/recipe-categories', [RecipeCategoryController::class, 'index']);
 Route::get('/recipe-categories/{recipeCategory}', [RecipeCategoryController::class, 'show']);
-
 // Dietas de Receitas
 Route::get('/recipe-diets', [RecipeDietController::class, 'index']);
 Route::get('/recipe-diets/{recipeDiet}', [RecipeDietController::class, 'show']);
+// Unidades de Receitas
+Route::get('/recipe-units', [RecipeUnitController::class, 'index']);
+Route::get('/recipe-units/{recipeUnit}', [RecipeUnitController::class, 'show']);
 
 /*
 |--------------------------------------------------------------------------
@@ -99,7 +99,8 @@ Route::middleware('auth:sanctum')->group(function () {
         ->except(['index', 'show']);
     Route::apiResource('recipe-diets', RecipeDietController::class)
         ->except(['index', 'show']);
-    Route::apiResource('recipe-units', RecipeUnitController::class);
+    Route::apiResource('recipe-units', RecipeUnitController::class)
+        ->except(['index', 'show']);
 
     // Comentários (Aninhados e Polimórficos)
     Route::get('/{type}/{commentable}/comments', [CommentController::class, 'index'])->withoutMiddleware('auth:sanctum');

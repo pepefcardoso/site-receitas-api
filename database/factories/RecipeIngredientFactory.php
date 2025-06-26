@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Models\Recipe;
 use App\Models\RecipeUnit;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -18,10 +19,10 @@ class RecipeIngredientFactory extends Factory
     public function definition(): array
     {
         return [
-            'quantity' => $this->faker->numberBetween(1, 10),
-            'name' => $this->faker->word(),
-            'recipe_id' => $this->faker->numberBetween(1, 10),
-            'unit_id' => $this->faker->numberBetween(1, 10),
+            'recipe_id' => Recipe::factory(),
+            'unit_id' => RecipeUnit::factory(),
+            'name' => fake()->word(),
+            'quantity' => fake()->randomFloat(2, 0.1, 500),
         ];
     }
 }
