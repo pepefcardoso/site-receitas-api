@@ -5,6 +5,7 @@ namespace Database\Factories;
 use App\Enum\RecipeDifficultyEnum;
 use App\Models\RecipeCategory;
 use App\Models\RecipeDiet;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -19,16 +20,14 @@ class RecipeFactory extends Factory
      */
     public function definition(): array
     {
-        $category = RecipeCategory::inRandomOrder()->first();
-
         return [
             'title' => $this->faker->sentence,
             'description' => $this->faker->text,
             'time' => $this->faker->numberBetween(10, 240),
             'portion' => $this->faker->numberBetween(1, 20),
             'difficulty' => $this->faker->randomElement(RecipeDifficultyEnum::cases()),
-            'user_id' => $this->faker->numberBetween(1, 10),
-            'category_id' => $category ? $category->id : null,
+            'user_id' => User::factory(),
+            'category_id' => RecipeCategory::factory(),
         ];
     }
 
@@ -41,8 +40,10 @@ class RecipeFactory extends Factory
     public function configure()
     {
         return $this->afterCreating(function ($recipe) {
-            $diets = RecipeDiet::inRandomOrder()->take(rand(1, 3))->pluck('id');
-            $recipe->diets()->sync($diets);
+            if (RecipeDiet::query()->exists()) {
+                $diets = RecipeDiet::inRandomOrder()->take(rand(1, 3))->pluck('id');
+                $recipe->diets()->sync($diets);
+            }
         });
     }
 }
