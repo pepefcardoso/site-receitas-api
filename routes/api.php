@@ -55,6 +55,10 @@ Route::get('/post-topics/{postTopic}', [PostTopicController::class, 'show']);
 Route::get('/recipe-categories', [RecipeCategoryController::class, 'index']);
 Route::get('/recipe-categories/{recipeCategory}', [RecipeCategoryController::class, 'show']);
 
+// Dietas de Receitas
+Route::get('/recipe-diets', [RecipeDietController::class, 'index']);
+Route::get('/recipe-diets/{recipeDiet}', [RecipeDietController::class, 'show']);
+
 /*
 |--------------------------------------------------------------------------
 | Rotas Protegidas (Exigem autenticação via Sanctum)
@@ -93,7 +97,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('recipes', RecipeController::class);
     Route::apiResource('recipe-categories', RecipeCategoryController::class)
         ->except(['index', 'show']);
-    Route::apiResource('recipe-diets', RecipeDietController::class);
+    Route::apiResource('recipe-diets', RecipeDietController::class)
+        ->except(['index', 'show']);
     Route::apiResource('recipe-units', RecipeUnitController::class);
 
     // Comentários (Aninhados e Polimórficos)
