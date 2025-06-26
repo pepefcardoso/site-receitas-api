@@ -43,6 +43,9 @@ Route::post('/users', [UserController::class, 'store'])->name('users.store');
 Route::post('/contact', [CustomerContactController::class, 'register']);
 Route::post('/newsletter', [NewsletterCustomerController::class, 'store'])->name('newsletter.store');
 
+// Categorias de Posts
+Route::get('/post-categories', [PostCategoryController::class, 'index']);
+Route::get('/post-categories/{postCategory}', [PostCategoryController::class, 'show']);
 
 /*
 |--------------------------------------------------------------------------
@@ -69,7 +72,8 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/favorites', 'favorites');
     });
     Route::apiResource('posts', PostController::class);
-    Route::apiResource('post-categories', PostCategoryController::class);
+    Route::apiResource('post-categories', PostCategoryController::class)
+        ->except(['index', 'show']);
     Route::apiResource('post-topics', PostTopicController::class);
 
     // Receitas e seus sub-recursos
@@ -98,4 +102,3 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::patch('/contact/{contact}', [CustomerContactController::class, 'updateStatus']); // Mais RESTful
     Route::apiResource('newsletter', NewsletterCustomerController::class)->except(['store']);
 });
-
