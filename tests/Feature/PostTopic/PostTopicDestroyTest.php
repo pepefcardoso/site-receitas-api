@@ -1,5 +1,4 @@
 <?php
-// tests/Feature/PostTopic/PostTopicDestroyTest.php
 
 namespace Tests\Feature\PostTopic;
 

@@ -13,13 +13,15 @@ class PostResource extends JsonResource
 {
     public function toArray(Request $request): array
     {
+        $averageRating = isset($this->average_rating) ? round($this->average_rating, 2) : 0;
+
         return [
             'id' => $this->id,
             'title' => $this->title,
             'summary' => $this->summary,
             'content' => $this->content,
             'image' => new ImageResource($this->whenLoaded('image')),
-            'average_rating' => round($this->whenAggregated('ratings', 'rating', 'avg') ?? 0, 2),
+            'average_rating' => $averageRating,
             'ratings_count' => $this->whenCounted('ratings'),
             'is_favorited' => (bool) ($this->is_favorited ?? false),
             'author' => new AuthorResource($this->whenLoaded('user')),

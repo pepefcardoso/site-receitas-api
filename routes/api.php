@@ -54,11 +54,9 @@ Route::get('/recipe-diets/{recipeDiet}', [RecipeDietController::class, 'show']);
 Route::get('/recipe-units', [RecipeUnitController::class, 'index']);
 Route::get('/recipe-units/{recipeUnit}', [RecipeUnitController::class, 'show']);
 
-Route::get('/{type}/{commentable}/comments', [CommentController::class, 'index']);
-Route::get('/comments/{comment}', [CommentController::class, 'show']);
-
-Route::get('/{type}/{rateable}/ratings', [RatingController::class, 'index']);
-Route::get('/ratings/{rating}', [RatingController::class, 'show']);
+// Posts
+Route::get('/posts', [PostController::class, 'index']);
+Route::get('/posts/{post}', [PostController::class, 'show']);
 
 
 /*
@@ -72,20 +70,20 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/auth/logout', [AuthController::class, 'logout']);
 
     // Usuários
-    Route::apiResource('users', UserController::class)->except(['store']);
     Route::controller(UserController::class)->prefix('users')->group(function () {
         Route::get('/me', 'authUser');
         Route::patch('/{user}/role', 'updateRole');
         Route::post('/favorites/posts', 'toggleFavoritePost');
         Route::post('/favorites/recipes', 'toggleFavoriteRecipe');
     });
+    Route::apiResource('users', UserController::class)->except(['store']);
 
-    // Posts e seus sub-recursos
-    Route::apiResource('posts', PostController::class);
+    // Posts
     Route::controller(PostController::class)->prefix('posts')->group(function () {
         Route::get('/my', 'userPosts');
         Route::get('/favorites', 'favorites');
     });
+    Route::apiResource('posts', PostController::class)->except(['index', 'show']);
 
     // CRUDs de Categorias, Tópicos, etc. (exceto index/show)
     Route::apiResource('post-categories', PostCategoryController::class)->except(['index', 'show']);
@@ -115,3 +113,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::patch('/contact/{customer_contact}', [CustomerContactController::class, 'updateStatus']);
     Route::apiResource('newsletter', NewsletterCustomerController::class)->except(['store']);
 });
+
+Route::get('/{type}/{commentable}/comments', [CommentController::class, 'index'])->whereNumber('commentable');
+Route::get('/comments/{comment}', [CommentController::class, 'show']);
+
+Route::get('/{type}/{rateable}/ratings', [RatingController::class, 'index'])->whereNumber('rateable');
+Route::get('/ratings/{rating}', [RatingController::class, 'show']);
