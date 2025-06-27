@@ -4,6 +4,7 @@ namespace Database\Factories;
 
 use App\Models\PostCategory;
 use App\Models\PostTopic;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -18,14 +19,12 @@ class PostFactory extends Factory
      */
     public function definition(): array
     {
-        $category = PostCategory::inRandomOrder()->first();
-
         return [
             'title' => $this->faker->sentence(),
             'summary' => $this->faker->sentence(),
             'content' => $this->faker->paragraph(),
-            'category_id' => $category ? $category->id : null,
-            'user_id' => 1,
+            'category_id' => PostCategory::factory(),
+            'user_id' => User::factory(),
         ];
     }
 
@@ -37,8 +36,10 @@ class PostFactory extends Factory
     public function configure()
     {
         return $this->afterCreating(function ($post) {
-            $topics = PostTopic::inRandomOrder()->take(rand(1, 3))->pluck('id');
-            $post->topics()->sync($topics);
+            if (PostTopic::query()->exists()) {
+                $topics = PostTopic::inRandomOrder()->take(rand(1, 3))->pluck('id');
+                $post->topics()->sync($topics);
+            }
         });
     }
 }
