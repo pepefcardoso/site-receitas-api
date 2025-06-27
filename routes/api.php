@@ -3,7 +3,6 @@
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CommentController;
 use App\Http\Controllers\CustomerContactController;
-use App\Http\Controllers\ImageController;
 use App\Http\Controllers\NewsletterCustomerController;
 use App\Http\Controllers\PostCategoryController;
 use App\Http\Controllers\PostController;
@@ -36,28 +35,27 @@ Route::controller(SocialAuthController::class)->prefix('auth/social')->group(fun
     Route::get('/{provider}/callback', 'handleProviderCallback');
 });
 
-// Registro de Usuário (é o 'store' do UserController)
+// Registro de Usuário
 Route::post('/users', [UserController::class, 'store'])->name('users.store');
 
-// Contato e Newsletter (geralmente públicos)
+// Contato e Newsletter
 Route::post('/contact', [CustomerContactController::class, 'store']);
 Route::post('/newsletter', [NewsletterCustomerController::class, 'store'])->name('newsletter.store');
 
-// Categorias de Posts
+// Categorias, Tópicos, Dietas e Unidades
 Route::get('/post-categories', [PostCategoryController::class, 'index']);
 Route::get('/post-categories/{postCategory}', [PostCategoryController::class, 'show']);
-// Topicos de Posts
 Route::get('/post-topics', [PostTopicController::class, 'index']);
 Route::get('/post-topics/{postTopic}', [PostTopicController::class, 'show']);
-// Categorias de Receitas
 Route::get('/recipe-categories', [RecipeCategoryController::class, 'index']);
 Route::get('/recipe-categories/{recipeCategory}', [RecipeCategoryController::class, 'show']);
-// Dietas de Receitas
 Route::get('/recipe-diets', [RecipeDietController::class, 'index']);
 Route::get('/recipe-diets/{recipeDiet}', [RecipeDietController::class, 'show']);
-// Unidades de Receitas
 Route::get('/recipe-units', [RecipeUnitController::class, 'index']);
 Route::get('/recipe-units/{recipeUnit}', [RecipeUnitController::class, 'show']);
+
+Route::get('/{type}/{commentable}/comments', [CommentController::class, 'index']);
+Route::get('/comments/{comment}', [CommentController::class, 'show']);
 
 /*
 |--------------------------------------------------------------------------
@@ -70,44 +68,40 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/auth/logout', [AuthController::class, 'logout']);
 
     // Usuários
+    Route::apiResource('users', UserController::class)->except(['store']);
     Route::controller(UserController::class)->prefix('users')->group(function () {
-        Route::get('/me', 'authUser'); // Rota para obter o usuário logado
-        Route::patch('/{user}/role', 'updateRole'); // Mais RESTful para atualizar a role
-        Route::post('/favorites/posts', 'toggleFavoritePost'); // Agrupado sob 'favorites'
+        Route::get('/me', 'authUser');
+        Route::patch('/{user}/role', 'updateRole');
+        Route::post('/favorites/posts', 'toggleFavoritePost');
         Route::post('/favorites/recipes', 'toggleFavoriteRecipe');
     });
-    Route::apiResource('users', UserController::class)->except(['store']); // 'store' já foi definido publicamente
 
     // Posts e seus sub-recursos
+    Route::apiResource('posts', PostController::class);
     Route::controller(PostController::class)->prefix('posts')->group(function () {
         Route::get('/my', 'userPosts');
         Route::get('/favorites', 'favorites');
     });
-    Route::apiResource('posts', PostController::class);
-    Route::apiResource('post-categories', PostCategoryController::class)
-        ->except(['index', 'show']);
-    Route::apiResource('post-topics', PostTopicController::class)
-        ->except(['index', 'show']);
 
-    // Receitas e seus sub-recursos
-    Route::controller(RecipeController::class)->prefix('recipes')->group(function () {
-        Route::get('/my', 'userRecipes');
-        Route::get('/favorites', 'favorites');
-    });
+    // CRUDs de Categorias, Tópicos, etc. (exceto index/show)
+    Route::apiResource('post-categories', PostCategoryController::class)->except(['index', 'show']);
+    Route::apiResource('post-topics', PostTopicController::class)->except(['index', 'show']);
+    Route::apiResource('recipe-categories', RecipeCategoryController::class)->except(['index', 'show']);
+    Route::apiResource('recipe-diets', RecipeDietController::class)->except(['index', 'show']);
+    Route::apiResource('recipe-units', RecipeUnitController::class)->except(['index', 'show']);
+
+    // Receitas
     Route::apiResource('recipes', RecipeController::class);
-    Route::apiResource('recipe-categories', RecipeCategoryController::class)
-        ->except(['index', 'show']);
-    Route::apiResource('recipe-diets', RecipeDietController::class)
-        ->except(['index', 'show']);
-    Route::apiResource('recipe-units', RecipeUnitController::class)
-        ->except(['index', 'show']);
+    Route::get('recipes/my', [RecipeController::class, 'userRecipes']);
+    Route::get('recipes/favorites', [RecipeController::class, 'favorites']);
 
-    // Comentários (Aninhados e Polimórficos)
-    Route::get('/{type}/{commentable}/comments', [CommentController::class, 'index'])->withoutMiddleware('auth:sanctum');
+    // Comentários
     Route::post('/{type}/{commentable}/comments', [CommentController::class, 'store']);
-    Route::apiResource('comments', CommentController::class)->except(['index', 'store']);
+    Route::put('/comments/{comment}', [CommentController::class, 'update']);
+    Route::patch('/comments/{comment}', [CommentController::class, 'update']);
+    Route::delete('/comments/{comment}', [CommentController::class, 'destroy']);
 
-    // Avaliações (Aninhadas e Polimórficas)
+    // Avaliações
     Route::post('/{type}/{rateable}/ratings', [RatingController::class, 'store']);
     Route::put('/ratings/{rating}', [RatingController::class, 'update']);
     Route::delete('/ratings/{rating}', [RatingController::class, 'destroy']);
@@ -116,6 +110,5 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/contact', [CustomerContactController::class, 'index']);
     Route::get('/contact/{customer_contact}', [CustomerContactController::class, 'show']);
     Route::patch('/contact/{customer_contact}', [CustomerContactController::class, 'updateStatus']);
-
     Route::apiResource('newsletter', NewsletterCustomerController::class)->except(['store']);
 });
