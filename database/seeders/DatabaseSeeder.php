@@ -25,8 +25,8 @@ class DatabaseSeeder extends Seeder
             ImageSeeder::class,
             CustomerContactSeeder::class,
             NewsletterCustomerSeeder::class,
-            RatingSeeder::class,
             CommentSeeder::class,
+            RatingSeeder::class,
         ]);
     }
 }

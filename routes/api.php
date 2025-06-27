@@ -57,6 +57,10 @@ Route::get('/recipe-units/{recipeUnit}', [RecipeUnitController::class, 'show']);
 Route::get('/{type}/{commentable}/comments', [CommentController::class, 'index']);
 Route::get('/comments/{comment}', [CommentController::class, 'show']);
 
+Route::get('/{type}/{rateable}/ratings', [RatingController::class, 'index']);
+Route::get('/ratings/{rating}', [RatingController::class, 'show']);
+
+
 /*
 |--------------------------------------------------------------------------
 | Rotas Protegidas (Exigem autenticação via Sanctum)
@@ -98,7 +102,6 @@ Route::middleware('auth:sanctum')->group(function () {
     // Comentários
     Route::post('/{type}/{commentable}/comments', [CommentController::class, 'store']);
     Route::put('/comments/{comment}', [CommentController::class, 'update']);
-    Route::patch('/comments/{comment}', [CommentController::class, 'update']);
     Route::delete('/comments/{comment}', [CommentController::class, 'destroy']);
 
     // Avaliações

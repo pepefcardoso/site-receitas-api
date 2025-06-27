@@ -5,31 +5,34 @@ namespace Database\Seeders;
 use App\Models\Post;
 use App\Models\Recipe;
 use App\Models\Rating;
+use App\Models\User;
 use Illuminate\Database\Seeder;
 
 class RatingSeeder extends Seeder
 {
+    /**
+     * Run the database seeds.
+     */
     public function run(): void
     {
-        $users = range(1, 11);
-        $posts = Post::pluck('id');
-        $recipes = Recipe::pluck('id');
+        $posts = Post::all();
+        $recipes = Recipe::all();
+        $rateables = collect([...$posts, ...$recipes]);
+        $users = User::all();
 
-        foreach ($users as $userId) {
-            foreach ($posts as $postId) {
-                Rating::factory()->create([
-                    'user_id' => $userId,
-                    'rateable_id' => $postId,
-                    'rateable_type' => 'App\Models\Post',
-                ]);
-            }
+        if ($users->isEmpty() || $rateables->isEmpty()) {
+            return;
+        }
 
-            foreach ($recipes as $recipeId) {
-                Rating::factory()->create([
-                    'user_id' => $userId,
-                    'rateable_id' => $recipeId,
-                    'rateable_type' => 'App\Models\Recipe',
-                ]);
+        foreach ($rateables as $rateable) {
+            $numberOfRatings = rand(1, min(5, $users->count()));
+            $ratingUsers = $users->random($numberOfRatings)->unique('id');
+
+            foreach ($ratingUsers as $user) {
+                Rating::factory()
+                    ->for($user)
+                    ->forRateable($rateable)
+                    ->create();
             }
         }
     }

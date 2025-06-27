@@ -1,21 +1,19 @@
 <?php
 
-namespace App\Http\Resources\Comment;
+namespace App\Http\Resources\Rating;
 
 use App\Http\Resources\Recipe\AuthorResource;
-use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class CommentResource extends JsonResource
+class RatingResource extends JsonResource
 {
-    public function toArray(Request $request): array
+    public function toArray($request): array
     {
         return [
             'id' => $this->id,
-            'content' => $this->content,
+            'rating' => $this->rating,
             'author' => new AuthorResource($this->whenLoaded('user')),
             'created_at' => $this->created_at->toDateTimeString(),
-            'updated_at' => $this->updated_at->toDateTimeString(),
         ];
     }
 }

@@ -17,11 +17,11 @@ class PostCategoryFactory extends Factory
      */
     public function definition(): array
     {
-        $name = $this->faker->unique()->word();
+        $name = $this->faker->unique()->sentence(3);
 
         return [
-            'name' => $name,
-            'normalized_name' => Str::upper($name),
+            'name' => rtrim($name, '.'),
+            'normalized_name' => Str::upper(rtrim($name, '.')),
         ];
     }
 }
