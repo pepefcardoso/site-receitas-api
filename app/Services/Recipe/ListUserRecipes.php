@@ -15,18 +15,16 @@ class ListUserRecipes
             throw new Exception('User not authenticated');
         }
 
-        return Recipe::select('id', 'title')
+        return Recipe::where('user_id', $userId)
             ->with([
                 'image' => fn($q) => $q
-                    ->select('id', 'path', 'imageable_id', 'imageable_type', 'created_at', 'updated_at')
-                    ->makeHidden('path'),
+                    ->select('id', 'model_type', 'model_id', 'name', 'file_name'),
             ])
             ->withExists([
                 'favoritedByUsers as is_favorited' => fn($q) => $q->where('user_id', $userId)
             ])
             ->withAvg('ratings', 'rating')
             ->withCount('ratings')
-            ->where('user_id', $userId)
             ->paginate($perPage);
     }
 }

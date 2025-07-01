@@ -51,11 +51,11 @@ class RecipeController extends BaseController
 
     public function update(UpdateRecipeRequest $request, Recipe $recipe, UpdateRecipe $service): RecipeResource
     {
-        $updatedRecipe = $service->update($recipe->id, $request->validated());
+        $service->update($recipe->id, $request->validated());
 
-        $updatedRecipe->load(['user.image', 'category', 'diets', 'ingredients.unit', 'steps', 'image']);
+        $reloadedRecipe = (new ShowRecipe())->show($recipe->id);
 
-        return new RecipeResource($updatedRecipe);
+        return new RecipeResource($reloadedRecipe);
     }
 
     public function destroy(Recipe $recipe, DeleteRecipe $service)

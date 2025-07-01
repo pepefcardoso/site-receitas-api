@@ -54,22 +54,25 @@ Route::get('/recipe-diets/{recipeDiet}', [RecipeDietController::class, 'show']);
 Route::get('/recipe-units', [RecipeUnitController::class, 'index']);
 Route::get('/recipe-units/{recipeUnit}', [RecipeUnitController::class, 'show']);
 
-
-// =========================================================================
-// == MUDANÇA PRINCIPAL AQUI ==
-// =========================================================================
-
 // Rotas de POSTS que exigem autenticação.
-// Declaradas ANTES das rotas públicas de posts para terem prioridade.
 Route::middleware('auth:sanctum')->controller(PostController::class)->prefix('posts')->group(function () {
     Route::get('/my', 'userPosts');
     Route::get('/favorites', 'favorites');
 });
 
-// Rotas públicas de POSTS.
-// A rota /{post} já não causa conflito.
+// Rotas públicas de POSTS
 Route::get('/posts', [PostController::class, 'index']);
 Route::get('/posts/{post}', [PostController::class, 'show']);
+
+// Rotas de RECIPES que exigem autenticação
+Route::middleware('auth:sanctum')->controller(RecipeController::class)->prefix('recipes')->group(function () {
+    Route::get('/my', [RecipeController::class, 'userRecipes']);
+    Route::get('/favorites', [RecipeController::class, 'favorites']);
+});
+
+// Rotas públicas de RECIPES
+Route::get('/recipes', [RecipeController::class, 'index']);
+Route::get('/recipes/{recipe}', [RecipeController::class, 'show']);
 
 
 /*
@@ -102,9 +105,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('recipe-units', RecipeUnitController::class)->except(['index', 'show']);
 
     // Receitas
-    Route::apiResource('recipes', RecipeController::class);
-    Route::get('recipes/my', [RecipeController::class, 'userRecipes']);
-    Route::get('recipes/favorites', [RecipeController::class, 'favorites']);
+    Route::apiResource('recipes', RecipeController::class)->except(['index', 'show']);
 
     // Comentários
     Route::post('/{type}/{commentable}/comments', [CommentController::class, 'store']);
