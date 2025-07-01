@@ -15,18 +15,19 @@ class ListUserPosts
             throw new Exception('User not authenticated');
         }
 
-        return Post::select('id', 'title')
+        return Post::where('user_id', $userId)
             ->with([
                 'image' => fn($q) => $q
-                    ->select('id', 'path', 'imageable_id', 'imageable_type', 'created_at', 'updated_at')
-                    ->makeHidden('path'),
+                    ->select('id', 'model_type', 'model_id', 'name', 'file_name'),
+                'topics:id,name',
+                'category:id,name',
+                'user:id,name'
             ])
             ->withExists([
                 'favoritedByUsers as is_favorited' => fn($q) => $q->where('user_id', $userId)
             ])
             ->withAvg('ratings', 'rating')
             ->withCount('ratings')
-            ->where('user_id', $userId)
             ->paginate($perPage);
     }
 }

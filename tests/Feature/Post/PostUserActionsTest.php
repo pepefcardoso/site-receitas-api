@@ -27,7 +27,9 @@ class PostUserActionsTest extends TestCase
     #[test]
     public function unauthenticated_user_cannot_list_their_posts()
     {
-        $this->getJson('/api/posts/my')->assertUnauthorized();
+        $this->withHeaders(['Accept' => 'application/json'])
+            ->getJson('/api/posts/my')
+            ->assertUnauthorized();
     }
 
     #[test]

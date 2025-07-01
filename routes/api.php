@@ -42,7 +42,7 @@ Route::post('/users', [UserController::class, 'store'])->name('users.store');
 Route::post('/contact', [CustomerContactController::class, 'store']);
 Route::post('/newsletter', [NewsletterCustomerController::class, 'store'])->name('newsletter.store');
 
-// Categorias, Tópicos, Dietas e Unidades
+// Categorias, Tópicos, Dietas e Unidades (Públicas)
 Route::get('/post-categories', [PostCategoryController::class, 'index']);
 Route::get('/post-categories/{postCategory}', [PostCategoryController::class, 'show']);
 Route::get('/post-topics', [PostTopicController::class, 'index']);
@@ -54,14 +54,27 @@ Route::get('/recipe-diets/{recipeDiet}', [RecipeDietController::class, 'show']);
 Route::get('/recipe-units', [RecipeUnitController::class, 'index']);
 Route::get('/recipe-units/{recipeUnit}', [RecipeUnitController::class, 'show']);
 
-// Posts
+
+// =========================================================================
+// == MUDANÇA PRINCIPAL AQUI ==
+// =========================================================================
+
+// Rotas de POSTS que exigem autenticação.
+// Declaradas ANTES das rotas públicas de posts para terem prioridade.
+Route::middleware('auth:sanctum')->controller(PostController::class)->prefix('posts')->group(function () {
+    Route::get('/my', 'userPosts');
+    Route::get('/favorites', 'favorites');
+});
+
+// Rotas públicas de POSTS.
+// A rota /{post} já não causa conflito.
 Route::get('/posts', [PostController::class, 'index']);
 Route::get('/posts/{post}', [PostController::class, 'show']);
 
 
 /*
 |--------------------------------------------------------------------------
-| Rotas Protegidas (Exigem autenticação via Sanctum)
+| Rotas Protegidas (Restantes)
 |--------------------------------------------------------------------------
 */
 Route::middleware('auth:sanctum')->group(function () {
@@ -78,14 +91,10 @@ Route::middleware('auth:sanctum')->group(function () {
     });
     Route::apiResource('users', UserController::class)->except(['store']);
 
-    // Posts
-    Route::controller(PostController::class)->prefix('posts')->group(function () {
-        Route::get('/my', 'userPosts');
-        Route::get('/favorites', 'favorites');
-    });
+    // Posts (Restantes - store, update, destroy)
     Route::apiResource('posts', PostController::class)->except(['index', 'show']);
 
-    // CRUDs de Categorias, Tópicos, etc. (exceto index/show)
+    // CRUDs de Categorias, Tópicos, etc. (protegidos)
     Route::apiResource('post-categories', PostCategoryController::class)->except(['index', 'show']);
     Route::apiResource('post-topics', PostTopicController::class)->except(['index', 'show']);
     Route::apiResource('recipe-categories', RecipeCategoryController::class)->except(['index', 'show']);
@@ -114,6 +123,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('newsletter', NewsletterCustomerController::class)->except(['store']);
 });
 
+// Rotas públicas restantes para Comentários e Avaliações
 Route::get('/{type}/{commentable}/comments', [CommentController::class, 'index'])->whereNumber('commentable');
 Route::get('/comments/{comment}', [CommentController::class, 'show']);
 
