@@ -101,6 +101,23 @@ A API segue os padrões RESTful. Abaixo uma visão geral dos principais grupos d
 
 Para uma lista completa de todos os endpoints, consulte o arquivo `routes/api.php`.
 
+## Estratégias de Teste
+
+Os testes automatizados são um pilar fundamental deste projeto para garantir a qualidade e a estabilidade do código. A estratégia de teste adotada foca principalmente em **Testes de Funcionalidade (Feature Tests)**, que validam o comportamento da API de ponta a ponta, simulando requisições HTTP reais e verificando as respostas.
+
+As principais características da nossa suíte de testes são:
+
+*   **Foco em Feature Tests:** A maioria dos testes está localizada em `tests/Feature`. Eles são responsáveis por testar os endpoints da API, cobrindo cenários de sucesso, erros de validação e casos de autorização.
+
+*   **Padrão "Arrange, Act, Assert" (AAA):** Cada teste é estruturado de forma clara, seguindo o padrão AAA:
+    *   **Arrange (Organizar):** Onde o estado inicial do teste é preparado (ex: criação de usuários ou dados no banco).
+    *   **Act (Agir):** Onde a ação principal é executada (ex: uma requisição `POST` para um endpoint).
+    *   **Assert (Verificar):** Onde o resultado da ação é verificado (ex: `assertStatus(201)`, `assertJsonStructure([...])`).
+
+*   **Isolamento de Testes com Banco de Dados:** Utilizamos o trait `RefreshDatabase` do Laravel, que garante que o banco de dados seja resetado para um estado limpo antes da execução de cada teste. Isso evita que os testes interfiram uns com os outros.
+
+*   **Nomenclatura Descritiva:** Os métodos de teste possuem nomes claros e descritivos em português, indicando exatamente o que está sendo testado e qual o resultado esperado (ex: `Validar_LoginComCredenciaisCorretas_Sucesso`).
+
 ## Executando os Testes
 
 Para executar a suíte de testes automatizados, utilize o seguinte comando:
