@@ -11,7 +11,7 @@ class ListPost
 {
     public function list(array $filters = [], int $perPage = 10)
     {
-        $query = Post::with(['category', 'topics', 'image'])
+        $query = Post::with(['user', 'category', 'topics', 'image'])
             ->withAvg('ratings', 'rating')
             ->withCount('ratings');
 
