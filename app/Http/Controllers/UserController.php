@@ -73,13 +73,13 @@ class UserController extends BaseController
 
     public function toggleFavoritePost(ToggleFavoriteRequest $request): JsonResponse
     {
-        $request->user()->favoritePosts()->toggle($request->validated('post_id'));
-        return response()->json(['message' => 'Favorite status toggled successfully.']);
+        $result = $request->user()->favoritePosts()->toggle($request->validated('post_id'));
+        return response()->json($result);
     }
 
     public function toggleFavoriteRecipe(ToggleFavoriteRequest $request): JsonResponse
     {
-        $request->user()->favoriteRecipes()->toggle($request->validated('recipe_id'));
-        return response()->json(['message' => 'Favorite status toggled successfully.']);
+        $result = $request->user()->favoriteRecipes()->toggle($request->validated('recipe_id'));
+        return response()->json($result);
     }
 }
