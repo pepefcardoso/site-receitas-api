@@ -8,7 +8,7 @@
         "php": "^8.2",
         "laravel/framework": "^11.44.1",
         "laravel/sanctum": "^4.0",
-        "laravel/socialite": "^5.19",
+        "laravel/socialite": "^5.21",
         "laravel/tinker": "^2.9",
         "league/flysystem-aws-s3-v3": "^3.29"
     },

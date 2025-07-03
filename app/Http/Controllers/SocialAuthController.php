@@ -3,51 +3,59 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
-use Illuminate\Http\JsonResponse;
-use Laravel\Socialite\Facades\Socialite;
 use Exception;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Log;
+use Laravel\Socialite\Facades\Socialite;
 
 class SocialAuthController extends BaseController
 {
-    public function redirectToProvider($provider): JsonResponse
+    public function redirectToProvider(string $provider): JsonResponse
     {
         if (!in_array($provider, ['google', 'github', 'facebook'])) {
             return response()->json(['error' => 'Provedor não suportado.'], 422);
         }
 
-        $url = Socialite::driver($provider)->stateless()->redirect()->getTargetUrl();
-        return response()->json(['url' => $url]);
+        try {
+            $url = Socialite::driver($provider)->stateless()->redirect()->getTargetUrl();
+            return response()->json(['url' => $url]);
+        } catch (Exception $e) {
+            Log::error("Falha ao redirecionar para o provedor $provider: " . $e->getMessage());
+            return response()->json(['error' => 'Falha ao iniciar a autenticação.'], 500);
+        }
     }
 
-    public function handleProviderCallback($provider): JsonResponse
+    public function handleProviderCallback(string $provider): RedirectResponse
     {
+        $frontendUrl = config('app.frontend_url', 'http://localhost:3000');
+
         try {
             $socialUser = Socialite::driver($provider)->stateless()->user();
             $email = $socialUser->getEmail();
 
-            $user = User::firstOrNew(['email' => $email]);
-
-            if ($user->exists) {
-                if (empty($user->provider)) {
-                    $user->provider = $provider;
-                    $user->provider_id = $socialUser->getId();
-                    $user->save();
-                }
-            } else {
-                $user->name = $socialUser->getName() ?? $socialUser->getNickname();
-                $user->provider = $provider;
-                $user->provider_id = $socialUser->getId();
-                $user->email_verified_at = now();
-                $user->password = null;
-                $user->save();
+            if (empty($email)) {
+                return redirect()->away($frontendUrl . '/login?error=no-email');
             }
 
-            $token = $user->createToken('auth_token')->plainTextToken;
+            $user = User::firstOrNew(['email' => $email]);
 
-            return response()->json(['token' => $token]);
+            if (!$user->exists) {
+                $user->name = $socialUser->getName() ?? $socialUser->getNickname() ?? 'Usuário';
+                $user->email_verified_at = now();
+                $user->password = null;
+            }
+
+            $user->provider = $provider;
+            $user->provider_id = $socialUser->getId();
+            $user->save();
+
+            $token = $user->createToken('social_auth_token')->plainTextToken;
+
+            return redirect()->away($frontendUrl . '/auth/callback?token=' . $token);
         } catch (Exception $e) {
-            report($e);
-            return response()->json(['error' => 'Falha na autenticação com o provedor.'], 500);
+            Log::error("Falha no callback do provedor $provider: " . $e->getMessage());
+            return redirect()->away($frontendUrl . '/auth/login?error=auth-failed');
         }
     }
 }
