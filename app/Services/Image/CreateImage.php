@@ -18,20 +18,13 @@ class CreateImage
             throw new Exception('Invalid file upload');
         }
 
-        $allowedMimes = ['image/jpeg', 'image/png', 'image/webp'];
-        if (!in_array($file->getMimeType(), $allowedMimes)) {
-            throw new Exception('Unsupported file type');
-        }
-
-        $name = hash_file('sha256', $file->path()) . '.' . $file->extension();
+        $name = $file->hashName();
         $path = null;
 
+        $disk = Storage::disk(config('filesystems.default'));
+
         try {
-            $path = Storage::disk('s3')->putFileAs(
-                Image::$S3Directory,
-                $file,
-                $name
-            );
+            $path = $disk->putFile(Image::$S3Directory, $file);
 
             if (!$path) {
                 throw new Exception('Failed to store file');
@@ -44,12 +37,12 @@ class CreateImage
                     'user_id' => Auth::id(),
                 ]);
             });
-
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             if ($path) {
-                Storage::disk('s3')->delete($path);
+                $disk->delete($path);
             }
-            throw $e;
+
+            throw new Exception('Falha ao processar a imagem: ' . $e->getMessage());
         }
     }
 }

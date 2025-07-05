@@ -2,12 +2,12 @@
 
 namespace App\Models;
 
-use App\Services\Image\GetTemporaryUrl;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\Casts\Attribute;
+use Illuminate\Support\Facades\Storage; // Importante: adicione este "use"
 
 class Image extends Model
 {
@@ -40,10 +40,22 @@ class Image extends Model
         return $this->morphTo();
     }
 
-    public function url(): Attribute
+    protected function url(): Attribute
     {
         return Attribute::make(
-            fn() => (new GetTemporaryUrl())->temporaryUrl($this)
+            get: function () {
+                $diskName = config('filesystems.default');
+
+                if ($diskName !== 's3') {
+                    return Storage::disk($diskName)->url($this->path);
+                }
+
+                if (config('filesystems.disks.s3.bucket')) {
+                    return Storage::disk('s3')->temporaryUrl($this->path, now()->addMinutes(15));
+                }
+
+                return null;
+            }
         );
     }
 }

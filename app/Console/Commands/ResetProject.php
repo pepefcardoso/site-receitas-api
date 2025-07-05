@@ -36,6 +36,13 @@ class ResetProject extends Command
         $this->info('Migrating and resetting tables...');
         $this->call('migrate:fresh', ['--seed' => true]);
 
-        $this->info('All caches have been cleared and rebuilt!');
+        $this->info('Optimizing the application...');
+        $this->call('optimize');
+
+        $this->call('storage:link');
+        $this->info('Storage link created successfully.');
+
+        $this->call('key:generate');
+        $this->info('Application key generated successfully.');
     }
 }
