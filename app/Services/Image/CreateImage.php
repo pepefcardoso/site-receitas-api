@@ -12,11 +12,15 @@ use Illuminate\Support\Facades\Storage;
 
 class CreateImage
 {
+    private const ALLOWED_EXTENSIONS = ['jpg', 'jpeg', 'png', 'webp', 'gif', 'svg'];
+
     public function create(Model $model, UploadedFile $file): Image
     {
         if (!$file->isValid()) {
             throw new Exception('Invalid file upload');
         }
+
+        $this->validateFileExtension($file);
 
         $name = $file->hashName();
         $path = null;
@@ -43,6 +47,17 @@ class CreateImage
             }
 
             throw new Exception('Falha ao processar a imagem: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Valida se a extensão do arquivo está na lista de permitidas.
+     */
+    private function validateFileExtension(UploadedFile $file): void
+    {
+        $extension = strtolower($file->getClientOriginalExtension());
+        if (!in_array($extension, self::ALLOWED_EXTENSIONS)) {
+            throw new Exception("Unsupported file extension: {$extension}");
         }
     }
 }

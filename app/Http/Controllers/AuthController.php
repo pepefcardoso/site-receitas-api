@@ -34,11 +34,11 @@ class AuthController extends BaseController
 
     public function sendResetLink(ForgotPasswordRequest $request): JsonResponse
     {
-        $status = Password::sendResetLink($request->validated());
+        Password::sendResetLink($request->validated());
 
-        return $status === Password::RESET_LINK_SENT
-            ? response()->json(['message' => __($status)])
-            : response()->json(['message' => __($status)], 400);
+        return response()->json([
+            'message' => 'Se o e-mail fornecido estiver em nossa base de dados, um link para redefinição de senha será enviado.'
+        ]);
     }
 
     public function resetPassword(ResetPasswordRequest $request): JsonResponse
