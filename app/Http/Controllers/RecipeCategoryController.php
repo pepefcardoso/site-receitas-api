@@ -8,6 +8,7 @@ use App\Http\Resources\RecipeCategory\RecipeCategoryResource;
 use App\Models\RecipeCategory;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Validation\ValidationException;
 
 class RecipeCategoryController extends BaseController
@@ -28,6 +29,9 @@ class RecipeCategoryController extends BaseController
     public function store(StoreRequest $request): JsonResponse
     {
         $category = RecipeCategory::create($request->validated());
+
+        Cache::forget('recipe_categories_list');
+
         return (new RecipeCategoryResource($category))
             ->response()
             ->setStatusCode(201);
@@ -41,6 +45,9 @@ class RecipeCategoryController extends BaseController
     public function update(UpdateRequest $request, RecipeCategory $recipeCategory): RecipeCategoryResource
     {
         $recipeCategory->update($request->validated());
+
+        Cache::forget('recipe_categories_list');
+
         return new RecipeCategoryResource($recipeCategory);
     }
 
@@ -55,6 +62,9 @@ class RecipeCategoryController extends BaseController
         }
 
         $recipeCategory->delete();
+
+        Cache::forget('recipe_categories_list');
+
         return response()->json(null, 204);
     }
 }

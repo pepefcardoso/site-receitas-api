@@ -63,11 +63,10 @@ class UserController extends BaseController
         return new UserResource($request->user()->load('image'));
     }
 
-    public function updateRole(UpdateUserRoleRequest $request): UserResource
+    public function updateRole(UpdateUserRoleRequest $request, User $user): UserResource
     {
-        $validated = $request->validated();
-        $user = User::findOrFail($validated['user_id']);
-        $user->update(['role' => $validated['role']]);
+        $user->update(['role' => $request->validated('role')]);
+
         return new UserResource($user);
     }
 

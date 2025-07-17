@@ -6,16 +6,16 @@ use App\Models\Recipe;
 use App\Services\Image\CreateImage;
 use App\Services\Image\UpdateImage;
 use Exception;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 
 class UpdateRecipe
 {
     public function __construct(
         protected CreateImage $createImageService,
         protected UpdateImage $updateImageService
-    )
-    {
+    ) {
     }
 
     public function update(int $id, array $data): Recipe
@@ -34,6 +34,8 @@ class UpdateRecipe
                 $recipe->image ? $this->updateImageService->update($recipe->image->id, $newImageFile)
                     : $this->createImageService->create($recipe, $newImageFile);
             }
+
+            Cache::forget("recipe_model.{$id}");
 
             DB::commit();
 

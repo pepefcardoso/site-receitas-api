@@ -5,6 +5,7 @@ namespace App\Services\Post;
 use App\Models\Post;
 use App\Services\Image\DeleteImage;
 use Exception;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 
 class DeletePost
@@ -32,6 +33,9 @@ class DeletePost
             }
 
             $post->delete();
+
+            // Invalida o cache para este post específico
+            Cache::forget("post_model.{$postId}");
 
             DB::commit();
 

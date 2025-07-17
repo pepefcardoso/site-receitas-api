@@ -5,6 +5,7 @@ namespace App\Services\Recipe;
 use App\Models\Recipe;
 use App\Services\Image\DeleteImage;
 use Exception;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 
 class DeleteRecipe
@@ -34,6 +35,8 @@ class DeleteRecipe
             }
 
             $recipe->delete();
+
+            Cache::forget("recipe_model.{$recipeId}");
 
             DB::commit();
 

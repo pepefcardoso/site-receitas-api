@@ -5,6 +5,7 @@ namespace App\Services\Post;
 use App\Models\Post;
 use App\Services\Image\CreateImage;
 use App\Services\Image\UpdateImage;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 
 class UpdatePost
@@ -41,6 +42,8 @@ class UpdatePost
                     $this->createImageService->create($post, $newImageFile);
                 }
             }
+
+            Cache::forget("post_model.{$id}");
 
             DB::commit();
 

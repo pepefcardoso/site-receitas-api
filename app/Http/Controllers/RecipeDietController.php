@@ -8,6 +8,7 @@ use App\Http\Resources\RecipeDiet\RecipeDietResource;
 use App\Models\RecipeDiet;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Validation\ValidationException;
 
 class RecipeDietController extends BaseController
@@ -28,6 +29,9 @@ class RecipeDietController extends BaseController
     public function store(StoreRequest $request): JsonResponse
     {
         $diet = RecipeDiet::create($request->validated());
+
+        Cache::forget('recipe_diets_list');
+
         return (new RecipeDietResource($diet))
             ->response()
             ->setStatusCode(201);
@@ -41,6 +45,9 @@ class RecipeDietController extends BaseController
     public function update(UpdateRequest $request, RecipeDiet $recipeDiet): RecipeDietResource
     {
         $recipeDiet->update($request->validated());
+
+        Cache::forget('recipe_diets_list');
+
         return new RecipeDietResource($recipeDiet);
     }
 
@@ -55,6 +62,9 @@ class RecipeDietController extends BaseController
         }
 
         $recipeDiet->delete();
+
+        Cache::forget('recipe_diets_list');
+
         return response()->json(null, 204);
     }
 }

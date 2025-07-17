@@ -8,6 +8,7 @@ use App\Http\Resources\RecipeUnit\RecipeUnitResource;
 use App\Models\RecipeUnit;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Validation\ValidationException;
 
 class RecipeUnitController extends BaseController
@@ -28,6 +29,9 @@ class RecipeUnitController extends BaseController
     public function store(StoreRequest $request): JsonResponse
     {
         $unit = RecipeUnit::create($request->validated());
+
+        Cache::forget('recipe_units_list');
+
         return (new RecipeUnitResource($unit))
             ->response()
             ->setStatusCode(201);
@@ -41,6 +45,9 @@ class RecipeUnitController extends BaseController
     public function update(UpdateRequest $request, RecipeUnit $recipeUnit): RecipeUnitResource
     {
         $recipeUnit->update($request->validated());
+
+        Cache::forget('recipe_units_list');
+
         return new RecipeUnitResource($recipeUnit);
     }
 
@@ -55,6 +62,9 @@ class RecipeUnitController extends BaseController
         }
 
         $recipeUnit->delete();
+
+        Cache::forget('recipe_units_list');
+
         return response()->json(null, 204);
     }
 }

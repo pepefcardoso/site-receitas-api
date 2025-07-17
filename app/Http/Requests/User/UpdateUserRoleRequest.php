@@ -29,7 +29,6 @@ class UpdateUserRoleRequest extends FormRequest
         $roleValues = array_map(fn($case) => $case->value, RolesEnum::cases());
 
         return [
-            'user_id' => 'required|exists:users,id',
             'role' => ['required', Rule::in($roleValues)],
         ];
     }
