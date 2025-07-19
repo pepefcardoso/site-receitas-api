@@ -5,7 +5,6 @@ FROM php:8.2-fpm
 WORKDIR /var/www
 
 # Instala dependências do sistema e extensões PHP necessárias
-# ADICIONAMOS libpq-dev AQUI
 RUN apt-get update && apt-get install -y \
     git \
     curl \
@@ -14,10 +13,14 @@ RUN apt-get update && apt-get install -y \
     libxml2-dev \
     zip \
     unzip \
-    libpq-dev
+    libpq-dev \
+    librdkafka-dev
 
-# Instala as extensões PHP para o Laravel e PostgreSQL
+# Instala as extensões PHP
 RUN docker-php-ext-install pdo_pgsql mbstring exif pcntl bcmath gd
+
+# Instala a extensão Redis via PECL
+RUN pecl install redis && docker-php-ext-enable redis
 
 # Instala o Composer (gerenciador de dependências do PHP)
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer

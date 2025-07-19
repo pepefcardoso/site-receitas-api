@@ -60,6 +60,16 @@ services:
         networks:
             - site-receitas-network
 
+    # Serviço do Redis
+    redis:
+        image: redis:alpine
+        container_name: site-receitas-redis
+        restart: unless-stopped
+        ports:
+            - "6379:6379"
+        networks:
+            - site-receitas-network
+
 # Rede para os containers se comunicarem
 networks:
     site-receitas-network:
