@@ -23,7 +23,7 @@ use Illuminate\Support\Facades\Route;
 */
 
 // Autenticação
-Route::controller(AuthController::class)->prefix('auth')->group(function () {
+Route::controller(AuthController::class)->prefix('auth')->middleware('throttle:auth')->group(function () {
     Route::post('/login', 'login');
     Route::post('/password/forgot', 'sendResetLink');
     Route::post('/password/reset', 'resetPassword');
@@ -80,7 +80,7 @@ Route::get('/recipes/{recipe}', [RecipeController::class, 'show']);
 | Rotas Protegidas (Restantes)
 |--------------------------------------------------------------------------
 */
-Route::middleware('auth:sanctum')->group(function () {
+Route::middleware(['auth:sanctum', 'throttle:api'])->group(function () {
 
     // Logout
     Route::post('/auth/logout', [AuthController::class, 'logout']);
