@@ -8,10 +8,11 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
+use Laravel\Scout\Searchable;
 
 class Post extends Model
 {
-    use HasFactory;
+    use HasFactory, Searchable;
 
     public const VALID_SORT_COLUMNS = ['title', 'created_at'];
 

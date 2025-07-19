@@ -1,0 +1,73 @@
+version: "3.8"
+
+services:
+    # Serviço da Aplicação Laravel
+    app:
+        build:
+            context: .
+            dockerfile: Dockerfile
+        container_name: site-receitas-app
+        restart: unless-stopped
+        working_dir: /var/www
+        volumes:
+            - ./:/var/www
+        networks:
+            - site-receitas-network
+        depends_on:
+            - db
+            - meilisearch
+
+    # Servidor Web Nginx
+    nginx:
+        image: nginx:alpine
+        container_name: site-receitas-nginx
+        restart: unless-stopped
+        ports:
+            - "8000:80"
+        volumes:
+            - ./:/var/www
+            - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf
+        networks:
+            - site-receitas-network
+        depends_on:
+            - app
+
+    # Serviço do Banco de Dados PostgreSQL
+    db:
+        image: postgres:15-alpine
+        container_name: site-receitas-db
+        restart: unless-stopped
+        environment:
+            POSTGRES_DB: ${DB_DATABASE:-laravel}
+            POSTGRES_USER: ${DB_USERNAME:-user}
+            POSTGRES_PASSWORD: ${DB_PASSWORD:-password}
+        ports:
+            - "5432:5432"
+        volumes:
+            - pgdata:/var/lib/postgresql/data
+        networks:
+            - site-receitas-network
+
+    # Serviço do Meilisearch
+    meilisearch:
+        image: getmeili/meilisearch:latest
+        container_name: site-receitas-meili
+        restart: unless-stopped
+        ports:
+            - "7700:7700"
+        volumes:
+            - meilidata:/data.ms
+        networks:
+            - site-receitas-network
+
+# Rede para os containers se comunicarem
+networks:
+    site-receitas-network:
+        driver: bridge
+
+# Volumes para persistência de dados
+volumes:
+    pgdata:
+        driver: local
+    meilidata:
+        driver: local

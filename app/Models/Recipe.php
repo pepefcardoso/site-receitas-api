@@ -11,10 +11,11 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Validation\Rule;
+use Laravel\Scout\Searchable;
 
 class Recipe extends Model
 {
-    use HasFactory;
+    use HasFactory, Searchable;
 
     public const VALID_SORT_COLUMNS = ['title', 'created_at', 'time', 'difficulty'];
 
