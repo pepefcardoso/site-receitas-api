@@ -29,6 +29,54 @@ class Recipe extends Model
         'user_id',
     ];
 
+    /**
+     * Get the indexable data array for the model.
+     *
+     * @return array
+     */
+    public function toSearchableArray(): array
+    {
+        // Carrega os relacionamentos para evitar múltiplas queries
+        $this->load('category', 'diets', 'user');
+
+        return [
+            // --- Dados Pesquisáveis ---
+            'id'          => (int) $this->id,
+            'title'       => $this->title,
+            'description' => $this->description,
+            'category'    => $this->category->name ?? null,
+            'author'      => $this->user->name ?? null,
+
+            // --- Dados para Filtragem e Ordenação ---
+            'category_id'  => $this->category_id,
+            'user_id'      => $this->user_id,
+            'diets'        => $this->diets->pluck('id')->all(), // Envie os IDs para filtrar
+            'time'         => (int) $this->time,
+            'difficulty'   => $this->difficulty,
+            'created_at'   => $this->created_at->timestamp, // Envie como timestamp para ordenação
+        ];
+    }
+
+    /**
+     * Retorna os atributos que podem ser usados para filtrar no Meilisearch.
+     *
+     * @return array
+     */
+    public function filterableAttributes(): array
+    {
+        return ['category_id', 'user_id', 'diets'];
+    }
+
+    /**
+     * Retorna os atributos que podem ser usados para ordenar no Meilisearch.
+     *
+     * @return array
+     */
+    public function sortableAttributes(): array
+    {
+        return ['created_at', 'title', 'time', 'difficulty'];
+    }
+
     public function scopeFilter($query, array $filters)
     {
         if (!empty($filters['title'])) {

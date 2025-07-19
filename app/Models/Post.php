@@ -24,6 +24,42 @@ class Post extends Model
         'user_id',
     ];
 
+    /**
+     * Get the indexable data array for the model.
+     *
+     * @return array
+     */
+    public function toSearchableArray(): array
+    {
+        $this->load('category', 'topics', 'user');
+
+        return [
+            // --- Dados Pesquisáveis ---
+            'id'      => (int) $this->id,
+            'title'   => $this->title,
+            'summary' => $this->summary,
+            'content' => $this->content,
+            'author'  => $this->user->name ?? null,
+            'topics'  => $this->topics->pluck('name')->all(),
+
+            // --- Dados para Filtragem e Ordenação ---
+            'category_id' => $this->category_id,
+            'user_id'     => $this->user_id,
+            'created_at'  => $this->created_at->timestamp,
+        ];
+    }
+
+
+    public function filterableAttributes(): array
+{
+    return ['category_id', 'user_id'];
+}
+
+public function sortableAttributes(): array
+{
+    return ['created_at', 'title'];
+}
+
     public function scopeFilter($query, array $filters)
     {
         if (!empty($filters['search'])) {
