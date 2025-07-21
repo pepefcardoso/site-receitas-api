@@ -19,26 +19,25 @@ class DeleteUser
         $this->deleteImageService = $deleteImageService;
     }
 
-    public function delete(int $userId): User|string
+    public function delete(User $user): User|string
     {
         try {
-            DB::beginTransaction();
+            $userEmail = $user->email;
+            $userName = $user->name;
 
-            $user = User::findOrFail($userId);
-            if ($user->image) {
-                $this->deleteImageService->delete($user->image);
-            }
+            DB::transaction(function () use ($user) {
+                if ($user->image) {
+                    $this->deleteImageService->delete($user->image);
+                }
+                $user->delete();
+            });
 
-            $user->delete();
-
-            Notification::route('mail', $user->email)
-                ->notify(new DeletedUser($user));
-
-            DB::commit();
+            $deletedUserInfo = (new User)->forceFill(['name' => $userName, 'email' => $userEmail]);
+            Notification::route('mail', $userEmail)
+                ->notify(new DeletedUser($deletedUserInfo));
 
             return $user;
         } catch (Exception $e) {
-            DB::rollback();
             throw $e;
         }
     }
