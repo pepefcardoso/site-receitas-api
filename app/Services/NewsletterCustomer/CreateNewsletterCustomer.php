@@ -4,28 +4,24 @@ namespace App\Services\NewsletterCustomer;
 
 use App\Models\NewsletterCustomer;
 use App\Notifications\CreateNewsletterCustomerNotification;
-use Exception;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Notification;
 
 class CreateNewsletterCustomer
 {
-    public function create(array $data)
+    /**
+     * Inscreve um novo cliente na newsletter e envia uma notificação de boas-vindas.
+     * A transação foi removida por envolver apenas uma operação de escrita.
+     *
+     * @param array $data Os dados validados para a inscrição.
+     * @return NewsletterCustomer
+     */
+    public function create(array $data): NewsletterCustomer
     {
-        try {
-            DB::beginTransaction();
+        $newsletterCustomer = NewsletterCustomer::create($data);
 
-            $newsletterCustomer = NewsletterCustomer::create($data);
+        Notification::route('mail', $newsletterCustomer->email)
+            ->notify(new CreateNewsletterCustomerNotification($newsletterCustomer));
 
-            Notification::route('mail', $newsletterCustomer->email)
-                ->notify(new CreateNewsletterCustomerNotification($newsletterCustomer));
-
-            DB::commit();
-
-            return $newsletterCustomer;
-        } catch (Exception $e) {
-            DB::rollBack();
-            throw $e;
-        }
+        return $newsletterCustomer;
     }
 }

@@ -7,13 +7,20 @@ use Illuminate\Support\Facades\Auth;
 use Exception;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\UploadedFile;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 
 class CreateImage
 {
     private const ALLOWED_EXTENSIONS = ['jpg', 'jpeg', 'png', 'webp', 'gif', 'svg'];
 
+    /**
+     * Valida, armazena um arquivo de imagem e cria o registro no banco de dados.
+     *
+     * @param Model $model O modelo ao qual a imagem pertence (ex: User, Post).
+     * @param UploadedFile $file O arquivo de imagem enviado.
+     * @return Image
+     * @throws Exception
+     */
     public function create(Model $model, UploadedFile $file): Image
     {
         if (!$file->isValid()) {
@@ -22,10 +29,8 @@ class CreateImage
 
         $this->validateFileExtension($file);
 
-        $name = $file->hashName();
-        $path = null;
-
         $disk = Storage::disk(config('filesystems.default'));
+        $path = null;
 
         try {
             $path = $disk->putFile(Image::$S3Directory, $file);
@@ -34,14 +39,12 @@ class CreateImage
                 throw new Exception('Failed to store file');
             }
 
-            return DB::transaction(function () use ($model, $path, $name) {
-                return $model->image()->create([
-                    'path' => $path,
-                    'name' => $name,
-                    'user_id' => Auth::id(),
-                ]);
-            });
-        } catch (\Exception $e) {
+            return $model->image()->create([
+                'path' => $path,
+                'name' => $file->hashName(),
+                'user_id' => Auth::id(),
+            ]);
+        } catch (Exception $e) {
             if ($path) {
                 $disk->delete($path);
             }

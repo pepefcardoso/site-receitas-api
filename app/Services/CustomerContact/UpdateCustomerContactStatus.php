@@ -3,24 +3,22 @@
 namespace App\Services\CustomerContact;
 
 use App\Models\CustomerContact;
-use Illuminate\Support\Facades\DB;
 
 class UpdateCustomerContactStatus
 {
+    /**
+     * Atualiza o status de um contato de cliente.
+     * A transação foi removida por conter apenas uma operação de escrita.
+     *
+     * @param CustomerContact $contact O contato a ser atualizado.
+     * @param int $newStatus O novo status.
+     * @return CustomerContact
+     */
     public function update(CustomerContact $contact, int $newStatus): CustomerContact
     {
+        $contact->status = $newStatus;
+        $contact->save();
 
-        try {
-            DB::beginTransaction();
-
-            $contact->status = $newStatus;
-            $contact->save();
-
-            DB::commit();
-            return $contact;
-        } catch (\Exception $e) {
-            DB::rollBack();
-            throw $e;
-        }
+        return $contact;
     }
 }

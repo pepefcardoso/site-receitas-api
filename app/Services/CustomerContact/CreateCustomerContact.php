@@ -3,29 +3,25 @@
 namespace App\Services\CustomerContact;
 
 use App\Models\CustomerContact;
-use Exception;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Notification;
 use App\Notifications\CustomerContactNotification;
+use Illuminate\Support\Facades\Notification;
 
 class CreateCustomerContact
 {
-    public function create(array $data)
+    /**
+     * Cria um novo registro de contato de cliente e envia uma notificação.
+     * A transação foi removida por conter apenas uma operação de escrita.
+     *
+     * @param array $data Os dados validados para a criação do contato.
+     * @return CustomerContact
+     */
+    public function create(array $data): CustomerContact
     {
-        try {
-            DB::beginTransaction();
+        $customerContact = CustomerContact::create($data);
 
-            $customerContact = CustomerContact::create($data);
+        Notification::route('mail', $customerContact->email)
+            ->notify(new CustomerContactNotification($customerContact));
 
-            Notification::route('mail', $customerContact->email)
-                ->notify(new CustomerContactNotification($customerContact));
-
-            DB::commit();
-
-            return $customerContact;
-        } catch (Exception $e) {
-            DB::rollBack();
-            throw $e;
-        }
+        return $customerContact;
     }
 }
