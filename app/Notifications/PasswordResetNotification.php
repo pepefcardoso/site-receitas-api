@@ -11,7 +11,7 @@ class PasswordResetNotification extends Notification implements ShouldQueue
 {
     use Queueable;
 
-    public $token;  // Add token property
+    public $token;
     public $userName;
 
     public function __construct($userName, $token)
@@ -25,19 +25,21 @@ class PasswordResetNotification extends Notification implements ShouldQueue
         return ['mail'];
     }
 
-    public function toMail($notifiable)
+    /**
+     * Get the mail representation of the notification.
+     */
+    public function toMail($notifiable): MailMessage
     {
         $resetUrl = url(config('app.frontend_url') . '/reset-password?' . http_build_query([
-                'token' => $this->token,
-                'email' => $notifiable->email,
-            ]));
+            'token' => $this->token,
+            'email' => $notifiable->email,
+        ]));
 
         return (new MailMessage)
             ->subject('Redefinição de Senha - LeveSabor')
-            ->greeting('Olá ' . $this->userName . '!')
-            ->line('Clique no botão abaixo para redefinir sua senha:')
-            ->action('Redefinir Senha', $resetUrl)
-            ->line('Este link expirará em 60 minutos.')
-            ->salutation('Atenciosamente, Equipe LeveSabor');
+            ->view('notifications.emails.password_reset', [
+                'userName' => $this->userName,
+                'resetUrl' => $resetUrl,
+            ]);
     }
 }

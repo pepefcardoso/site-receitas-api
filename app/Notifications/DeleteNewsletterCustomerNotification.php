@@ -24,15 +24,16 @@ class DeleteNewsletterCustomerNotification extends Notification implements Shoul
         return ['mail'];
     }
 
-    public function toMail($notifiable)
+    /**
+     * Get the mail representation of the notification.
+     */
+    public function toMail($notifiable): MailMessage
     {
         return (new MailMessage)
             ->subject('Você foi removido da nossa newsletter')
-            ->greeting('Olá,')
-            ->line('Lamentamos informar que o seu e-mail (' . $this->customer->email . ') foi removido da nossa lista de newsletter.')
-            ->line('Se isso foi um erro ou se deseja se reinscrever, por favor, visite nosso site e inscreva-se novamente.')
-            ->action('Visitar o Site', url('/'))
-            ->line('Agradecemos por ter feito parte da nossa comunidade.')
-            ->salutation('Atenciosamente, ' . config('app.name'));
+            ->view('notifications.emails.newsletter_unsubscribe', [
+                'customer' => $this->customer,
+                'siteUrl' => url('/'),
+            ]);
     }
 }

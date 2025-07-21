@@ -24,16 +24,18 @@ class CreateNewsletterCustomerNotification extends Notification implements Shoul
         return ['mail'];
     }
 
-    public function toMail($notifiable)
+    /**
+     * Get the mail representation of the notification.
+     */
+    public function toMail($notifiable): MailMessage
     {
+        $unsubscribeUrl = url('/api/newsletter/' . $this->customer->id);
+
         return (new MailMessage)
             ->subject('Bem-vindo à nossa newsletter!')
-            ->greeting('Olá,')
-            ->line('Obrigado por se inscrever na nossa newsletter!')
-            ->line('A partir de agora, você receberá as últimas novidades, promoções e atualizações diretamente no seu e-mail (' . $this->customer->email . ').')
-            ->line('Se você não se inscreveu ou deseja cancelar a assinatura, clique no link abaixo:')
-            ->action('Cancelar Inscrição', url('/api/newsletter/delete' . $this->customer->id))
-            ->line('Estamos felizes em tê-lo conosco!')
-            ->salutation('Atenciosamente, ' . config('app.name'));
+            ->view('notifications.emails.newsletter_welcome', [
+                'customer' => $this->customer,
+                'unsubscribeUrl' => $unsubscribeUrl,
+            ]);
     }
 }
