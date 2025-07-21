@@ -43,21 +43,20 @@ class PostController extends BaseController
 
     public function show(Post $post, ShowPost $service): PostResource
     {
-        $detailedPost = $service->show($post->id);
+        $detailedPost = $service->show($post);
         return new PostResource($detailedPost);
     }
 
     public function update(UpdatePostRequest $request, Post $post, UpdatePost $service): PostResource
     {
-        $updatedPost = $service->update($post->id, $request->validated());
-        $updatedPost->load(['user.image', 'category', 'topics', 'image']);
+        $updatedPost = $service->update($post, $request->validated());
         return new PostResource($updatedPost);
     }
 
     public function destroy(Post $post, DeletePost $service)
     {
         $this->authorize("delete", $post);
-        $service->delete($post->id);
+        $service->delete($post);
         return response()->json(null, 204);
     }
 

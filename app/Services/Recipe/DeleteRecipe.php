@@ -18,25 +18,22 @@ class DeleteRecipe
         $this->deleteImageService = $deleteImageService;
     }
 
-    public function delete(int $recipeId): Recipe|string
+    public function delete(Recipe $recipe): Recipe|string
     {
         try {
             DB::beginTransaction();
-
-            $recipe = Recipe::findOrFail($recipeId);
 
             $recipe->steps()->delete();
             $recipe->ingredients()->delete();
             $recipe->diets()->detach();
 
             if ($recipe->image) {
-                $imageId = $recipe->image->id;
-                $this->deleteImageService->delete($imageId);
+                $this->deleteImageService->delete($recipe->image);
             }
 
             $recipe->delete();
 
-            Cache::forget("recipe_model.{$recipeId}");
+            Cache::forget("recipe_model.{$recipe->id}");
 
             DB::commit();
 

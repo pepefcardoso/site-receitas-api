@@ -47,14 +47,14 @@ class UserController extends BaseController
 
     public function update(UpdateUserRequest $request, User $user, UpdateUser $service): UserResource
     {
-        $updatedUser = $service->update($user->id, $request->validated());
-        return new UserResource($updatedUser->load('image'));
+        $updatedUser = $service->update($user, $request->validated());
+        return new UserResource($updatedUser);
     }
 
     public function destroy(User $user, DeleteUser $service): JsonResponse
     {
         $this->authorize('delete', $user);
-        $service->delete($user->id);
+        $service->delete($user);
         return response()->json(null, 204);
     }
 

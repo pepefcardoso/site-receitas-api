@@ -21,26 +21,26 @@ class UpdateUser
         $this->updateImageService = $updateImageService;
     }
 
-    public function update(int $id, array $data): User|string
+    public function update(User $user, array $data): User
     {
         try {
             DB::beginTransaction();
-
-            $user = User::findOrFail($id);
 
             $user->update($data);
 
             $newImageFile = data_get($data, 'image');
             if ($newImageFile) {
                 if ($user->image) {
-                    $this->updateImageService->update($user->image->id, $newImageFile);
+                    $this->updateImageService->update($user->image, $newImageFile);
                 } else {
                     $this->createImageService->create($user, $newImageFile);
                 }
             }
 
             DB::commit();
-            return $user;
+
+            return $user->load('image');
+
         } catch (Exception $e) {
             DB::rollback();
             throw $e;

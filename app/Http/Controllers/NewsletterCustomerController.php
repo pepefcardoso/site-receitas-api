@@ -38,7 +38,7 @@ class NewsletterCustomerController extends BaseController
     public function destroy(NewsletterCustomer $newsletter, DeleteNewsletterCustomer $service): JsonResponse
     {
         $this->authorize('delete', $newsletter);
-        $service->delete($newsletter->id);
+        $service->delete($newsletter);
         return response()->json(null, 204);
     }
 }

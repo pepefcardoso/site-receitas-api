@@ -21,31 +21,31 @@ class UpdatePost
         $this->createImageService = $createImageService;
     }
 
-    public function update(int $id, array $data)
+    public function update(Post $post, array $data)
     {
         try {
             DB::beginTransaction();
 
-            $post = Post::findOrFail($id);
-
             $post->update($data);
 
-            $topics = data_get($data, 'topics');
-            $post->topics()->sync($topics);
+            if (array_key_exists('topics', $data)) {
+                $post->topics()->sync($data['topics']);
+            }
 
             $newImageFile = data_get($data, 'image');
             if ($newImageFile) {
-                $currentImage = $post->image;
-                if ($currentImage) {
-                    $this->updateImageService->update($currentImage->id, $newImageFile);
+                if ($post->image) {
+                    $this->updateImageService->update($post->image, $newImageFile);
                 } else {
                     $this->createImageService->create($post, $newImageFile);
                 }
             }
 
-            Cache::forget("post_model.{$id}");
+            Cache::forget("post_model.{$post->id}");
 
             DB::commit();
+
+            $post->load(['user.image', 'category', 'topics', 'image']);
 
             return $post;
         } catch (\Exception $e) {

@@ -18,23 +18,20 @@ class DeletePost
         $this->deleteImageService = $deleteImageService;
     }
 
-    public function delete(int $postId): Post|string
+    public function delete(Post $post): int
     {
         try {
             DB::beginTransaction();
 
-            $post = Post::findOrFail($postId);
-
+            $postId = $post->id;
             $post->topics()->detach();
 
             if ($post->image) {
-                $imageId = $post->image->id;
-                $this->deleteImageService->delete($imageId);
+                $this->deleteImageService->delete($post->image);
             }
 
             $post->delete();
 
-            // Invalida o cache para este post específico
             Cache::forget("post_model.{$postId}");
 
             DB::commit();

@@ -26,8 +26,7 @@ class DeleteUser
 
             $user = User::findOrFail($userId);
             if ($user->image) {
-                $imageId = $user->image->id;
-                $this->deleteImageService->delete($imageId);
+                $this->deleteImageService->delete($user->image);
             }
 
             $user->delete();

@@ -13,8 +13,7 @@ class CreateRecipe
 {
     public function __construct(
         protected CreateImage $createImageService
-    )
-    {
+    ) {
     }
 
     public function create(array $data): Recipe

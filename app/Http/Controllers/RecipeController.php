@@ -45,24 +45,20 @@ class RecipeController extends BaseController
 
     public function show(Recipe $recipe, ShowRecipe $service): RecipeResource
     {
-        $detailedRecipe = $service->show($recipe->id);
+        $detailedRecipe = $service->show($recipe);
         return new RecipeResource($detailedRecipe);
     }
 
     public function update(UpdateRecipeRequest $request, Recipe $recipe, UpdateRecipe $service): RecipeResource
     {
-        $service->update($recipe->id, $request->validated());
-
-        $reloadedRecipe = (new ShowRecipe())->show($recipe->id);
-
-        return new RecipeResource($reloadedRecipe);
+        $updatedRecipe = $service->update($recipe, $request->validated());
+        return new RecipeResource($updatedRecipe);
     }
 
     public function destroy(Recipe $recipe, DeleteRecipe $service)
     {
         $this->authorize("delete", $recipe);
-        $service->delete($recipe->id);
-
+        $service->delete($recipe);
         return response()->json(null, 204);
     }
 

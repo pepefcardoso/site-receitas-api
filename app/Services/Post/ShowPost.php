@@ -7,18 +7,20 @@ use Illuminate\Support\Facades\Cache;
 
 class ShowPost
 {
-    public function show(int $id)
+    public function show(Post $post)
     {
-        $post = Cache::remember("post_model.{$id}", now()->addHour(), function () use ($id) {
-            return Post::with(['category', 'topics', 'image', 'user.image'])
-                ->withAvg('ratings', 'rating')
-                ->withCount('ratings')
-                ->findOrFail($id);
+        $detailedPost = Cache::remember("post_model.{$post->id}", now()->addHour(), function () use ($post) {
+            $post->load(['category', 'topics', 'image', 'user.image']);
+            $post->loadAvg('ratings', 'rating');
+            $post->loadCount('ratings');
+
+            return $post;
         });
 
         if ($userId = auth('sanctum')->id()) {
-            $post->loadExists(['favoritedByUsers as is_favorited' => fn($q) => $q->where('user_id', $userId)]);
+            $detailedPost->loadExists(['favoritedByUsers as is_favorited' => fn($q) => $q->where('user_id', $userId)]);
         }
-        return $post;
+
+        return $detailedPost;
     }
 }

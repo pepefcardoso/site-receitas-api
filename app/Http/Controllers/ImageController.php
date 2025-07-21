@@ -5,8 +5,6 @@ namespace App\Http\Controllers;
 use App\Models\Image;
 use App\Services\Image\CreateImage;
 use App\Services\Image\DeleteImage;
-use App\Services\Image\ListImage;
-use App\Services\Image\ShowImage;
 use App\Services\Image\UpdateImage;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
@@ -20,11 +18,11 @@ class ImageController extends BaseController
         $this->middleware('auth:sanctum')->except(['index', 'show']);
     }
 
-    public function index(Request $request, ListImage $service)
+    public function index(Request $request)
     {
-        return $this->execute(function () use ($request, $service) {
+        return $this->execute(function () use ($request) {
             $perPage = $request->input('per_page', 10);
-            $images = $service->list($perPage);
+            $images = Image::query()->paginate($perPage);
             return response()->json($images);
         });
     }
@@ -44,10 +42,9 @@ class ImageController extends BaseController
         });
     }
 
-    public function show(Image $image, ShowImage $service)
+    public function show(Image $image)
     {
-        return $this->execute(function () use ($image, $service) {
-            $image = $service->show($image->id);
+        return $this->execute(function () use ($image) {
             return response()->json($image);
         });
     }
@@ -62,7 +59,7 @@ class ImageController extends BaseController
             ]);
             $file = $data['file'];
 
-            $updatedImage = $service->update($image->id, $file);
+            $updatedImage = $service->update($image, $file);
             return response()->json($updatedImage);
         });
     }
@@ -71,7 +68,7 @@ class ImageController extends BaseController
     {
         return $this->execute(function () use ($image, $service) {
             $this->authorize('delete', $image);
-            $response = $service->delete($image->id);
+            $response = $service->delete($image);
             return response()->json($response);
         });
     }

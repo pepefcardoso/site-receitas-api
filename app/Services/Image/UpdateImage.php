@@ -13,14 +13,12 @@ class UpdateImage
 {
     private const ALLOWED_EXTENSIONS = ['jpg', 'jpeg', 'png', 'webp', 'gif', 'svg'];
 
-    public function update(int $imageId, UploadedFile $newFile): Image
+    public function update(Image $image, UploadedFile $newFile): Image
     {
         try {
             $this->validateFile($newFile);
 
-            return DB::transaction(function () use ($imageId, $newFile) {
-                $image = Image::findOrFail($imageId);
-
+            return DB::transaction(function () use ($image, $newFile) {
                 $newName = $newFile->hashName();
                 $path = $this->storeNewFile($newFile, $newName);
 
@@ -34,7 +32,7 @@ class UpdateImage
                 return $image->refresh();
             });
         } catch (Exception $e) {
-            Log::error("Image update failed (ID: {$imageId}): {$e->getMessage()}", [
+            Log::error("Image update failed (ID: {$image->id}): {$e->getMessage()}", [
                 'exception' => $e,
                 'file' => $newFile->getClientOriginalName()
             ]);

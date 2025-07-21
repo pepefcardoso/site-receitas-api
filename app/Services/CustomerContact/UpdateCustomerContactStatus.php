@@ -7,13 +7,12 @@ use Illuminate\Support\Facades\DB;
 
 class UpdateCustomerContactStatus
 {
-    public function update(int $contactId, int $newStatus): CustomerContact
+    public function update(CustomerContact $contact, int $newStatus): CustomerContact
     {
 
         try {
             DB::beginTransaction();
 
-            $contact = CustomerContact::findOrFail($contactId);
             $contact->status = $newStatus;
             $contact->save();
 

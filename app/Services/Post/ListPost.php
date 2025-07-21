@@ -3,9 +3,6 @@
 namespace App\Services\Post;
 
 use App\Models\Post;
-use App\Models\User;
-use Illuminate\Support\Facades\Auth;
-use Log;
 
 class ListPost
 {
@@ -14,7 +11,7 @@ class ListPost
         $searchTerm = $filters['search'] ?? '*';
 
         $query = Post::search($searchTerm, function ($meilisearch, $query, $options) use ($filters) {
-            
+
             $filterExpressions = [];
 
             if (!empty($filters['category_id'])) {
@@ -24,14 +21,14 @@ class ListPost
             if (!empty($filters['user_id'])) {
                 $filterExpressions[] = 'user_id = ' . $filters['user_id'];
             }
-            
+
             if (!empty($filterExpressions)) {
                 $options['filter'] = implode(' AND ', $filterExpressions);
             }
-            
+
             $orderBy = $filters['order_by'] ?? 'created_at';
             $orderDirection = $filters['order_direction'] ?? 'desc';
-            
+
             if (in_array($orderBy, Post::VALID_SORT_COLUMNS) && in_array($orderDirection, ['asc', 'desc'])) {
                  $options['sort'] = [$orderBy . ':' . $orderDirection];
             }
@@ -42,7 +39,7 @@ class ListPost
         if ($userId = auth('sanctum')->id()) {
             $query->query(fn($builder) => $builder->withExists(['favoritedByUsers as is_favorited' => fn($q) => $q->where('user_id', $userId)]));
         }
-        
+
         $query->query(fn($builder) => $builder->with(['user', 'category', 'topics', 'image'])
             ->withAvg('ratings', 'rating')
             ->withCount('ratings'));

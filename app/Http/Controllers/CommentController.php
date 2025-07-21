@@ -6,9 +6,9 @@ use App\Http\Requests\Comment\StoreCommentRequest;
 use App\Http\Requests\Comment\UpdateCommentRequest;
 use App\Http\Resources\Comment\CommentResource;
 use App\Models\Comment;
-use Illuminate\Support\Str;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Support\Str;
 
 class CommentController extends BaseController
 {

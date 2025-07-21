@@ -10,16 +10,15 @@ use Illuminate\Support\Facades\Storage;
 
 class DeleteImage
 {
-    public function delete(int $imageId): Image
+    public function delete(Image $image): Image
     {
         try {
-            return DB::transaction(function () use ($imageId) {
-                $image = Image::findOrFail($imageId);
+            return DB::transaction(function () use ($image) {
                 $this->deleteFromStorage($image);
                 return tap($image)->delete();
             });
         } catch (Exception $e) {
-            Log::error("Image deletion failed: {$imageId} - " . $e->getMessage());
+            Log::error("Image deletion failed: {$image->id} - " . $e->getMessage());
             throw $e;
         }
     }

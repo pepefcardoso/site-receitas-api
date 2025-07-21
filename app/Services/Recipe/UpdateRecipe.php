@@ -18,28 +18,34 @@ class UpdateRecipe
     ) {
     }
 
-    public function update(int $id, array $data): Recipe
+    public function update(Recipe $recipe, array $data): Recipe
     {
         DB::beginTransaction();
 
         try {
-            $recipe = Recipe::findOrFail($id);
-
             $this->updateRecipeDetails($recipe, $data);
             $this->syncDiets($recipe, $data);
             $this->handleIngredients($recipe, $data);
             $this->handleSteps($recipe, $data);
 
             if ($newImageFile = data_get($data, 'image')) {
-                $recipe->image ? $this->updateImageService->update($recipe->image->id, $newImageFile)
+                $recipe->image ? $this->updateImageService->update($recipe->image, $newImageFile)
                     : $this->createImageService->create($recipe, $newImageFile);
             }
 
-            Cache::forget("recipe_model.{$id}");
+            Cache::forget("recipe_model.{$recipe->id}");
 
             DB::commit();
 
-            return $recipe;
+            return $recipe->fresh([
+                'diets',
+                'category',
+                'steps',
+                'ingredients.unit',
+                'image',
+                'user.image'
+            ]);
+
         } catch (Exception $e) {
             DB::rollback();
             throw $e;
