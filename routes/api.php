@@ -113,6 +113,7 @@ Route::middleware(['auth:sanctum', 'throttle:api'])->group(function () {
     Route::delete('/comments/{comment}', [CommentController::class, 'destroy']);
 
     // Avaliações
+    Route::get('/{type}/{rateable}/rating', [RatingController::class, 'showUserRating']);
     Route::post('/{type}/{rateable}/ratings', [RatingController::class, 'store']);
     Route::put('/ratings/{rating}', [RatingController::class, 'update']);
     Route::delete('/ratings/{rating}', [RatingController::class, 'destroy']);

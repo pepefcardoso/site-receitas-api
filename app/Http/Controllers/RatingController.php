@@ -41,7 +41,7 @@ class RatingController extends BaseController
 
     public function show(Rating $rating): RatingResource
     {
-        return new RatingResource($rating->load('user.image'));
+        return new RatingResource($rating);
     }
 
     public function store(StoreRatingRequest $request, string $type, $id): JsonResponse
@@ -55,7 +55,7 @@ class RatingController extends BaseController
 
         $statusCode = $rating->wasRecentlyCreated ? 201 : 200;
 
-        return (new RatingResource($rating->load('user.image')))
+        return (new RatingResource($rating))
             ->response()
             ->setStatusCode($statusCode);
     }
@@ -67,7 +67,7 @@ class RatingController extends BaseController
 
         $rating->update($request->validated());
 
-        return new RatingResource($rating->load('user.image'));
+        return new RatingResource($rating);
     }
 
     public function destroy(Rating $rating): JsonResponse
@@ -75,5 +75,27 @@ class RatingController extends BaseController
         $this->authorize('delete', $rating);
         $rating->delete();
         return response()->json(null, 204);
+    }
+
+    /**
+     * Exibe a avaliação do usuário autenticado para um item específico.
+     *
+     * @param string $type O tipo do item (ex: 'recipes', 'posts').
+     * @param mixed $id O ID do item.
+     * @return RatingResource| JsonResponse
+     */
+    public function showUserRating(string $type, $id)
+    {
+        $rateable = $this->resolveRateable($type, $id);
+
+        $rating = $rateable->ratings()
+            ->where('user_id', auth()->id())
+            ->first();
+
+        if (!$rating) {
+            return response()->json(['message' => 'Nenhuma avaliação encontrada para este usuário.'], 404);
+        }
+
+        return new RatingResource($rating);
     }
 }
