@@ -131,3 +131,8 @@ Route::get('/comments/{comment}', [CommentController::class, 'show']);
 
 Route::get('/{type}/{rateable}/ratings', [RatingController::class, 'index'])->whereNumber('rateable');
 Route::get('/ratings/{rating}', [RatingController::class, 'show']);
+
+// Rota para Health Check
+Route::get('/health', function () {
+    return response()->json(['status' => 'ok']);
+});
