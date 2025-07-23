@@ -5,9 +5,10 @@ namespace App\Services\User;
 use App\Models\User;
 use App\Notifications\DeletedUser;
 use App\Services\Image\DeleteImage;
-use Exception;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Notification;
+use Throwable;
 
 class DeleteUser
 {
@@ -17,41 +18,45 @@ class DeleteUser
     }
 
     /**
-     * Deleta um usuário e seus dados associados de forma transacionalmente segura.
+     * Deleta um usuário, sua imagem, e notifica o e-mail de forma segura.
      *
      * @param User $user
      * @return void
-     * @throws Exception
+     * @throws Throwable
      */
     public function delete(User $user): void
     {
-        $imagePathToDelete = $user->image?->path;
+        $imageToDelete = $user->image;
         $userEmail = $user->email;
         $userName = $user->name;
+        $userId = $user->id;
 
-        DB::beginTransaction();
-
-        try {
-            if ($user->image) {
-                $this->deleteImageService->deleteDbRecord($user->image);
+        DB::transaction(function () use ($user, $imageToDelete) {
+            if ($imageToDelete) {
+                $this->deleteImageService->deleteDbRecord($imageToDelete);
             }
 
             $user->delete();
+        });
 
-            DB::commit();
+        try {
+            if ($imageToDelete) {
+                $this->deleteImageService->deleteFile($imageToDelete->path);
+            }
 
-        } catch (Exception $e) {
-            DB::rollback();
+            $deletedUserInfo = (new User)->forceFill(['name' => $userName, 'email' => $userEmail]);
+            Notification::route('mail', $userEmail)
+                ->notify(new DeletedUser($deletedUserInfo));
+
+        } catch (Throwable $e) {
+            Log::warning('User Cleanup Failed: Could not delete file or send notification.', [
+                'user_id' => $userId,
+                'user_email' => $userEmail,
+                'image_path' => $imageToDelete?->path,
+                'error' => $e->getMessage(),
+            ]);
 
             throw $e;
         }
-
-        if ($imagePathToDelete) {
-            $this->deleteImageService->deleteFile($imagePathToDelete);
-        }
-
-        $deletedUserInfo = (new User)->forceFill(['name' => $userName, 'email' => $userEmail]);
-        Notification::route('mail', $userEmail)
-            ->notify(new DeletedUser($deletedUserInfo));
     }
 }

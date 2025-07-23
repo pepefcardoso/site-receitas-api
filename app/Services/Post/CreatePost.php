@@ -5,56 +5,61 @@ namespace App\Services\Post;
 use App\Models\Post;
 use App\Services\Image\CreateImage;
 use App\Services\Image\DeleteImage;
-use Exception;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Throwable;
 
 class CreatePost
 {
     public function __construct(
-        protected CreateImage $createImageService
+        protected CreateImage $createImageService,
+        protected DeleteImage $deleteImageService
     ) {
     }
 
     /**
-     * Cria um novo post e sua imagem associada de forma transacionalmente segura.
+     * Cria um novo post e sua imagem associada.
      *
      * @param array $data
      * @return Post
-     * @throws Exception
+     * @throws Throwable
      */
     public function create(array $data): Post
     {
         $imageData = null;
 
-        /** @var UploadedFile|null $imageFile */
-        if ($imageFile = data_get($data, 'image')) {
-            $imageData = $this->createImageService->uploadOnly($imageFile);
-        }
-
-        DB::beginTransaction();
-
         try {
-            $data['user_id'] = Auth::id();
-            $post = Post::create($data);
-
-            $topics = data_get($data, 'topics', []);
-            $post->topics()->sync($topics);
-
-            if ($imageData) {
-                $this->createImageService->createDbRecord($post, $imageData);
+            /** @var UploadedFile|null $imageFile */
+            if ($imageFile = data_get($data, 'image')) {
+                $imageData = $this->createImageService->uploadOnly($imageFile);
             }
 
-            DB::commit();
+            $post = DB::transaction(function () use ($data, $imageData) {
+                $data['user_id'] = Auth::id();
+                $post = Post::create($data);
+
+                if ($topics = data_get($data, 'topics', [])) {
+                    $post->topics()->sync($topics);
+                }
+
+                if ($imageData) {
+                    $this->createImageService->createDbRecord($post, $imageData);
+                }
+
+                return $post;
+            });
 
             return $post;
 
-        } catch (Exception $e) {
-            DB::rollback();
-
+        } catch (Throwable $e) {
             if ($imageData) {
-                (new DeleteImage())->deleteFile($imageData['path']);
+                Log::info('Rolling back file upload due to DB transaction failure.', [
+                    'path' => $imageData['path'],
+                    'error' => $e->getMessage(),
+                ]);
+                $this->deleteImageService->deleteFile($imageData['path']);
             }
 
             throw $e;

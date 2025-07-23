@@ -4,55 +4,54 @@ namespace App\Services\Post;
 
 use App\Models\Post;
 use App\Services\Image\DeleteImage;
-use Exception;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Throwable;
 
 class DeletePost
 {
-    protected DeleteImage $deleteImageService;
-
-    public function __construct(
-        DeleteImage $deleteImageService,
-    ) {
-        $this->deleteImageService = $deleteImageService;
+    public function __construct(private DeleteImage $deleteImageService)
+    {
     }
 
     /**
-     * Deleta um post e seus dados associados de forma transacionalmente segura.
+     * Deleta um post, seus relacionamentos e o arquivo de imagem associado.
      *
      * @param Post $post
      * @return void
-     * @throws Exception
+     * @throws Throwable
      */
     public function delete(Post $post): void
     {
-        $imagePathToDelete = $post->image?->path;
+        $imageToDelete = $post->image;
         $postId = $post->id;
 
-        DB::beginTransaction();
-
-        try {
+        DB::transaction(function () use ($post, $imageToDelete) {
             $post->topics()->detach();
 
-            if ($post->image) {
-                $this->deleteImageService->deleteDbRecord($post->image);
+            if ($imageToDelete) {
+                $this->deleteImageService->deleteDbRecord($imageToDelete);
             }
 
             $post->delete();
+        });
 
-            DB::commit();
+        try {
+            if ($imageToDelete) {
+                $this->deleteImageService->deleteFile($imageToDelete->path);
+            }
 
-        } catch (Exception $e) {
-            DB::rollBack();
+            Cache::forget("post_model.{$postId}");
+
+        } catch (Throwable $e) {
+            Log::warning('Post Cleanup Failed: Could not delete file or clear cache after deleting post record.', [
+                'post_id' => $postId,
+                'image_path' => $imageToDelete?->path,
+                'error' => $e->getMessage(),
+            ]);
 
             throw $e;
         }
-
-        if ($imagePathToDelete) {
-            $this->deleteImageService->deleteFile($imagePathToDelete);
-        }
-
-        Cache::forget("post_model.{$postId}");
     }
 }
