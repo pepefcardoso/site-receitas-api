@@ -4,6 +4,7 @@ namespace App\Http\Resources\Recipe;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
+use App\Http\Resources\Recipe\UnitResource;
 
 class IngredientResource extends JsonResource
 {

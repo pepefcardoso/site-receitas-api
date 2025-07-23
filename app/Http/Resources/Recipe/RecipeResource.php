@@ -2,9 +2,14 @@
 
 namespace App\Http\Resources\Recipe;
 
-// ... outras importações
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
+use App\Http\Resources\Recipe\ImageResource;
+use App\Http\Resources\Recipe\AuthorResource;
+use App\Http\Resources\Recipe\CategoryResource;
+use App\Http\Resources\Recipe\DietResource;
+use App\Http\Resources\Recipe\IngredientResource;
+use App\Http\Resources\Recipe\StepResource;
 
 class RecipeResource extends JsonResource
 {

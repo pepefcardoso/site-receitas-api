@@ -20,8 +20,8 @@ class RecipeCollectionResource extends JsonResource
             'image' => new ImageResource($this->whenLoaded('image')),
             'category' => new CategoryResource($this->whenLoaded('category')),
             'diets' => DietResource::collection($this->whenLoaded('diets')),
-            // 'average_rating' => round($this->whenAggregated('ratings', 'rating', 'avg') ?? 0, 2),
-            // 'ratings_count' => $this->whenCounted('ratings'),
+            'average_rating' => round($this->whenAggregated('ratings', 'rating', 'avg') ?? 0, 2),
+            'ratings_count' => $this->whenCounted('ratings'),
             'is_favorited' => (bool) ($this->is_favorited ?? false),
         ];
     }
