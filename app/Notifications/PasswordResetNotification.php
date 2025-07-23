@@ -36,7 +36,7 @@ class PasswordResetNotification extends Notification implements ShouldQueue
         ]));
 
         return (new MailMessage)
-            ->subject('Redefinição de Senha - LeveSabor')
+            ->subject('Redefinição de Senha - Temperinho')
             ->view('notifications.emails.password_reset', [
                 'userName' => $this->userName,
                 'resetUrl' => $resetUrl,

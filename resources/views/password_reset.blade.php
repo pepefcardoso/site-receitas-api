@@ -13,5 +13,5 @@ Este link de redefinição de senha expirará em 60 minutos.
 Se você não solicitou uma redefinição de senha, nenhuma ação adicional é necessária.
 
 Atenciosamente,<br>
-Equipe LeveSabor
+Equipe Temperinho
 @endcomponent
