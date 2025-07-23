@@ -10,37 +10,46 @@ use Illuminate\Support\Facades\DB;
 
 class DeleteRecipe
 {
-    protected DeleteImage $deleteImageService;
-
     public function __construct(
-        DeleteImage $deleteImageService,
+        protected DeleteImage $deleteImageService,
     ) {
-        $this->deleteImageService = $deleteImageService;
     }
 
-    public function delete(Recipe $recipe): Recipe|string
+    /**
+     * Deleta uma receita e todos os seus dados associados de forma transacional.
+     *
+     * @param Recipe $recipe
+     * @return void
+     * @throws Exception
+     */
+    public function delete(Recipe $recipe): void
     {
-        try {
-            DB::beginTransaction();
+        $imagePathToDelete = $recipe->image?->path;
 
+        DB::beginTransaction();
+
+        try {
             $recipe->steps()->delete();
             $recipe->ingredients()->delete();
             $recipe->diets()->detach();
 
             if ($recipe->image) {
-                $this->deleteImageService->delete($recipe->image);
+                $this->deleteImageService->deleteDbRecord($recipe->image);
             }
 
             $recipe->delete();
 
-            Cache::forget("recipe_model.{$recipe->id}");
-
             DB::commit();
 
-            return $recipe;
         } catch (Exception $e) {
             DB::rollback();
             throw $e;
         }
+
+        if ($imagePathToDelete) {
+            $this->deleteImageService->deleteFile($imagePathToDelete);
+        }
+
+        Cache::forget("recipe_model.{$recipe->id}");
     }
 }

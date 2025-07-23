@@ -3,10 +3,10 @@
 namespace App\Services\Image;
 
 use App\Models\Image;
-use Illuminate\Support\Facades\Auth;
 use Exception;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 
 class CreateImage
@@ -14,53 +14,61 @@ class CreateImage
     private const ALLOWED_EXTENSIONS = ['jpg', 'jpeg', 'png', 'webp', 'gif', 'svg'];
 
     /**
-     * Valida, armazena um arquivo de imagem e cria o registro no banco de dados.
+     * Valida e armazena um arquivo de imagem, sem criar o registro no banco.
      *
-     * @param Model $model O modelo ao qual a imagem pertence (ex: User, Post).
      * @param UploadedFile $file O arquivo de imagem enviado.
-     * @return Image
-     * @throws Exception
+     * @return array Retorna um array com o path e o nome do arquivo ['path' => ..., 'name' => ...].
+     * @throws Exception Se o arquivo for inválido ou a extensão não for suportada.
      */
-    public function create(Model $model, UploadedFile $file): Image
+    public function uploadOnly(UploadedFile $file): array
     {
         if (!$file->isValid()) {
-            throw new Exception('Invalid file upload');
+            throw new Exception('Arquivo inválido.');
         }
 
         $this->validateFileExtension($file);
 
         $disk = Storage::disk(config('filesystems.default'));
-        $path = null;
 
-        try {
-            $path = $disk->putFile(Image::$S3Directory, $file);
+        $path = $disk->putFile(Image::$S3Directory, $file);
 
-            if (!$path) {
-                throw new Exception('Failed to store file');
-            }
-
-            return $model->image()->create([
-                'path' => $path,
-                'name' => $file->hashName(),
-                'user_id' => Auth::id(),
-            ]);
-        } catch (Exception $e) {
-            if ($path) {
-                $disk->delete($path);
-            }
-
-            throw new Exception('Falha ao processar a imagem: ' . $e->getMessage());
+        if (!$path) {
+            throw new Exception('Falha ao armazenar o arquivo.');
         }
+
+        return [
+            'path' => $path,
+            'name' => basename($path)
+        ];
+    }
+
+    /**
+     * Cria o registro da imagem no banco de dados.
+     *
+     * @param Model $model O modelo ao qual a imagem pertence (ex: User, Post).
+     * @param array $imageData O array retornado por uploadOnly().
+     * @return Image
+     */
+    public function createDbRecord(Model $model, array $imageData): Image
+    {
+        return $model->image()->create([
+            'path' => $imageData['path'],
+            'name' => $imageData['name'],
+            'user_id' => Auth::id(),
+        ]);
     }
 
     /**
      * Valida se a extensão do arquivo está na lista de permitidas.
+     *
+     * @param UploadedFile $file
+     * @throws Exception
      */
     private function validateFileExtension(UploadedFile $file): void
     {
         $extension = strtolower($file->getClientOriginalExtension());
         if (!in_array($extension, self::ALLOWED_EXTENSIONS)) {
-            throw new Exception("Unsupported file extension: {$extension}");
+            throw new Exception("Extensão de arquivo não suportada: {$extension}.");
         }
     }
 }

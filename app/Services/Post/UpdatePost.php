@@ -5,52 +5,72 @@ namespace App\Services\Post;
 use App\Models\Post;
 use App\Services\Image\CreateImage;
 use App\Services\Image\UpdateImage;
+use Exception;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 
 class UpdatePost
 {
-    protected UpdateImage $updateImageService;
-    protected CreateImage $createImageService;
-
     public function __construct(
-        UpdateImage $updateImageService,
-        CreateImage $createImageService
+        protected UpdateImage $updateImageService,
+        protected CreateImage $createImageService
     ) {
-        $this->updateImageService = $updateImageService;
-        $this->createImageService = $createImageService;
     }
 
-    public function update(Post $post, array $data)
+    /**
+     * Atualiza um post e seus dados associados de forma transacionalmente segura.
+     *
+     * @param Post $post
+     * @param array $data
+     * @return Post
+     * @throws Exception
+     */
+    public function update(Post $post, array $data): Post
     {
-        try {
-            DB::beginTransaction();
+        $newImageData = null;
+        $oldImagePath = null;
 
+        /** @var UploadedFile|null $newImageFile */
+        if ($newImageFile = data_get($data, 'image')) {
+            $newImageData = $this->createImageService->uploadOnly($newImageFile);
+        }
+
+        DB::beginTransaction();
+
+        try {
             $post->update($data);
 
             if (array_key_exists('topics', $data)) {
                 $post->topics()->sync($data['topics']);
             }
 
-            $newImageFile = data_get($data, 'image');
-            if ($newImageFile) {
+            if ($newImageData) {
                 if ($post->image) {
-                    $this->updateImageService->update($post->image, $newImageFile);
+                    $oldImagePath = $this->updateImageService->updateDbRecord($post->image, $newImageData);
                 } else {
-                    $this->createImageService->create($post, $newImageFile);
+                    $this->createImageService->createDbRecord($post, $newImageData);
                 }
             }
 
-            Cache::forget("post_model.{$post->id}");
-
             DB::commit();
 
-            $post->load(['user.image', 'category', 'topics', 'image']);
-
-            return $post;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             DB::rollBack();
+
+            if ($newImageData) {
+                $this->updateImageService->deleteFile($newImageData['path']);
+            }
+
             throw $e;
         }
+
+        if ($oldImagePath) {
+            $this->updateImageService->deleteFile($oldImagePath);
+        }
+
+        Cache::forget("post_model.{$post->id}");
+
+        return $post->load(['user.image', 'category', 'topics', 'image']);
     }
 }

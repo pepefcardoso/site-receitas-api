@@ -11,34 +11,47 @@ use Illuminate\Support\Facades\Notification;
 
 class DeleteUser
 {
-    protected DeleteImage $deleteImageService;
-
     public function __construct(
-        DeleteImage $deleteImageService,
+        protected DeleteImage $deleteImageService
     ) {
-        $this->deleteImageService = $deleteImageService;
     }
 
-    public function delete(User $user): User|string
+    /**
+     * Deleta um usuário e seus dados associados de forma transacionalmente segura.
+     *
+     * @param User $user
+     * @return void
+     * @throws Exception
+     */
+    public function delete(User $user): void
     {
+        $imagePathToDelete = $user->image?->path;
+        $userEmail = $user->email;
+        $userName = $user->name;
+
+        DB::beginTransaction();
+
         try {
-            $userEmail = $user->email;
-            $userName = $user->name;
+            if ($user->image) {
+                $this->deleteImageService->deleteDbRecord($user->image);
+            }
 
-            DB::transaction(function () use ($user) {
-                if ($user->image) {
-                    $this->deleteImageService->delete($user->image);
-                }
-                $user->delete();
-            });
+            $user->delete();
 
-            $deletedUserInfo = (new User)->forceFill(['name' => $userName, 'email' => $userEmail]);
-            Notification::route('mail', $userEmail)
-                ->notify(new DeletedUser($deletedUserInfo));
+            DB::commit();
 
-            return $user;
         } catch (Exception $e) {
+            DB::rollback();
+
             throw $e;
         }
+
+        if ($imagePathToDelete) {
+            $this->deleteImageService->deleteFile($imagePathToDelete);
+        }
+
+        $deletedUserInfo = (new User)->forceFill(['name' => $userName, 'email' => $userEmail]);
+        Notification::route('mail', $userEmail)
+            ->notify(new DeletedUser($deletedUserInfo));
     }
 }

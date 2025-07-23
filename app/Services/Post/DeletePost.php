@@ -18,28 +18,41 @@ class DeletePost
         $this->deleteImageService = $deleteImageService;
     }
 
-    public function delete(Post $post): int
+    /**
+     * Deleta um post e seus dados associados de forma transacionalmente segura.
+     *
+     * @param Post $post
+     * @return void
+     * @throws Exception
+     */
+    public function delete(Post $post): void
     {
-        try {
-            DB::beginTransaction();
+        $imagePathToDelete = $post->image?->path;
+        $postId = $post->id;
 
-            $postId = $post->id;
+        DB::beginTransaction();
+
+        try {
             $post->topics()->detach();
 
             if ($post->image) {
-                $this->deleteImageService->delete($post->image);
+                $this->deleteImageService->deleteDbRecord($post->image);
             }
 
             $post->delete();
 
-            Cache::forget("post_model.{$postId}");
-
             DB::commit();
 
-            return $postId;
         } catch (Exception $e) {
             DB::rollBack();
+
             throw $e;
         }
+
+        if ($imagePathToDelete) {
+            $this->deleteImageService->deleteFile($imagePathToDelete);
+        }
+
+        Cache::forget("post_model.{$postId}");
     }
 }
