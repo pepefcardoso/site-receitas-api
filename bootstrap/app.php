@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Foundation\Application;
+use Illuminate\Foundation\Configuration\ApplicationBuilder;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Cache\RateLimiting\Limit;
@@ -8,7 +9,15 @@ use Illuminate\Support\Facades\RateLimiter;
 use App\Http\Middleware\SecureHeaders;
 use Illuminate\Http\Request;
 
-return Application::configure(basePath: dirname(__DIR__))
+require __DIR__ . '/../vendor/autoload.php';
+
+$app = new Application(
+    $_ENV['APP_BASE_PATH'] ?? dirname(__DIR__)
+);
+
+return ApplicationBuilder::for($app)
+    ->withFacades()
+    ->withEloquent()
     ->withRouting(
         web: __DIR__ . '/../routes/web.php',
         api: __DIR__ . '/../routes/api.php',
@@ -24,14 +33,19 @@ return Application::configure(basePath: dirname(__DIR__))
             SecureHeaders::class,
         ]);
 
-        RateLimiter::for('api', function (Request $request) {
-            return Limit::perMinute(60)->by($request->user()?->id ?: $request->ip());
-        });
+        RateLimiter::for(
+            'api',
+            fn(Request $request) =>
+            Limit::perMinute(60)->by($request->user()?->id ?: $request->ip())
+        );
 
-        RateLimiter::for('auth', function (Request $request) {
-            return Limit::perMinute(5)->by($request->ip());
-        });
+        RateLimiter::for(
+            'auth',
+            fn(Request $request) =>
+            Limit::perMinute(5)->by($request->ip())
+        );
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //
-    })->create();
+    })
+    ->build();
