@@ -1,7 +1,6 @@
 <?php
 
 use Illuminate\Foundation\Application;
-use Illuminate\Foundation\Configuration\ApplicationBuilder;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Cache\RateLimiting\Limit;
@@ -11,13 +10,7 @@ use Illuminate\Http\Request;
 
 require __DIR__ . '/../vendor/autoload.php';
 
-$app = new Application(
-    $_ENV['APP_BASE_PATH'] ?? dirname(__DIR__)
-);
-
-return ApplicationBuilder::for($app)
-    ->withFacades()
-    ->withEloquent()
+return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
         web: __DIR__ . '/../routes/web.php',
         api: __DIR__ . '/../routes/api.php',
@@ -48,4 +41,4 @@ return ApplicationBuilder::for($app)
     ->withExceptions(function (Exceptions $exceptions) {
         //
     })
-    ->build();
+    ->create();
