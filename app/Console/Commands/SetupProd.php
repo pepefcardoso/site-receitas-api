@@ -4,7 +4,7 @@ namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
 
-class ResetProject extends Command
+class SetupProd extends Command
 {
     protected $signature = 'config:setup-prod';
     protected $description = 'Set up the production environment for the application.';
