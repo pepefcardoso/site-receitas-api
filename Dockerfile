@@ -11,15 +11,20 @@ RUN apt-get update && \
 # Instala o Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-# Define o diretório de trabalho
 WORKDIR /var/www
 
-# Copia apenas os ficheiros do composer e instala as dependências
+# Copia apenas os ficheiros do composer
 COPY composer.json composer.lock ./
-RUN composer install --no-interaction --no-dev --optimize-autoloader
 
-# Copia o restante do código da aplicação
+# ---- MUDANÇA PRINCIPAL AQUI ----
+# Instala as dependências SEM EXECUTAR SCRIPTS para evitar o erro do 'artisan'
+RUN composer install --no-interaction --no-dev --optimize-autoloader --no-scripts
+
+# Agora, copia o restante do código da aplicação
 COPY . .
+
+# E agora, com o código completo, executa os scripts de otimização
+RUN composer dump-autoload --no-dev --optimize
 
 # --- ESTÁGIO 2: Final ---
 FROM php:8.2-fpm
