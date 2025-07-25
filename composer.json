@@ -14,7 +14,7 @@
         "laravel/tinker": "^2.9",
         "league/flysystem-aws-s3-v3": "^3.29",
         "meilisearch/meilisearch-php": "^1.15",
-        "sentry/sentry-laravel": "^4.15"
+        "sentry/sentry-laravel": "*"
     },
     "require-dev": {
         "laravel/pint": "^1.13",
