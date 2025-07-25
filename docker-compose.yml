@@ -91,19 +91,18 @@ services:
         image: certbot/certbot
         container_name: temperinho-certbot
         volumes:
-        - certbot-etc:/etc/letsencrypt
-        - certbot-var:/var/lib/letsencrypt
-        - ./public:/var/www/html
-    command: certonly --webroot --webroot-path=/var/www/html --email admin@temperinho.com --agree-tos --no-eff-email -d api.temperinho.com --force-renewal
-    depends_on:
-        - nginx
+            - certbot-etc:/etc/letsencrypt
+            - certbot-var:/var/lib/letsencrypt
+            - ./public:/var/www/html
+        command: certonly --webroot --webroot-path=/var/www/html --email admin@temperinho.com --agree-tos --no-eff-email -d api.temperinho.com --force-renewal
+        depends_on:
+            - nginx
 
 networks:
     temperinho-network:
         driver: bridge
 
 volumes:
-    app_code:
     storage_prod:
     pgdata_prod:
         name: temperinho-pgdata
