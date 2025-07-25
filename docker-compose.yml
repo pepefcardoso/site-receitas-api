@@ -27,9 +27,9 @@ services:
             - "80:80"
             - "443:443"
         volumes:
-            - ./docker/nginx:/etc/nginx/templates
-        environment:
-            - NGINX_ENVSUBST_OUTPUT_DIR=/etc/nginx/conf.d
+            - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf
+            - certbot-etc:/etc/letsencrypt
+            - webroot-certbot:/var/www/certbot
         networks:
             - temperinho-network
         depends_on:
@@ -92,11 +92,8 @@ services:
         container_name: temperinho-certbot
         volumes:
             - certbot-etc:/etc/letsencrypt
-            - certbot-var:/var/lib/letsencrypt
-            - ./public:/var/www/html
-        command: certonly --webroot --webroot-path=/var/www/html --email admin@temperinho.com --agree-tos --no-eff-email -d api.temperinho.com --force-renewal
-        depends_on:
-            - nginx
+            - webroot-certbot:/var/www/certbot
+        command: certonly --webroot --webroot-path=/var/www/certbot --email admin@temperinho.com --agree-tos --no-eff-email -d api.temperinho.com --force-renewal
 
 networks:
     temperinho-network:
@@ -113,3 +110,4 @@ volumes:
         name: temperinho-backups
     certbot-etc:
     certbot-var:
+    webroot-certbot:
