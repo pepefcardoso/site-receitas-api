@@ -26,9 +26,9 @@ class CommentController extends BaseController
         return $class::findOrFail($id);
     }
 
-    public function index(string $type, $id): AnonymousResourceCollection
+    public function index(string $type, $commentableId): AnonymousResourceCollection
     {
-        $commentable = $this->resolveCommentable($type, $id);
+        $commentable = $this->resolveCommentable($type, $commentableId);
 
         $comments = $commentable
             ->comments()
@@ -39,9 +39,9 @@ class CommentController extends BaseController
         return CommentResource::collection($comments);
     }
 
-    public function store(StoreCommentRequest $request, string $type, $id): JsonResponse
+    public function store(StoreCommentRequest $request, string $type, int $commentableId): JsonResponse
     {
-        $commentable = $this->resolveCommentable($type, $id);
+        $commentable = $this->resolveCommentable($type, $commentableId);
 
         $comment = $commentable->comments()->create([
             'user_id' => auth()->id(),

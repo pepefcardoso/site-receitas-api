@@ -20,22 +20,18 @@ class RatingController extends BaseController
     protected function resolveRateable(string $type, $id)
     {
         $class = 'App\\Models\\' . Str::studly(Str::singular($type));
-
         abort_unless(class_exists($class), 404, "Tipo inválido: {$type}");
-
         return $class::findOrFail($id);
     }
 
-    public function index(string $type, $id): AnonymousResourceCollection
+    public function index(string $type, int $rateableId): AnonymousResourceCollection
     {
-        $rateable = $this->resolveRateable($type, $id);
-
+        $rateable = $this->resolveRateable($type, $rateableId);
         $ratings = $rateable
             ->ratings()
-            ->with('user.image')
+            ->with('user')
             ->latest()
             ->paginate();
-
         return RatingResource::collection($ratings);
     }
 
@@ -44,20 +40,15 @@ class RatingController extends BaseController
         return new RatingResource($rating);
     }
 
-    public function store(StoreRatingRequest $request, string $type, $id): JsonResponse
+    public function store(StoreRatingRequest $request, string $type, int $rateableId): JsonResponse
     {
-        $rateable = $this->resolveRateable($type, $id);
-
+        $rateable = $this->resolveRateable($type, $rateableId);
         $rating = $rateable->ratings()->updateOrCreate(
             ['user_id' => auth()->id()],
             ['rating' => $request->validated('rating')]
         );
-
         $statusCode = $rating->wasRecentlyCreated ? 201 : 200;
-
-        return (new RatingResource($rating))
-            ->response()
-            ->setStatusCode($statusCode);
+        return (new RatingResource($rating))->response()->setStatusCode($statusCode);
     }
 
 
@@ -77,25 +68,13 @@ class RatingController extends BaseController
         return response()->json(null, 204);
     }
 
-    /**
-     * Exibe a avaliação do usuário autenticado para um item específico.
-     *
-     * @param string $type O tipo do item (ex: 'recipes', 'posts').
-     * @param mixed $id O ID do item.
-     * @return RatingResource| JsonResponse
-     */
-    public function showUserRating(string $type, $id)
+    public function showUserRating(string $type, int $rateableId)
     {
-        $rateable = $this->resolveRateable($type, $id);
-
-        $rating = $rateable->ratings()
-            ->where('user_id', auth()->id())
-            ->first();
-
+        $rateable = $this->resolveRateable($type, $rateableId);
+        $rating = $rateable->ratings()->where('user_id', auth()->id())->first();
         if (!$rating) {
             return response()->json(['message' => 'Nenhuma avaliação encontrada para este usuário.'], 404);
         }
-
         return new RatingResource($rating);
     }
 }

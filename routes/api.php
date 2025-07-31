@@ -108,13 +108,19 @@ Route::middleware(['auth:sanctum', 'throttle:api'])->group(function () {
     Route::apiResource('recipes', RecipeController::class)->except(['index', 'show']);
 
     // Comentários
-    Route::post('/{type}/{commentable}/comments', [CommentController::class, 'store']);
+    Route::post('/{type}/{commentableId}/comments', [CommentController::class, 'store'])
+        ->whereIn('type', ['posts', 'recipes'])
+        ->whereNumber('commentableId');
     Route::put('/comments/{comment}', [CommentController::class, 'update']);
     Route::delete('/comments/{comment}', [CommentController::class, 'destroy']);
 
     // Avaliações
-    Route::get('/{type}/{rateable}/rating', [RatingController::class, 'showUserRating']);
-    Route::post('/{type}/{rateable}/ratings', [RatingController::class, 'store']);
+    Route::get('/{type}/{rateableId}/rating', [RatingController::class, 'showUserRating'])
+        ->whereIn('type', ['posts', 'recipes'])
+        ->whereNumber('rateableId');
+    Route::post('/{type}/{rateableId}/ratings', [RatingController::class, 'store'])
+        ->whereIn('type', ['posts', 'recipes'])
+        ->whereNumber('rateableId');
     Route::put('/ratings/{rating}', [RatingController::class, 'update']);
     Route::delete('/ratings/{rating}', [RatingController::class, 'destroy']);
 
@@ -126,10 +132,14 @@ Route::middleware(['auth:sanctum', 'throttle:api'])->group(function () {
 });
 
 // Rotas públicas restantes para Comentários e Avaliações
-Route::get('/{type}/{commentable}/comments', [CommentController::class, 'index'])->whereNumber('commentable');
+Route::get('/{type}/{commentableId}/comments', [CommentController::class, 'index'])
+    ->whereNumber('commentableId')
+    ->whereIn('type', ['posts', 'recipes']);
 Route::get('/comments/{comment}', [CommentController::class, 'show']);
 
-Route::get('/{type}/{rateable}/ratings', [RatingController::class, 'index'])->whereNumber('rateable');
+Route::get('/{type}/{rateableId}/ratings', [RatingController::class, 'index'])
+    ->whereIn('type', ['posts', 'recipes'])
+    ->whereNumber('rateableId');
 Route::get('/ratings/{rating}', [RatingController::class, 'show']);
 
 // Rota para Health Check
