@@ -1,0 +1,41 @@
+[
+    {
+        "details": {
+            "title": "Frango Grelhado com Legumes",
+            "description": "Uma refeição leve, saudável e cheia de sabor, perfeita para o almoço ou jantar.",
+            "time": 30,
+            "portion": 2,
+            "difficulty": "facil"
+        },
+        "category_name": "Pratos principais",
+        "diet_names": ["Sem glúten", "Sem lactose"],
+        "ingredients": [
+            { "name": "Filé de frango", "quantity": 300, "unit_name": "Grama" },
+            { "name": "Brócolis", "quantity": 200, "unit_name": "Grama" },
+            { "name": "Cenoura", "quantity": 1, "unit_name": "Unidade" },
+            {
+                "name": "Azeite de oliva",
+                "quantity": 2,
+                "unit_name": "Colher de sopa"
+            }
+        ],
+        "steps": [
+            {
+                "order": 1,
+                "description": "Tempere os filés de frango com sal, pimenta e ervas a gosto."
+            },
+            {
+                "order": 2,
+                "description": "Grelhe o frango em uma frigideira quente com um fio de azeite até dourar dos dois lados."
+            },
+            {
+                "order": 3,
+                "description": "Cozinhe os legumes no vapor até ficarem macios."
+            },
+            {
+                "order": 4,
+                "description": "Sirva o frango grelhado com os legumes ao lado."
+            }
+        ]
+    }
+]

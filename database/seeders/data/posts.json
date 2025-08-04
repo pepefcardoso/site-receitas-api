@@ -1,0 +1,16 @@
+[
+    {
+        "title": "5 Truques para Cozinhar Mais Rápido no Dia a Dia",
+        "summary": "Aprenda dicas essenciais para otimizar seu tempo na cozinha e preparar refeições deliciosas sem demora.",
+        "content": "<p>Cozinhar todos os dias pode ser um desafio, mas com algumas técnicas, é possível transformar essa tarefa em algo rápido e prazeroso. Neste artigo, compartilhamos 5 truques que vão revolucionar sua rotina na cozinha.</p><h3>1. Mise en Place</h3><p>O segredo dos chefs profissionais! Antes de começar a cozinhar, separe e prepare todos os ingredientes. Pique os legumes, meça os temperos e deixe tudo à mão. Isso evita a correria e a confusão durante o preparo.</p>",
+        "category_name": "Dicas de Cozinha & Técnicas",
+        "topic_names": ["SubstituicoesSaudaveis", "CozinhaPratica"]
+    },
+    {
+        "title": "Como Substituir Ingredientes Comuns em Receitas",
+        "summary": "Faltou um ingrediente? Sem problemas! Veja como fazer substituições inteligentes sem comprometer o sabor.",
+        "content": "<p>Quem nunca começou a preparar uma receita e descobriu que faltava um ingrediente essencial? A boa notícia é que muitas vezes é possível fazer substituições inteligentes. Por exemplo, se não tiver ovos, uma mistura de linhaça com água pode funcionar em bolos. Sem açúcar? Tente mel ou xarope de ácer, ajustando a quantidade de líquidos.</p>",
+        "category_name": "Dicas de Cozinha & Técnicas",
+        "topic_names": ["SubstituicoesSaudaveis"]
+    }
+]
