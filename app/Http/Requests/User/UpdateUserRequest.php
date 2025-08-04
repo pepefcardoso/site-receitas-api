@@ -42,8 +42,20 @@ class UpdateUserRequest extends FormRequest
                 'regex:/^\d{10,11}$/',
                 Rule::unique('users')->ignore($userId),
             ],
-            'birthday' => 'nullable|date|before_or_equal:today',
+            'birthday' => 'nullable|date|before_or_equal:' . now()->subYears(18)->format('Y-m-d'),
             'password' => 'nullable|string|min:8|max:99|confirmed',
+        ];
+    }
+
+    /**
+     * Get the custom validation messages for the defined rules.
+     *
+     * @return array<string, string>
+     */
+    public function messages(): array
+    {
+        return [
+            'birthday.before_or_equal' => 'O usuário deve ter pelo menos 18 anos.',
         ];
     }
 }

@@ -19,14 +19,6 @@ class DatabaseSeeder extends Seeder
             RecipeDietSeeder::class,
             RecipeCategorySeeder::class,
             RecipeUnitSeeder::class,
-            RecipeSeeder::class,
-            RecipeIngredientSeeder::class,
-            RecipeStepSeeder::class,
-            ImageSeeder::class,
-            CustomerContactSeeder::class,
-            NewsletterCustomerSeeder::class,
-            CommentSeeder::class,
-            RatingSeeder::class,
         ]);
     }
 }

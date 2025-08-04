@@ -27,6 +27,19 @@ class StoreUserRequest extends FormRequest
             'name' => 'required|string|min:3|max:100',
             'email' => 'required|email|unique:users,email',
             'password' => 'required|string|min:8|max:99|confirmed',
+            'birthday' => 'required|date|before_or_equal:' . now()->subYears(18)->format('Y-m-d'),
+        ];
+    }
+
+    /**
+     * Get the custom validation messages for the defined rules.
+     *
+     * @return array<string, string>
+     */
+    public function messages(): array
+    {
+        return [
+            'birthday.before_or_equal' => 'Você deve ter pelo menos 18 anos para se cadastrar.',
         ];
     }
 }

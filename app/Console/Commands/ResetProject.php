@@ -6,13 +6,10 @@ use Illuminate\Console\Command;
 
 class ResetProject extends Command
 {
-    // The name and signature of the console command.
     protected $signature = 'config:reset-project';
 
-    // The console command description.
     protected $description = 'Clear all Laravel caches (config, routes, views, and application cache).';
 
-    // Execute the console command.
     public function handle()
     {
         $this->info('Clearing config cache...');

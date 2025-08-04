@@ -3,8 +3,8 @@
 namespace Database\Seeders;
 
 use App\Models\RecipeCategory;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Str;
 
 class RecipeCategorySeeder extends Seeder
 {
@@ -13,6 +13,30 @@ class RecipeCategorySeeder extends Seeder
      */
     public function run(): void
     {
-        RecipeCategory::factory(10)->create();
+        $categoryNames = [
+            'Aperitivos e petiscos',
+            'Saladas',
+            'Sopas e caldos',
+            'Entradas e antepastos',
+            'Pratos principais',
+            'Acompanhamentos',
+            'Massas',
+            'Pães e fermentados',
+            'Bolos e tortas',
+            'Biscoitos, cookies & bisnagas',
+            'Sobremesas e doces',
+            'Confeitaria fina',
+            'Molhos e temperos',
+            'Conservas e picles',
+            'Bebidas',
+            'Dietéticas e funcionais',
+        ];
+
+        foreach ($categoryNames as $name) {
+            RecipeCategory::create([
+                'name' => $name,
+                'normalized_name' => Str::upper($name),
+            ]);
+        }
     }
 }
