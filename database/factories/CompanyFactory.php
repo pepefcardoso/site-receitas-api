@@ -3,6 +3,7 @@
 namespace Database\Factories;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
+use App\Models\User;
 
 /**
  * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Company>
@@ -17,13 +18,13 @@ class CompanyFactory extends Factory
     public function definition(): array
     {
         return [
-            'name' => 'Temperinho',
-            'cnpj' => '00.000.000/0001-01',
-            'email' => 'contato@temperinho.com',
-            'phone' => '(48) 99115-5026',
-            'address' => 'Rua do Temperinho, 123',
-            'website' => 'https://www.temperinho.com',
-            'user_id' => 1,
+            'name' => fake()->company(),
+            'cnpj' => fake()->unique()->numerify('##.###.###/0001-##'),
+            'email' => fake()->unique()->companyEmail(),
+            'phone' => fake()->phoneNumber(),
+            'address' => fake()->streetAddress(),
+             'website' => fake()->unique()->url(),
+            'user_id' => User::factory(),
         ];
     }
 }

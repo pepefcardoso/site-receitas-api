@@ -2,25 +2,22 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Company;
-use App\Http\Requests\StoreCompanyRequest;
-use App\Http\Requests\UpdateCompanyRequest;
-use App\Http\Requests\FilterCompaniesRequest;
+use App\Http\Requests\Company\FilterCompaniesRequest;
+use App\Http\Requests\Company\StoreCompanyRequest;
+use App\Http\Requests\Company\UpdateCompanyRequest;
 use App\Http\Resources\Company\CompanyResource;
+use App\Models\Company;
 use App\Services\Company\ListCompanies;
-use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
 class CompanyController
 {
-    public function __construct()
-    {
-        $this->middleware('auth:sanctum');
-    }
+    use AuthorizesRequests;
 
     public function index(FilterCompaniesRequest $request, ListCompanies $service): AnonymousResourceCollection
     {
+        $this->authorize('viewAny', Company::class);
         $companies = $service->list($request->validated());
         return CompanyResource::collection($companies);
     }
@@ -37,6 +34,7 @@ class CompanyController
 
     public function show(Company $company): CompanyResource
     {
+        $this->authorize('view', $company);
         return new CompanyResource($company);
     }
 
@@ -49,8 +47,8 @@ class CompanyController
 
     public function destroy(Company $company)
     {
+        $this->authorize('delete', $company);
         $company->delete();
-
         return response()->json(null, 204);
     }
 }
