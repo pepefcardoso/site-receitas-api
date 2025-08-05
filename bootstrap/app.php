@@ -15,19 +15,19 @@ return Application::configure(basePath: dirname(__DIR__))
         api: __DIR__ . '/../routes/api.php',
         commands: __DIR__ . '/../routes/console.php',
         health: '/up',
-        then: function () {
-            RateLimiter::for(
-                'api',
-                fn(Request $request) =>
-                Limit::perMinute(60)->by($request->user()?->id ?: $request->ip())
-            );
+        // then: function () {
+        //     RateLimiter::for(
+        //         'api',
+        //         fn(Request $request) =>
+        //         Limit::perMinute(60)->by($request->user()?->id ?: $request->ip())
+        //     );
 
-            RateLimiter::for(
-                'auth',
-                fn(Request $request) =>
-                Limit::perMinute(5)->by($request->ip())
-            );
-        }
+        //     RateLimiter::for(
+        //         'auth',
+        //         fn(Request $request) =>
+        //         Limit::perMinute(5)->by($request->ip())
+        //     );
+        // }
     )
     ->withMiddleware(function (Middleware $middleware) {
         $middleware->alias([
