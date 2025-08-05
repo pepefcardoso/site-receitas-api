@@ -17,8 +17,12 @@ class UserPolicy
         return $authUser->isInternal() || $authUser->id === $updateUser->id;
     }
 
-    public function create(?User $user): bool
+    public function create(User $user): bool
     {
+        if (!$user) {
+            return false;
+        }
+
         return true;
     }
 

@@ -14,6 +14,7 @@ use App\Http\Controllers\RecipeDietController;
 use App\Http\Controllers\RecipeUnitController;
 use App\Http\Controllers\SocialAuthController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\CompanyController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -93,6 +94,8 @@ Route::middleware(['auth:sanctum', 'throttle:api'])->group(function () {
         Route::post('/favorites/recipes', 'toggleFavoriteRecipe');
     });
     Route::apiResource('users', UserController::class)->except(['store']);
+
+    Route::apiResource('companies', CompanyController::class);
 
     // Posts (Restantes - store, update, destroy)
     Route::apiResource('posts', PostController::class)->except(['index', 'show']);
