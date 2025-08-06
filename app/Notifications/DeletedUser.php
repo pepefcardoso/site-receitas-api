@@ -31,6 +31,6 @@ class DeletedUser extends Notification implements ShouldQueue
     {
         return (new MailMessage)
             ->subject('Sua conta foi removida')
-            ->view('notifications.emails.deleted_user', ['user' => $this->user]);
+            ->view('emails.deleted_user', ['user' => $this->user]);
     }
 }

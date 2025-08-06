@@ -31,6 +31,6 @@ class CustomerContactNotification extends Notification implements ShouldQueue
     {
         return (new MailMessage)
             ->subject('Agradecemos por entrar em contato!')
-            ->view('notifications.emails.customer_contact', ['contact' => $this->customerContact]);
+            ->view('emails.customer_contact', ['contact' => $this->customerContact]);
     }
 }

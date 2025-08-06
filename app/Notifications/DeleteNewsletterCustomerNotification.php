@@ -31,7 +31,7 @@ class DeleteNewsletterCustomerNotification extends Notification implements Shoul
     {
         return (new MailMessage)
             ->subject('Você foi removido da nossa newsletter')
-            ->view('notifications.emails.newsletter_unsubscribe', [
+            ->view('emails.newsletter_unsubscribe', [
                 'customer' => $this->customer,
                 'siteUrl' => url('/'),
             ]);

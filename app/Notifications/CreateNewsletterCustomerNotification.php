@@ -33,7 +33,7 @@ class CreateNewsletterCustomerNotification extends Notification implements Shoul
 
         return (new MailMessage)
             ->subject('Bem-vindo à nossa newsletter!')
-            ->view('notifications.emails.newsletter_welcome', [
+            ->view('emails.newsletter_welcome', [
                 'customer' => $this->customer,
                 'unsubscribeUrl' => $unsubscribeUrl,
             ]);

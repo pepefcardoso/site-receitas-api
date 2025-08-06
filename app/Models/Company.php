@@ -7,11 +7,12 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
+use Illuminate\Notifications\Notifiable;
+use Laravel\Scout\Searchable;
 
 class Company extends Model
 {
-    /** @use HasFactory<\Database\Factories\CompanyFactory> */
-    use HasFactory;
+    use HasFactory, Searchable, Notifiable;
 
      protected $fillable = [
         'name',

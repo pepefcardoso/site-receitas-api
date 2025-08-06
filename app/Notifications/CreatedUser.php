@@ -31,6 +31,6 @@ class CreatedUser extends Notification implements ShouldQueue
     {
         return (new MailMessage)
             ->subject('Conta criada com sucesso!')
-            ->view('notifications.emails.created_user', ['user' => $this->user]);
+            ->view('emails.created_user', ['user' => $this->user]);
     }
 }

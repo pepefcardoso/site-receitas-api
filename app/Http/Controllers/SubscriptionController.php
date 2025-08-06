@@ -6,6 +6,7 @@ use App\Models\Subscription;
 use App\Http\Requests\Subscription\StoreSubscriptionRequest;
 use App\Http\Requests\Subscription\UpdateSubscriptionRequest;
 use App\Http\Resources\Subscription\SubscriptionResource;
+use  App\Notifications\SubscribedToPlan;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Response;
 
@@ -27,12 +28,13 @@ class SubscriptionController extends Controller
         try {
             $validatedData = $request->validated();
             $existingSubscription = Subscription::where('company_id', $data['company_id'])
-                ->where('status', 'active')
+                ->whereIsActive()
                 ->first();
             if ($existingSubscription) {
                 throw new Exception('This company already has an active subscription.');
             }
             $subscription = Subscription::create($validatedData);
+            $subscription->company->notify(new SubscribedToPlan($subscription));
             return (new SubscriptionResource($subscription))
                 ->response()
                 ->setStatusCode(Response::HTTP_CREATED);

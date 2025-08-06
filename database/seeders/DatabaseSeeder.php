@@ -23,7 +23,7 @@ class DatabaseSeeder extends Seeder
             RecipeSeeder::class,
             CompanySeeder::class,
             PlanSeeder::class,
-            DatabaseSeeder::class,
+            SubscriptionSeeder::class,
         ]);
     }
 }
