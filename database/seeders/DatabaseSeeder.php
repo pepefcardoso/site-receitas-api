@@ -21,7 +21,8 @@ class DatabaseSeeder extends Seeder
             RecipeUnitSeeder::class,
             PostSeeder::class,
             RecipeSeeder::class,
-            CompanySeeder::class
+            CompanySeeder::class,
+            PlanSeeder::class,
         ]);
     }
 }
