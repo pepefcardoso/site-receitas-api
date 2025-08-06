@@ -16,7 +16,7 @@ class RatingPolicy
         return true;
     }
 
-    public function create(?User $user): bool
+    public function create(User $user): bool
     {
         return true;
     }

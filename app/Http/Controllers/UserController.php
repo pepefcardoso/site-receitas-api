@@ -27,6 +27,7 @@ class UserController extends BaseController
 
     public function index(FilterUsersRequest $request, ListUser $service): AnonymousResourceCollection
     {
+        $this->authorize('viewAny', User::class);
         $users = $service->list($request->validated());
         return UserResource::collection($users);
     }
@@ -47,6 +48,7 @@ class UserController extends BaseController
 
     public function update(UpdateUserRequest $request, User $user, UpdateUser $service): UserResource
     {
+        $this->authorize('update', $user);
         $updatedUser = $service->update($user, $request->validated());
         return new UserResource($updatedUser);
     }
@@ -60,13 +62,14 @@ class UserController extends BaseController
 
     public function authUser(Request $request): UserResource
     {
+        $this->authorize('view', $request->user());
         return new UserResource($request->user()->load('image'));
     }
 
     public function updateRole(UpdateUserRoleRequest $request, User $user): UserResource
     {
+        $this->authorize('updateRole', $user);
         $user->update(['role' => $request->validated('role')]);
-
         return new UserResource($user);
     }
 

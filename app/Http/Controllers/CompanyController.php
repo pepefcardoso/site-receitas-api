@@ -24,6 +24,7 @@ class CompanyController
 
     public function store(StoreCompanyRequest $request)
     {
+        $this->authorize('create', Company::class);
         $validatedData = $request->validated();
         $validatedData['user_id'] = auth()->id();
         $company = Company::create($validatedData);
@@ -40,8 +41,8 @@ class CompanyController
 
     public function update(UpdateCompanyRequest $request, Company $company): CompanyResource
     {
+        $this->authorize('update', $company);
         $company->update($request->validated());
-
         return new CompanyResource($company);
     }
 

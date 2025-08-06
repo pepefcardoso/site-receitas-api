@@ -41,13 +41,13 @@ class CommentController extends BaseController
 
     public function store(StoreCommentRequest $request, string $type, int $commentableId): JsonResponse
     {
-        $commentable = $this->resolveCommentable($type, $commentableId);
+        $this->authorize('create', Comment::class);
 
+        $commentable = $this->resolveCommentable($type, $commentableId);
         $comment = $commentable->comments()->create([
             'user_id' => auth()->id(),
             'content' => $request->validated('content'),
         ]);
-
         return (new CommentResource($comment->load('user.image')))
             ->response()
             ->setStatusCode(201);

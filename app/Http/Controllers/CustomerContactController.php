@@ -39,6 +39,7 @@ class CustomerContactController extends BaseController
 
     public function updateStatus(UpdateStatusRequest $request, CustomerContact $customerContact, UpdateCustomerContactStatus $service): CustomerContactResource
     {
+        $this->authorize('update', $customerContact);
         $updatedContact = $service->update($customerContact, $request->validated('status'));
         return new CustomerContactResource($updatedContact);
     }

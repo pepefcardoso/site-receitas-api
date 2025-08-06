@@ -19,10 +19,6 @@ class RecipePolicy
 
     public function create(User $user): bool
     {
-        if (!$user) {
-            return false;
-        }
-
         return true;
     }
 

@@ -12,7 +12,7 @@ class PostCategoryPolicy
         return true;
     }
 
-    public function view(?User $user, PostCategory $PostCategory)
+    public function view(?User $user, PostCategory $postCategory)
     {
         return true;
     }
@@ -22,12 +22,12 @@ class PostCategoryPolicy
         return $user->isInternal();
     }
 
-    public function update(User $user, PostCategory $PostCategory): bool
+    public function update(User $user, PostCategory $postCategory): bool
     {
         return $user->isInternal();
     }
 
-    public function delete(User $user, PostCategory $PostCategory): bool
+    public function delete(User $user, PostCategory $postCategory): bool
     {
         return $user->isInternal();
     }

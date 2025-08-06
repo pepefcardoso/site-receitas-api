@@ -20,6 +20,7 @@ class ImageController extends BaseController
 
     public function index(Request $request)
     {
+         $this->authorize('viewAny', Image::class);
         return $this->execute(function () use ($request) {
             $perPage = $request->input('per_page', 10);
             $images = Image::query()->paginate($perPage);
@@ -29,6 +30,7 @@ class ImageController extends BaseController
 
     public function store(Request $request, CreateImage $service)
     {
+        $this->authorize('view', $image);
         return $this->execute(function () use ($request, $service) {
             $this->authorize('create', Image::class);
 

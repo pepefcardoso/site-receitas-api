@@ -15,24 +15,31 @@ class PostCategoryController extends BaseController
     {
         $this->middleware('auth:sanctum')->except(['index', 'show']);
     }
+
     public function index()
     {
         return PostCategoryResource::collection(PostCategory::all());
     }
+
     public function store(StoreRequest $request): JsonResponse
     {
+        $this->authorize('create', PostCategory::class);
         $category = PostCategory::create($request->validated());
         return (new PostCategoryResource($category))->response()->setStatusCode(201);
     }
+
     public function show(PostCategory $postCategory)
     {
         return new PostCategoryResource($postCategory);
     }
+
     public function update(UpdateRequest $request, PostCategory $postCategory)
     {
+        $this->authorize('update', $postCategory);
         $postCategory->update($request->validated());
         return new PostCategoryResource($postCategory);
     }
+
     public function destroy(PostCategory $postCategory)
     {
         $this->authorize('delete', $postCategory);

@@ -23,6 +23,7 @@ class PostTopicController extends BaseController
 
     public function store(StoreRequest $request): JsonResponse
     {
+        $this->authorize('create', PostTopic::class);
         $topic = PostTopic::create($request->validated());
         return (new PostTopicResource($topic))->response()->setStatusCode(201);
     }
@@ -34,6 +35,7 @@ class PostTopicController extends BaseController
 
     public function update(UpdateRequest $request, PostTopic $postTopic)
     {
+        $this->authorize('update', $postTopic);
         $postTopic->update($request->validated());
         return new PostTopicResource($postTopic);
     }

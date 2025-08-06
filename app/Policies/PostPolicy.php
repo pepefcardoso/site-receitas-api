@@ -11,12 +11,12 @@ class PostPolicy
         return true;
     }
 
-    public function view(?User $user, Post $Post)
+    public function view(?User $user, Post $post)
     {
         return true;
     }
 
-    public function create(?User $user): bool
+    public function create(User $user): bool
     {
         return true;
     }
@@ -26,8 +26,8 @@ class PostPolicy
         return $user->isInternal() || $user->id === $post->user_id;
     }
 
-    public function delete(User $user, Post $Post): bool
+    public function delete(User $user, Post $post): bool
     {
-        return $user->isInternal() || $user->id === $Post->user_id;
+        return $user->isInternal() || $user->id === $post->user_id;
     }
 }

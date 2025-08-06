@@ -28,14 +28,13 @@ class PostController extends BaseController
     {
         $filters = $request->validated();
         $perPage = $filters['per_page'] ?? 10;
-
         $posts = $service->list($filters, $perPage);
-
         return PostCollectionResource::collection($posts);
     }
 
     public function store(StorePostRequest $request, CreatePost $service): PostResource
     {
+        $this->authorize('create', Post::class);
         $post = $service->create($request->validated());
         $post->load(['user.image', 'category', 'topics', 'image']);
         return new PostResource($post);
@@ -49,6 +48,7 @@ class PostController extends BaseController
 
     public function update(UpdatePostRequest $request, Post $post, UpdatePost $service): PostResource
     {
+        $this->authorize('update', $post);
         $updatedPost = $service->update($post, $request->validated());
         return new PostResource($updatedPost);
     }

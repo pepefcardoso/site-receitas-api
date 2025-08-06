@@ -12,27 +12,32 @@ class UserPolicy
         return $user->isInternal();
     }
 
-    public function view(?User $authUser, User $updateUser): bool
+    public function view(User $authUser, User $targetUser): bool
     {
-        return $authUser->isInternal() || $authUser->id === $updateUser->id;
+        return $authUser->isInternal() || $authUser->id === $targetUser->id;
     }
 
-    public function create(User $user): bool
-    {
-        if (!$user) {
-            return false;
-        }
+    // public function create(User $user): bool
+    // {
+    //     if (!$user) {
+    //         return false;
+    //     }
 
-        return true;
+    //     return true;
+    // }
+
+    public function update(User $authUser, User $targetUser): bool
+    {
+        return $authUser->isInternal() || $authUser->id === $targetUser->id;
     }
 
-    public function update(?User $authUser, User $updateUser): bool
+    public function delete(User $authUser, User $targetUser): bool
     {
-        return $authUser->isInternal() || $authUser->id === $updateUser->id;
+        return $authUser->isInternal() || $authUser->id === $targetUser->id;
     }
 
-    public function delete(?User $authUser, User $updateUser): bool
+    public function updateRole(User $authUser, User $targetUser): bool
     {
-        return $authUser->isInternal() || $authUser->id === $updateUser->id;
+        return $authUser->isInternal();
     }
 }

@@ -36,10 +36,9 @@ class RecipeController extends BaseController
 
     public function store(StoreRecipeRequest $request, CreateRecipe $service): RecipeResource
     {
+        $this->authorize('create', Recipe::class);
         $recipe = $service->create($request->validated());
-
         $recipe->load(['user.image', 'category', 'diets', 'ingredients.unit', 'steps', 'image']);
-
         return new RecipeResource($recipe);
     }
 
@@ -51,6 +50,7 @@ class RecipeController extends BaseController
 
     public function update(UpdateRecipeRequest $request, Recipe $recipe, UpdateRecipe $service): RecipeResource
     {
+        $this->authorize('update', $recipe);
         $updatedRecipe = $service->update($recipe, $request->validated());
         return new RecipeResource($updatedRecipe);
     }
