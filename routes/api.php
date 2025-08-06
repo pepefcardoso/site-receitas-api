@@ -17,6 +17,7 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\CompanyController;
 use App\Http\Controllers\PlanController;
 use App\Http\Controllers\SubscriptionController;
+use App\Http\Controllers\PaymentController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -102,6 +103,8 @@ Route::middleware(['auth:sanctum', 'throttle:api'])->group(function () {
     Route::apiResource('plans', PlanController::class);
 
     Route::apiResource('subscriptions', SubscriptionController::class);
+
+    Route::apiResource('payments', PaymentController::class);
 
     // Posts (Restantes - store, update, destroy)
     Route::apiResource('posts', PostController::class)->except(['index', 'show']);

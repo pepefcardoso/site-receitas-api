@@ -17,6 +17,8 @@ use App\Models\RecipeUnit;
 use App\Models\User;
 use App\Models\Company;
 use App\Models\Plan;
+use App\Models\Payment;
+use App\Models\Subscription;
 use App\Policies\CommentPolicy;
 use App\Policies\CustomerContactPolicy;
 use App\Policies\ImagePolicy;
@@ -34,6 +36,9 @@ use App\Policies\RecipeUnitPolicy;
 use App\Policies\UserPolicy;
 use App\Policies\CompanyPolicy;
 use App\Policies\PlanPolicy;
+use App\Policies\SubscriptionPolicy;
+use App\Policies\PaymentPolicy;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
 
 class AuthServiceProvider extends ServiceProvider
@@ -61,6 +66,8 @@ class AuthServiceProvider extends ServiceProvider
         NewsletterCustomer::class => NewsletterCustomerPolicy::class,
         Company::class => CompanyPolicy::class,
         Plan::class => PlanPolicy::class,
+        Subscription::class => SubscriptionPolicy::class,
+        Payment::class => PaymentPolicy::class,
     ];
 
     /**
