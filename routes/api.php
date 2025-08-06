@@ -15,6 +15,8 @@ use App\Http\Controllers\RecipeUnitController;
 use App\Http\Controllers\SocialAuthController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\CompanyController;
+use App\Http\Controllers\PlanController;
+use App\Http\Controllers\SubscriptionController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -97,7 +99,9 @@ Route::middleware(['auth:sanctum', 'throttle:api'])->group(function () {
 
     Route::apiResource('companies', CompanyController::class);
 
-    Route::apiResource('plans', \App\Http\Controllers\PlanController::class);
+    Route::apiResource('plans', PlanController::class);
+
+    Route::apiResource('subscriptions', SubscriptionController::class);
 
     // Posts (Restantes - store, update, destroy)
     Route::apiResource('posts', PostController::class)->except(['index', 'show']);

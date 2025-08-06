@@ -36,6 +36,7 @@ class CompanyController
     public function show(Company $company): CompanyResource
     {
         $this->authorize('view', $company);
+        $company->load('subscriptions.plan');
         return new CompanyResource($company);
     }
 

@@ -3,25 +3,19 @@
 namespace App\Services\Company;
 
 use App\Models\Company;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 
 class ListCompanies
 {
-    public function list(array $filters = [], $perPage = 10)
+    public function list(array $filters = [], int $perPage = 10): LengthAwarePaginator
     {
-        $query = Company::select('id', 'name', 'cnpj', 'email', 'phone', 'address', 'website', 'user_id', 'created_at')
-            ->with([
-                'image' => fn($q) => $q->select('id', 'path as url', 'imageable_id', 'imageable_type')
-            ])
+        $query = Company::with(['image'])
             ->filter($filters);
 
-        if (isset($filters['order_by'], $filters['order_direction'])) {
-            $query->orderBy($filters['order_by'], $filters['order_direction']);
-        } else {
-            $query->orderBy('created_at', 'desc');
-        }
+        $orderBy = $filters['order_by'] ?? 'created_at';
+        $orderDirection = $filters['order_direction'] ?? 'desc';
+        $query->orderBy($orderBy, $orderDirection);
 
-        return $query->paginate(
-            $filters['per_page'] ?? $perPage
-        );
+        return $query->paginate($filters['per_page'] ?? $perPage);
     }
 }

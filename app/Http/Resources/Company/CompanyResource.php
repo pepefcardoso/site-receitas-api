@@ -3,6 +3,7 @@
 namespace App\Http\Resources\Company;
 
 use App\Http\Resources\Recipe\ImageResource;
+use App\Http\Resources\SubscriptionResource;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -20,7 +21,8 @@ class CompanyResource extends JsonResource
             'website' => $this->website,
             'image' => new ImageResource($this->whenLoaded('image')),
             'user' => $this->user_id,
-            'created_at' => $this->created_at->toDateTimeString()
+            'created_at' => $this->created_at->toDateTimeString(),
+            'subscriptions' => SubscriptionResource::collection($this->whenLoaded('subscriptions')),
         ];
     }
 }
