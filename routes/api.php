@@ -97,6 +97,8 @@ Route::middleware(['auth:sanctum', 'throttle:api'])->group(function () {
 
     Route::apiResource('companies', CompanyController::class);
 
+    Route::apiResource('plans', \App\Http\Controllers\PlanController::class);
+
     // Posts (Restantes - store, update, destroy)
     Route::apiResource('posts', PostController::class)->except(['index', 'show']);
 

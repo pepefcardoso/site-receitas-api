@@ -2,65 +2,52 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\StorePlanRequest;
-use App\Http\Requests\UpdatePlanRequest;
+use App\Http\Requests\Plan\StorePlanRequest;
+use App\Http\Requests\Plan\UpdatePlanRequest;
+use App\Http\Resources\Plan\PlanResource;
 use App\Models\Plan;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Http\Response;
 
-class PlanController
+class PlanController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    public function __construct()
     {
-        //
+        $this->authorizeResource(Plan::class, 'plan');
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
+    public function index(Request $request): JsonResource
     {
-        //
+        $plans = Plan::filter($request->all())->paginate(10);
+
+        return PlanResource::collection($plans);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(StorePlanRequest $request)
+    public function store(StorePlanRequest $request): JsonResponse
     {
-        //
+        $plan = Plan::create($request->validated());
+
+        return response()->json(new PlanResource($plan), Response::HTTP_CREATED);
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(Plan $plan)
+    public function show(Plan $plan): PlanResource
     {
-        //
+        return new PlanResource($plan);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Plan $plan)
+    public function update(UpdatePlanRequest $request, Plan $plan): PlanResource
     {
-        //
+        $plan->update($request->validated());
+
+        return new PlanResource($plan);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(UpdatePlanRequest $request, Plan $plan)
+    public function destroy(Plan $plan): Response
     {
-        //
-    }
+        $plan->delete();
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Plan $plan)
-    {
-        //
+        return response()->noContent();
     }
 }
