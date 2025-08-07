@@ -29,6 +29,7 @@ class UpdateCompanyRequest extends FormRequest
             'phone' => ['nullable', 'string', 'regex:/^\d{10,11}$/', Rule::unique('companies')->ignore($this->route('company'))],
             'address' => ['required', 'string', 'max:255'],
             'website' => ['required', 'string', 'max:255'],
+            'image' => ['nullable', 'image', 'mimes:jpeg,png,jpg,gif,svg', 'max:2048'],
         ];
     }
 }

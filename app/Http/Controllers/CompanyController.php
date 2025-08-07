@@ -6,6 +6,9 @@ use App\Http\Requests\Company\FilterCompaniesRequest;
 use App\Http\Requests\Company\StoreCompanyRequest;
 use App\Http\Requests\Company\UpdateCompanyRequest;
 use App\Http\Resources\Company\CompanyResource;
+use App\Services\Company\DeleteCompany;
+use App\Services\Company\UpdateCompany;
+use App\Services\Company\CreateCompany;
 use App\Models\Company;
 use App\Services\Company\ListCompanies;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
@@ -22,12 +25,10 @@ class CompanyController
         return CompanyResource::collection($companies);
     }
 
-    public function store(StoreCompanyRequest $request)
+    public function store(StoreCompanyRequest $request, CreateCompany $service): CompanyResource
     {
         $this->authorize('create', Company::class);
-        $validatedData = $request->validated();
-        $validatedData['user_id'] = auth()->id();
-        $company = Company::create($validatedData);
+        $company = $service->create($request->validated());
         return (new CompanyResource($company))
             ->response()
             ->setStatusCode(201);
@@ -36,21 +37,21 @@ class CompanyController
     public function show(Company $company): CompanyResource
     {
         $this->authorize('view', $company);
-        $company->load('subscriptions.plan');
+        $company->load('subscriptions.plan', 'image');
         return new CompanyResource($company);
     }
 
-    public function update(UpdateCompanyRequest $request, Company $company): CompanyResource
+    public function update(UpdateCompanyRequest $request, Company $company, UpdateCompany $service): CompanyResource
     {
         $this->authorize('update', $company);
-        $company->update($request->validated());
+        $company = $service->update($company, $request->validated());
         return new CompanyResource($company);
     }
 
-    public function destroy(Company $company)
+    public function destroy(Company $company, DeleteCompany $service)
     {
         $this->authorize('delete', $company);
-        $company->delete();
+        $service->delete($company);
         return response()->json(null, 204);
     }
 }

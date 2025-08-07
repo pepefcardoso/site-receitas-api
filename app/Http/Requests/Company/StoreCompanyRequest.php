@@ -27,6 +27,7 @@ class StoreCompanyRequest extends FormRequest
             'phone' => ['required', 'string', 'regex:/^\d{10,11}$/', Rule::unique('companies')],
             'address' => ['required', 'string', 'max:255'],
             'website' => ['required', 'string', 'max:255'],
+            'image' => ['required', 'image', 'mimes:jpeg,png,jpg,gif,svg', 'max:2048'],
         ];
     }
 }
