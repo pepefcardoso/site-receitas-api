@@ -13,47 +13,36 @@ class PaymentCreated extends Notification implements ShouldQueue
 {
     use Queueable;
 
-    /**
-     * Create a new notification instance.
-     */
-    public function __construct()
-    {
+    public function __construct(
+        public Payment $payment
+    ) {
         //
     }
 
-    /**
-     * Get the notification's delivery channels.
-     *
-     * @return array<int, string>
-     */
     public function via(object $notifiable): array
     {
         return ['mail'];
     }
 
-    /**
-     * Get the mail representation of the notification.
-     */
     public function toMail(object $notifiable): MailMessage
     {
         return (new MailMessage)
-                    ->subject('Nova Fatura Gerada para sua Assinatura')
-                    ->markdown('emails.created_payment', [
-                        'greetingName' => $notifiable->name,
-                        'amount' => number_format($this->payment->amount, 2, ',', '.'),
-                        'dueDate' => Carbon::parse($this->payment->due_date)->format('d/m/Y'),
-                        'actionText' => 'Ver Fatura',
-                        'actionUrl' => url('/dashboard/billing'),
-                    ]);
+            ->subject('Nova Fatura Gerada para sua Assinatura')
+            ->markdown('emails.created_payment', [
+                'greetingName' => $notifiable->name,
+                'amount' => number_format((float) $this->payment->amount, 2, ',', '.'),
+                'dueDate' => Carbon::parse($this->payment->due_date)->format('d/m/Y'),
+                'actionText' => 'Ver Fatura',
+                'actionUrl' => url('/dashboard/billing'),
+            ]);
     }
 
-    /**
-     * Get the array representation of the notification.
-     *
-     * @return array<string, mixed>
-     */
     public function toArray(object $notifiable): array
     {
-        //
+        return [
+            'payment_id' => $this->payment->id,
+            'amount' => $this->payment->amount,
+            'due_date' => $this->payment->due_date,
+        ];
     }
 }

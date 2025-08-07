@@ -7,22 +7,12 @@ use Illuminate\Validation\Rule;
 
 class UpdateUserRequest extends FormRequest
 {
-    /**
-     * Determine if the user is authorized to make this request.
-     *
-     * @return bool
-     */
     public function authorize(): bool
     {
         $userToUpdate = $this->route('user');
         return $this->user()->can('update', $userToUpdate);
     }
 
-    /**
-     * Get the validation rules that apply to the request.
-     *
-     * @return array<string, mixed>
-     */
     public function rules(): array
     {
         $userId = $this->route('user')->id;
@@ -47,11 +37,6 @@ class UpdateUserRequest extends FormRequest
         ];
     }
 
-    /**
-     * Get the custom validation messages for the defined rules.
-     *
-     * @return array<string, string>
-     */
     public function messages(): array
     {
         return [

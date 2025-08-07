@@ -4,7 +4,6 @@ namespace App\Services\Company;
 
 use App\Models\Company;
 use App\Services\Image\DeleteImage;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Throwable;

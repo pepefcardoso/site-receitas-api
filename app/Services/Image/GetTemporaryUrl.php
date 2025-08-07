@@ -3,7 +3,7 @@
 namespace App\Services\Image;
 
 use App\Models\Image;
-use Carbon\Carbon;
+use Illuminate\Filesystem\FilesystemAdapter;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;
 
@@ -20,9 +20,12 @@ class GetTemporaryUrl
 
         return Cache::remember($cacheKey, $cacheTtl * 60, function () use ($image, $cacheTtl) {
             try {
-                return Storage::disk('s3')->temporaryUrl(
+                /** @var FilesystemAdapter $disk */
+                $disk = Storage::disk('s3');
+
+                return $disk->temporaryUrl(
                     $image->path,
-                    Carbon::now()->addMinutes($cacheTtl)
+                    now()->addMinutes($cacheTtl)
                 );
             } catch (\Exception $e) {
                 throw $e;

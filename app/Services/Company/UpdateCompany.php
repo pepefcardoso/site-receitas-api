@@ -5,7 +5,6 @@ namespace App\Services\Company;
 use App\Models\Company;
 use App\Services\Image\CreateImage;
 use App\Services\Image\UpdateImage;
-use Exception;
 use Illuminate\Support\Facades\DB;
 use Throwable;
 

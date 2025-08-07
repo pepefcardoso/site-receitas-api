@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Filesystem\FilesystemAdapter;
 
 class Image extends Model
 {
@@ -46,12 +47,15 @@ class Image extends Model
             get: function () {
                 $diskName = config('filesystems.default');
 
+                /** @var FilesystemAdapter $disk */
+                $disk = Storage::disk($diskName);
+
                 if ($diskName !== 's3') {
-                    return Storage::disk($diskName)->url($this->path);
+                    return $disk->url($this->path);
                 }
 
                 if (config('filesystems.disks.s3.bucket')) {
-                    return Storage::disk('s3')->temporaryUrl($this->path, now()->addMinutes(15));
+                    return $disk->temporaryUrl($this->path, now()->addMinutes(15));
                 }
 
                 return null;

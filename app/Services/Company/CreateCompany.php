@@ -5,7 +5,6 @@ namespace App\Services\Company;
 use App\Models\Company;
 use App\Services\Image\CreateImage;
 use App\Services\Image\DeleteImage;
-use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
