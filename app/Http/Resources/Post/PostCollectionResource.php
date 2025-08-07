@@ -2,9 +2,9 @@
 
 namespace App\Http\Resources\Post;
 
-use App\Http\Resources\Post\CategoryResource;
-use App\Http\Resources\Recipe\AuthorResource;
-use App\Http\Resources\Recipe\ImageResource;
+use App\Http\Resources\Image\ImageResource;
+use App\Http\Resources\PostCategory\PostCategoryResource;
+use App\Http\Resources\User\AuthorResource;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -17,7 +17,7 @@ class PostCollectionResource extends JsonResource
             'title' => $this->title,
             'summary' => $this->summary,
             'image' => new ImageResource($this->whenLoaded('image')),
-            'category' => new CategoryResource($this->whenLoaded('category')),
+            'category' => new PostCategoryResource($this->whenLoaded('category')),
             'author' => new AuthorResource($this->whenLoaded('user')),
             'average_rating' => round($this->whenAggregated('ratings', 'rating', 'avg') ?? 0, 2),
             'ratings_count' => $this->whenCounted('ratings'),

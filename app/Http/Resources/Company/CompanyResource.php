@@ -2,8 +2,8 @@
 
 namespace App\Http\Resources\Company;
 
-use App\Http\Resources\Recipe\ImageResource;
-use App\Http\Resources\SubscriptionResource;
+use App\Http\Resources\Image\ImageResource;
+use App\Http\Resources\Subscription\SubscriptionResource;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 

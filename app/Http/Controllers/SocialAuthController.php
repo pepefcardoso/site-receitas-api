@@ -18,7 +18,12 @@ class SocialAuthController extends BaseController
         }
 
         try {
-            $url = Socialite::driver($provider)->stateless()->redirect()->getTargetUrl();
+            /**
+             * @var \Laravel\Socialite\Two\AbstractProvider $driver
+             */
+            $driver = Socialite::driver($provider);
+            $url = $driver->stateless()->redirect()->getTargetUrl();
+
             return response()->json(['url' => $url]);
         } catch (Exception $e) {
             Log::error("Falha ao redirecionar para o provedor $provider: " . $e->getMessage());
@@ -31,7 +36,12 @@ class SocialAuthController extends BaseController
         $frontendUrl = config('app.frontend_url', 'http://localhost:3000');
 
         try {
-            $socialUser = Socialite::driver($provider)->stateless()->user();
+            /**
+             * @var \Laravel\Socialite\Two\AbstractProvider $driver
+             */
+            $driver = Socialite::driver($provider);
+            $socialUser = $driver->stateless()->user();
+
             $email = $socialUser->getEmail();
 
             if (empty($email)) {

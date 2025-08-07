@@ -2,14 +2,14 @@
 
 namespace App\Http\Resources\Recipe;
 
+use App\Http\Resources\Image\ImageResource;
+use App\Http\Resources\RecipeCategory\RecipeCategoryResource;
+use App\Http\Resources\RecipeDiet\RecipeDietResource;
+use App\Http\Resources\RecipeIngredient\RecipeIngredientResource;
+use App\Http\Resources\RecipeStep\RecipeStepResource;
+use App\Http\Resources\User\AuthorResource;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
-use App\Http\Resources\Recipe\ImageResource;
-use App\Http\Resources\Recipe\AuthorResource;
-use App\Http\Resources\Recipe\CategoryResource;
-use App\Http\Resources\Recipe\DietResource;
-use App\Http\Resources\Recipe\IngredientResource;
-use App\Http\Resources\Recipe\StepResource;
 
 class RecipeResource extends JsonResource
 {
@@ -29,10 +29,10 @@ class RecipeResource extends JsonResource
             'ratings_count' => $this->whenCounted('ratings'),
             'is_favorited' => (bool) ($this->is_favorited ?? false),
             'author' => new AuthorResource($this->whenLoaded('user')),
-            'category' => new CategoryResource($this->whenLoaded('category')),
-            'diets' => DietResource::collection($this->whenLoaded('diets')),
-            'ingredients' => IngredientResource::collection($this->whenLoaded('ingredients')),
-            'steps' => StepResource::collection($this->whenLoaded('steps')),
+            'category' => new RecipeCategoryResource($this->whenLoaded('category')),
+            'diets' => RecipeDietResource::collection($this->whenLoaded('diets')),
+            'ingredients' => RecipeIngredientResource::collection($this->whenLoaded('ingredients')),
+            'steps' => RecipeStepResource::collection($this->whenLoaded('steps')),
         ];
     }
 }

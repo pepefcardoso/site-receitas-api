@@ -52,7 +52,7 @@ class RatingController extends BaseController
         $this->authorize('create', Rating::class);
         $rateable = $this->resolveRateable($type, $rateableId);
         $rating = $rateable->ratings()->updateOrCreate(
-            ['user_id' => auth()->id()],
+            ['user_id' => $request->user()->id],
             ['rating' => $request->validated('rating')]
         );
         $statusCode = $rating->wasRecentlyCreated ? 201 : 200;
@@ -74,10 +74,10 @@ class RatingController extends BaseController
         return response()->json(null, 204);
     }
 
-    public function showUserRating(string $type, int $rateableId)
+    public function showUserRating(Request $request, string $type, int $rateableId)
     {
         $rateable = $this->resolveRateable($type, $rateableId);
-        $rating = $rateable->ratings()->where('user_id', auth()->id())->first();
+        $rating = $rateable->ratings()->where('user_id', $request->user()->id)->first();
         if (!$rating) {
             return response()->json(['message' => 'Nenhuma avaliação encontrada para este usuário.'], 404);
         }

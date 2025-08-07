@@ -11,7 +11,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Http\Response;
 
-class PlanController extends Controller
+class PlanController extends BaseController
 {
     public function __construct()
     {

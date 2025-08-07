@@ -12,6 +12,7 @@ use App\Services\Company\CreateCompany;
 use App\Models\Company;
 use App\Services\Company\ListCompanies;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
 class CompanyController
@@ -25,7 +26,7 @@ class CompanyController
         return CompanyResource::collection($companies);
     }
 
-    public function store(StoreCompanyRequest $request, CreateCompany $service): CompanyResource
+    public function store(StoreCompanyRequest $request, CreateCompany $service): JsonResponse
     {
         $this->authorize('create', Company::class);
         $company = $service->create($request->validated());

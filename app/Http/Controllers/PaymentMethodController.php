@@ -10,7 +10,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
-class PaymentMethodController extends Controller
+class PaymentMethodController extends BaseController
 {
     public function index(Request $request): AnonymousResourceCollection
     {

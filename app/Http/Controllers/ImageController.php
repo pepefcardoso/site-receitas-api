@@ -35,16 +35,16 @@ class ImageController extends BaseController
 
     public function store(Request $request, CreateImage $service)
     {
-        $this->authorize('view', $image);
         return $this->execute(function () use ($request, $service) {
             $this->authorize('create', Image::class);
 
             $data = $request->validate(Image::createRules());
-
             $model = $data['imageable_type']::findOrFail($data['imageable_id']);
             $file = $data['file'];
 
-            $image = $service->create($model, $file);
+            $imageData = $service->uploadOnly($file);
+            $image = $service->createDbRecord($model, $imageData);
+
             return response()->json($image, 201);
         });
     }
@@ -55,19 +55,21 @@ class ImageController extends BaseController
             return response()->json($image);
         });
     }
-
-    public function update(Request $request, Image $image, UpdateImage $service)
+    public function update(Request $request, Image $image, UpdateImage $updateService, CreateImage $createService)
     {
-        return $this->execute(function () use ($request, $image, $service) {
+        return $this->execute(function () use ($request, $image, $updateService, $createService) {
             $this->authorize('update', $image);
 
             $data = $request->validate([
-                'file' => 'required|file|mimes:jpeg,png,jpg,gif,svg|max:2048'
+                'file' => 'required|file|mimes:jpeg,png,jpg,gif,svg,webp|max:2048'
             ]);
             $file = $data['file'];
 
-            $updatedImage = $service->update($image, $file);
-            return response()->json($updatedImage);
+            $newImageData = $createService->uploadOnly($file);
+            $oldPath = $updateService->updateDbRecord($image, $newImageData);
+            $updateService->deleteFile($oldPath);
+
+            return response()->json($image->fresh());
         });
     }
 
@@ -75,8 +77,11 @@ class ImageController extends BaseController
     {
         return $this->execute(function () use ($image, $service) {
             $this->authorize('delete', $image);
-            $response = $service->delete($image);
-            return response()->json($response);
+
+            $filePath = $service->deleteDbRecord($image);
+            $service->deleteFile($filePath);
+
+            return response()->json(null, 204);
         });
     }
 }

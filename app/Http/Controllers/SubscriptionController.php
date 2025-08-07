@@ -12,7 +12,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 
-class SubscriptionController extends Controller
+class SubscriptionController extends BaseController
 {
     public function __construct()
     {
@@ -36,7 +36,7 @@ class SubscriptionController extends Controller
     {
         try {
             $validatedData = $request->validated();
-            $existingSubscription = Subscription::where('company_id', $data['company_id'])
+            $existingSubscription = Subscription::where('company_id', $validatedData['company_id'])
                 ->whereIsActive()
                 ->first();
             if ($existingSubscription) {
@@ -59,7 +59,7 @@ class SubscriptionController extends Controller
 
     public function update(UpdateSubscriptionRequest $request, Subscription $subscription): SubscriptionResource
     {
-        $updatedSubscription =$subscription->update($request->validated());
+        $updatedSubscription = $subscription->update($request->validated());
         return new SubscriptionResource($updatedSubscription);
     }
 

@@ -49,10 +49,12 @@ class CommentController extends BaseController
         $this->authorize('create', Comment::class);
 
         $commentable = $this->resolveCommentable($type, $commentableId);
+
         $comment = $commentable->comments()->create([
-            'user_id' => auth()->id(),
+            'user_id' => $request->user()->id,
             'content' => $request->validated('content'),
         ]);
+
         return (new CommentResource($comment->load('user.image')))
             ->response()
             ->setStatusCode(201);

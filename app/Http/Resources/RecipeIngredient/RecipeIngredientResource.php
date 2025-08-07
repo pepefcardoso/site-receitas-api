@@ -1,12 +1,12 @@
 <?php
 
-namespace App\Http\Resources\Recipe;
+namespace App\Http\Resources\RecipeIngredient;
 
+use App\Http\Resources\RecipeUnit\RecipeUnitResource;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
-use App\Http\Resources\Recipe\UnitResource;
 
-class IngredientResource extends JsonResource
+class RecipeIngredientResource extends JsonResource
 {
     public function toArray(Request $request): array
     {
@@ -14,7 +14,7 @@ class IngredientResource extends JsonResource
             'id' => $this->id,
             'name' => $this->name,
             'quantity' => $this->quantity,
-            'unit' => new UnitResource($this->whenLoaded('unit')),
+            'unit' => new RecipeUnitResource($this->whenLoaded('unit')),
         ];
     }
 }

@@ -2,10 +2,10 @@
 
 namespace App\Http\Resources\Post;
 
-use App\Http\Resources\Recipe\AuthorResource;
-use App\Http\Resources\Post\CategoryResource;
-use App\Http\Resources\Post\TopicResource;
-use App\Http\Resources\Recipe\ImageResource;
+use App\Http\Resources\Image\ImageResource;
+use App\Http\Resources\PostCategory\PostCategoryResource;
+use App\Http\Resources\PostTopic\PostTopicResource;
+use App\Http\Resources\User\AuthorResource;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -25,8 +25,8 @@ class PostResource extends JsonResource
             'ratings_count' => $this->whenCounted('ratings'),
             'is_favorited' => (bool) ($this->is_favorited ?? false),
             'author' => new AuthorResource($this->whenLoaded('user')),
-            'category' => new CategoryResource($this->whenLoaded('category')),
-            'topics' => TopicResource::collection($this->whenLoaded('topics')),
+            'category' => new PostCategoryResource($this->whenLoaded('category')),
+            'topics' => PostTopicResource::collection($this->whenLoaded('topics')),
             'created_at' => $this->created_at->toIso8601String(),
             'updated_at' => $this->updated_at->toIso8601String(),
         ];

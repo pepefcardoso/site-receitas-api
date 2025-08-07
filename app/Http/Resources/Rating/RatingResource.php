@@ -2,7 +2,7 @@
 
 namespace App\Http\Resources\Rating;
 
-use App\Http\Resources\Recipe\AuthorResource;
+use App\Http\Resources\User\AuthorResource;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class RatingResource extends JsonResource

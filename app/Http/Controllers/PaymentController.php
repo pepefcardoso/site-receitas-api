@@ -2,17 +2,15 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Resources\PaymentMethod\PaymentMethodResource;
 use App\Http\Requests\Payment\StorePaymentRequest;
 use App\Http\Requests\Payment\UpdatePaymentRequest;
 use App\Http\Resources\Payment\PaymentResource;
 use App\Models\Payment;
-use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Http\Response;
 
-class PaymentController
+class PaymentController extends BaseController
 {
     public function index(Request $request): JsonResource
     {
