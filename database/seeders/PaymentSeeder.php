@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use App\Models\Payment;
+use App\Models\PaymentMethod;
 use App\Models\Subscription;
 use Illuminate\Database\Seeder;
 
@@ -12,9 +13,10 @@ class PaymentSeeder extends Seeder
     public function run(): void
     {
         $subscriptions = Subscription::all();
+        $paymentMethodIds = PaymentMethod::pluck('id');
 
-        if ($subscriptions->isEmpty()) {
-            $this->command->info('No subscriptions found, skipping PaymentSeeder.');
+        if ($subscriptions->isEmpty() || $paymentMethodIds->isEmpty()) {
+            $this->command->info('No subscriptions or payment methods found, skipping PaymentSeeder.');
             return;
         }
 
@@ -22,7 +24,9 @@ class PaymentSeeder extends Seeder
             Payment::factory()
                 ->count(3)
                 ->for($subscription)
-                ->create();
+                ->create([
+                    'payment_method_id' => $paymentMethodIds->random(),
+                ]);
         }
     }
 }

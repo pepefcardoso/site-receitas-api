@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\PaymentMethod\PaymentMethodResource;
 use App\Http\Requests\Payment\StorePaymentRequest;
 use App\Http\Requests\Payment\UpdatePaymentRequest;
 use App\Http\Resources\Payment\PaymentResource;
@@ -15,26 +16,28 @@ class PaymentController
     public function index(): JsonResource
     {
         $this->authorize('viewAny', Payment::class);
-        $payments = Payment::with('subscription')->latest()->paginate(15);
+        $payments = Payment::with(['subscription', 'method'])->latest()->paginate(15);
         return PaymentResource::collection($payments);
     }
 
     public function store(StorePaymentRequest $request): JsonResource
     {
         $payment = Payment::create($request->validated());
+        $payment->load('method');
         return new PaymentResource($payment);
     }
 
     public function show(Payment $payment): JsonResource
     {
         $this->authorize('view', $payment);
-        $payment->load('subscription');
+        $payment->load(['subscription', 'method']);
         return new PaymentResource($payment);
     }
 
     public function update(UpdatePaymentRequest $request, Payment $payment): JsonResource
     {
         $payment->update($request->validated());
+        $payment->load('method');
         return new PaymentResource($payment);
     }
 

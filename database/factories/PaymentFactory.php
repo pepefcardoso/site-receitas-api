@@ -20,6 +20,7 @@ class PaymentFactory extends Factory
         $status = $this->faker->randomElement(['pending', 'paid', 'failed']);
         return [
             'subscription_id' => Subscription::factory(),
+            'payment_method_id' => PaymentMethod::factory(),
             'amount' => $this->faker->randomFloat(2, 99.90, 499.90),
             'status' => $status,
             'due_date' => $this->faker->dateTimeBetween('-1 month', '+1 month'),

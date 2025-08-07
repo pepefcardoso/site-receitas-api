@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('payments', function (Blueprint $table) {
             $table->id();
             $table->foreignId('subscription_id')->constrained()->onDelete('cascade');
+            $table->foreignId('payment_method_id')->nullable()->constrained()->nullOnDelete();
             $table->decimal('amount', 10, 2);
             $table->string('status')->default('pending');
             $table->timestamp('due_date');

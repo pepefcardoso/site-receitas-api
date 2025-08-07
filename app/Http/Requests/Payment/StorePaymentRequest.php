@@ -17,6 +17,7 @@ class StorePaymentRequest extends FormRequest
     {
         return [
             'subscription_id' => 'required|integer|exists:subscriptions,id',
+            'payment_method_id' => 'required|integer|exists:payment_methods,id',
             'amount' => 'required|numeric|gt:0',
             'status' => ['sometimes', 'required', 'string', Rule::in(['pending', 'paid', 'failed'])],
             'due_date' => 'required|date',

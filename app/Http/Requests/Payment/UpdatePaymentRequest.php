@@ -15,6 +15,7 @@ class UpdatePaymentRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'payment_method_id' => 'sometimes|required|integer|exists:payment_methods,id',
             'amount' => 'sometimes|required|numeric|gt:0',
             'status' => ['sometimes', 'required', 'string', Rule::in(['pending', 'paid', 'failed'])],
             'due_date' => 'sometimes|required|date',

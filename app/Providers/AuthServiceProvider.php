@@ -7,6 +7,7 @@ use App\Models\CustomerContact;
 use App\Models\NewsletterCustomer;
 use App\Models\PostCategory;
 use App\Models\PostTopic;
+use App\Models\Post;
 use App\Models\Rating;
 use App\Models\Recipe;
 use App\Models\RecipeCategory;
@@ -19,6 +20,8 @@ use App\Models\Company;
 use App\Models\Plan;
 use App\Models\Payment;
 use App\Models\Subscription;
+use App\Models\PaymentMethod;
+use App\Models\Image;
 use App\Policies\CommentPolicy;
 use App\Policies\CustomerContactPolicy;
 use App\Policies\ImagePolicy;
@@ -38,7 +41,7 @@ use App\Policies\CompanyPolicy;
 use App\Policies\PlanPolicy;
 use App\Policies\SubscriptionPolicy;
 use App\Policies\PaymentPolicy;
-use Illuminate\Support\Facades\Gate;
+use App\Policies\PaymentMethodPolicy;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
 
 class AuthServiceProvider extends ServiceProvider
@@ -68,6 +71,7 @@ class AuthServiceProvider extends ServiceProvider
         Plan::class => PlanPolicy::class,
         Subscription::class => SubscriptionPolicy::class,
         Payment::class => PaymentPolicy::class,
+        PaymentMethod::class => PaymentMethodPolicy::class,
     ];
 
     /**
