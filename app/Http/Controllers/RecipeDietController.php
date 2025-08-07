@@ -7,6 +7,7 @@ use App\Http\Requests\RecipeDiet\UpdateRequest;
 use App\Http\Resources\RecipeDiet\RecipeDietResource;
 use App\Models\RecipeDiet;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Validation\ValidationException;
@@ -18,11 +19,19 @@ class RecipeDietController extends BaseController
         $this->middleware('auth:sanctum')->except(['index', 'show']);
     }
 
-    public function index(): AnonymousResourceCollection
+    public function index(Request $request): AnonymousResourceCollection
     {
-        $diets = cache()->remember('recipe_diets_list', now()->addHour(), function () {
-            return RecipeDiet::all();
+        $perPage = $request->input('per_page', 15);
+        $orderBy = $request->input('order_by', 'name');
+        $orderDirection = $request->input('order_direction', 'asc');
+        $page = $request->input('page', 1);
+
+        $cacheKey = "recipe_diets_list_{$orderBy}_{$orderDirection}_page_{$page}_per_page_{$perPage}";
+
+        $diets = cache()->remember($cacheKey, now()->addHour(), function () use ($orderBy, $orderDirection, $perPage) {
+            return RecipeDiet::orderBy($orderBy, $orderDirection)->paginate($perPage);
         });
+
         return RecipeDietResource::collection($diets);
     }
 

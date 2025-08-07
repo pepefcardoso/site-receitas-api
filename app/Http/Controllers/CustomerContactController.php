@@ -9,6 +9,7 @@ use App\Models\CustomerContact;
 use App\Services\CustomerContact\CreateCustomerContact;
 use App\Services\CustomerContact\UpdateCustomerContactStatus;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
 class CustomerContactController extends BaseController
@@ -18,10 +19,15 @@ class CustomerContactController extends BaseController
         $this->middleware('auth:sanctum')->except(['store']);
     }
 
-    public function index(): AnonymousResourceCollection
+    public function index(Request $request): AnonymousResourceCollection
     {
         $this->authorize('viewAny', CustomerContact::class);
-        $contacts = CustomerContact::latest()->paginate();
+
+        $perPage = $request->input('per_page', 15);
+        $orderBy = $request->input('order_by', 'created_at');
+        $orderDirection = $request->input('order_direction', 'desc');
+
+        $contacts = CustomerContact::orderBy($orderBy, $orderDirection)->paginate($perPage);
         return CustomerContactResource::collection($contacts);
     }
 

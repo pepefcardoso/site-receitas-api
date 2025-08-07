@@ -2,12 +2,14 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Subscription;
 use App\Http\Requests\Subscription\StoreSubscriptionRequest;
 use App\Http\Requests\Subscription\UpdateSubscriptionRequest;
 use App\Http\Resources\Subscription\SubscriptionResource;
-use  App\Notifications\SubscribedToPlan;
+use App\Models\Subscription;
+use App\Notifications\SubscribedToPlan;
+use Exception;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 
 class SubscriptionController extends Controller
@@ -17,9 +19,16 @@ class SubscriptionController extends Controller
         $this->authorizeResource(Subscription::class, 'subscription');
     }
 
-    public function index()
+    public function index(Request $request)
     {
-        $subscriptions = Subscription::with(['company', 'plan'])->paginate();
+        $perPage = $request->input('per_page', 15);
+        $orderBy = $request->input('order_by', 'created_at');
+        $orderDirection = $request->input('order_direction', 'desc');
+
+        $subscriptions = Subscription::with(['company', 'plan'])
+            ->orderBy($orderBy, $orderDirection)
+            ->paginate($perPage);
+
         return SubscriptionResource::collection($subscriptions);
     }
 

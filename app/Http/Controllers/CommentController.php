@@ -7,6 +7,7 @@ use App\Http\Requests\Comment\UpdateCommentRequest;
 use App\Http\Resources\Comment\CommentResource;
 use App\Models\Comment;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Str;
 
@@ -26,15 +27,19 @@ class CommentController extends BaseController
         return $class::findOrFail($id);
     }
 
-    public function index(string $type, $commentableId): AnonymousResourceCollection
+    public function index(Request $request, string $type, $commentableId): AnonymousResourceCollection
     {
         $commentable = $this->resolveCommentable($type, $commentableId);
+
+        $perPage = $request->input('per_page', 15);
+        $orderBy = $request->input('order_by', 'created_at');
+        $orderDirection = $request->input('order_direction', 'desc');
 
         $comments = $commentable
             ->comments()
             ->with('user.image')
-            ->latest()
-            ->paginate();
+            ->orderBy($orderBy, $orderDirection)
+            ->paginate($perPage);
 
         return CommentResource::collection($comments);
     }

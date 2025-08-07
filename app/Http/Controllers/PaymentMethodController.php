@@ -7,17 +7,23 @@ use App\Http\Requests\UpdatePaymentMethodRequest;
 use App\Http\Resources\PaymentMethod\PaymentMethodResource;
 use App\Models\PaymentMethod;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
 class PaymentMethodController extends Controller
 {
-    /**
-     * Retorna uma lista dos métodos de pagamento ativos.
-     */
-    public function index(): AnonymousResourceCollection
+    public function index(Request $request): AnonymousResourceCollection
     {
         $this->authorize('viewAny', PaymentMethod::class);
-        $paymentMethods = PaymentMethod::where('is_active', true)->get();
+
+        $perPage = $request->input('per_page', 15);
+        $orderBy = $request->input('order_by', 'name');
+        $orderDirection = $request->input('order_direction', 'asc');
+
+        $paymentMethods = PaymentMethod::where('is_active', true)
+            ->orderBy($orderBy, $orderDirection)
+            ->paginate($perPage);
+
         return PaymentMethodResource::collection($paymentMethods);
     }
 

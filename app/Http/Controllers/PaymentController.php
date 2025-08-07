@@ -8,15 +8,24 @@ use App\Http\Requests\Payment\UpdatePaymentRequest;
 use App\Http\Resources\Payment\PaymentResource;
 use App\Models\Payment;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Http\Response;
 
 class PaymentController
 {
-    public function index(): JsonResource
+    public function index(Request $request): JsonResource
     {
         $this->authorize('viewAny', Payment::class);
-        $payments = Payment::with(['subscription', 'method'])->latest()->paginate(15);
+
+        $perPage = $request->input('per_page', 15);
+        $orderBy = $request->input('order_by', 'created_at');
+        $orderDirection = $request->input('order_direction', 'desc');
+
+        $payments = Payment::with(['subscription', 'method'])
+            ->orderBy($orderBy, $orderDirection)
+            ->paginate($perPage);
+
         return PaymentResource::collection($payments);
     }
 

@@ -9,6 +9,7 @@ use App\Services\NewsletterCustomer\CreateNewsletterCustomer;
 use App\Services\NewsletterCustomer\DeleteNewsletterCustomer;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Http\Request;
 
 class NewsletterCustomerController extends BaseController
 {
@@ -17,10 +18,17 @@ class NewsletterCustomerController extends BaseController
         $this->middleware('auth:sanctum')->except(['store']);
     }
 
-    public function index(): AnonymousResourceCollection
+    public function index(Request $request): AnonymousResourceCollection
     {
         $this->authorize('viewAny', NewsletterCustomer::class);
-        return NewsletterCustomerResource::collection(NewsletterCustomer::latest()->paginate());
+
+        $perPage = $request->input('per_page', 15);
+        $orderBy = $request->input('order_by', 'created_at');
+        $orderDirection = $request->input('order_direction', 'desc');
+
+        $customers = NewsletterCustomer::orderBy($orderBy, $orderDirection)->paginate($perPage);
+
+        return NewsletterCustomerResource::collection($customers);
     }
 
     public function store(StoreRequest $request, CreateNewsletterCustomer $service): JsonResponse

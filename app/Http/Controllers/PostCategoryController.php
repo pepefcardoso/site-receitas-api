@@ -7,6 +7,8 @@ use App\Http\Requests\PostCategory\UpdateRequest;
 use App\Http\Resources\PostCategory\PostCategoryResource;
 use App\Models\PostCategory;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Validation\ValidationException;
 
 class PostCategoryController extends BaseController
@@ -16,9 +18,15 @@ class PostCategoryController extends BaseController
         $this->middleware('auth:sanctum')->except(['index', 'show']);
     }
 
-    public function index()
+    public function index(Request $request): AnonymousResourceCollection
     {
-        return PostCategoryResource::collection(PostCategory::all());
+        $perPage = $request->input('per_page', 15);
+        $orderBy = $request->input('order_by', 'name');
+        $orderDirection = $request->input('order_direction', 'asc');
+
+        $categories = PostCategory::orderBy($orderBy, $orderDirection)->paginate($perPage);
+
+        return PostCategoryResource::collection($categories);
     }
 
     public function store(StoreRequest $request): JsonResponse

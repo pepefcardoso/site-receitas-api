@@ -20,8 +20,8 @@ class PlanController extends Controller
 
     public function index(Request $request): JsonResource
     {
-        $plans = Plan::filter($request->all())->paginate(10);
-
+        $perPage = $request->input('per_page', 10);
+        $plans = Plan::filter($request->all())->paginate($perPage);
         return PlanResource::collection($plans);
     }
 

@@ -20,12 +20,17 @@ class ImageController extends BaseController
 
     public function index(Request $request)
     {
-         $this->authorize('viewAny', Image::class);
-        return $this->execute(function () use ($request) {
-            $perPage = $request->input('per_page', 10);
-            $images = Image::query()->paginate($perPage);
-            return response()->json($images);
-        });
+        $this->authorize('viewAny', Image::class);
+
+        $perPage = $request->input('per_page', 10);
+        $orderBy = $request->input('order_by', 'created_at');
+        $orderDirection = $request->input('order_direction', 'desc');
+
+        $images = Image::query()
+            ->orderBy($orderBy, $orderDirection)
+            ->paginate($perPage);
+
+        return response()->json($images);
     }
 
     public function store(Request $request, CreateImage $service)

@@ -7,6 +7,7 @@ use App\Http\Requests\RecipeUnit\UpdateRequest;
 use App\Http\Resources\RecipeUnit\RecipeUnitResource;
 use App\Models\RecipeUnit;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Validation\ValidationException;
@@ -18,11 +19,19 @@ class RecipeUnitController extends BaseController
         $this->middleware('auth:sanctum')->except(['index', 'show']);
     }
 
-    public function index(): AnonymousResourceCollection
+    public function index(Request $request): AnonymousResourceCollection
     {
-        $units = cache()->remember('recipe_units_list', now()->addHour(), function () {
-            return RecipeUnit::all();
+        $perPage = $request->input('per_page', 15);
+        $orderBy = $request->input('order_by', 'name');
+        $orderDirection = $request->input('order_direction', 'asc');
+        $page = $request->input('page', 1);
+
+        $cacheKey = "recipe_units_list_{$orderBy}_{$orderDirection}_page_{$page}_per_page_{$perPage}";
+
+        $units = cache()->remember($cacheKey, now()->addHour(), function () use ($orderBy, $orderDirection, $perPage) {
+            return RecipeUnit::orderBy($orderBy, $orderDirection)->paginate($perPage);
         });
+
         return RecipeUnitResource::collection($units);
     }
 

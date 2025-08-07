@@ -6,9 +6,10 @@ use App\Http\Requests\Rating\StoreRatingRequest;
 use App\Http\Requests\Rating\UpdateRatingRequest;
 use App\Http\Resources\Rating\RatingResource;
 use App\Models\Rating;
-use Illuminate\Support\Str;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Support\Str;
 
 class RatingController extends BaseController
 {
@@ -24,14 +25,20 @@ class RatingController extends BaseController
         return $class::findOrFail($id);
     }
 
-    public function index(string $type, int $rateableId): AnonymousResourceCollection
+    public function index(Request $request, string $type, int $rateableId): AnonymousResourceCollection
     {
         $rateable = $this->resolveRateable($type, $rateableId);
+
+        $perPage = $request->input('per_page', 15);
+        $orderBy = $request->input('order_by', 'created_at');
+        $orderDirection = $request->input('order_direction', 'desc');
+
         $ratings = $rateable
             ->ratings()
             ->with('user')
-            ->latest()
-            ->paginate();
+            ->orderBy($orderBy, $orderDirection)
+            ->paginate($perPage);
+
         return RatingResource::collection($ratings);
     }
 
