@@ -12,18 +12,16 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         $this->call([
-            UserSeeder::class,
+            PaymentMethodSeeder::class,
+            PlanSeeder::class,
             PostCategorySeeder::class,
             PostTopicSeeder::class,
             PostSeeder::class,
             RecipeDietSeeder::class,
             RecipeCategorySeeder::class,
-            RecipeUnitSeeder::class,
-            PostSeeder::class,
             RecipeSeeder::class,
-            CompanySeeder::class,
-            PlanSeeder::class,
-            SubscriptionSeeder::class,
+            RecipeUnitSeeder::class,
+            UserSeeder::class,
         ]);
     }
 }
