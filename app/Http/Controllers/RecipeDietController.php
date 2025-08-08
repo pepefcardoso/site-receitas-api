@@ -14,6 +14,8 @@ use Illuminate\Validation\ValidationException;
 
 class RecipeDietController extends BaseController
 {
+    protected string $cacheIndexKey = 'recipe_diets_index';
+
     public function __construct()
     {
         $this->middleware('auth:sanctum')->except(['index', 'show']);
@@ -25,12 +27,25 @@ class RecipeDietController extends BaseController
         $orderBy = $request->input('order_by', 'name');
         $orderDirection = $request->input('order_direction', 'asc');
         $page = $request->input('page', 1);
+        $search = $request->input('search', '');
 
-        $cacheKey = "recipe_diets_list_{$orderBy}_{$orderDirection}_page_{$page}_per_page_{$perPage}";
+        $cacheKey = "recipe_diets_list_{$orderBy}_{$orderDirection}_page_{$page}_per_page_{$perPage}_search_{$search}";
 
-        $diets = cache()->remember($cacheKey, now()->addHour(), function () use ($orderBy, $orderDirection, $perPage) {
-            return RecipeDiet::orderBy($orderBy, $orderDirection)->paginate($perPage);
-        });
+        $diets = Cache::remember(
+            $cacheKey,
+            now()->addHour(),
+            function () use ($orderBy, $orderDirection, $perPage, $search) {
+                $query = RecipeDiet::query();
+
+                if (!empty($search)) {
+                    $query->where('name', 'like', "%{$search}%");
+                }
+
+                return $query->orderBy($orderBy, $orderDirection)->paginate($perPage);
+            }
+        );
+
+        $this->addToCacheIndex($cacheKey);
 
         return RecipeDietResource::collection($diets);
     }
@@ -39,7 +54,8 @@ class RecipeDietController extends BaseController
     {
         $this->authorize('create', RecipeDiet::class);
         $diet = RecipeDiet::create($request->validated());
-        Cache::forget('recipe_diets_list');
+        $this->flushCacheIndex();
+
         return (new RecipeDietResource($diet))
             ->response()
             ->setStatusCode(201);
@@ -54,7 +70,8 @@ class RecipeDietController extends BaseController
     {
         $this->authorize('update', $recipeDiet);
         $recipeDiet->update($request->validated());
-        Cache::forget('recipe_diets_list');
+        $this->flushCacheIndex();
+
         return new RecipeDietResource($recipeDiet);
     }
 
@@ -66,8 +83,26 @@ class RecipeDietController extends BaseController
                 'diet' => 'This diet cannot be deleted because it is associated with recipes.',
             ]);
         }
+
         $recipeDiet->delete();
-        Cache::forget('recipe_diets_list');
+        $this->flushCacheIndex();
+
         return response()->json(null, 204);
+    }
+
+    private function addToCacheIndex(string $key): void
+    {
+        $index = Cache::get($this->cacheIndexKey, []);
+        $index[$key] = true;
+        Cache::put($this->cacheIndexKey, $index, now()->addHour());
+    }
+
+    private function flushCacheIndex(): void
+    {
+        $index = Cache::get($this->cacheIndexKey, []);
+        foreach (array_keys($index) as $key) {
+            Cache::forget($key);
+        }
+        Cache::forget($this->cacheIndexKey);
     }
 }
