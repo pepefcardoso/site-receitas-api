@@ -8,14 +8,14 @@ use Illuminate\Auth\Access\Response;
 
 class PlanPolicy
 {
-    public function viewAny(User $user): bool
+    public function viewAny(?User $user): bool
     {
-        return $user->isInternal();
+        return true;
     }
 
-    public function view(User $user, Plan $plan): bool
+    public function view(?User $user, Plan $plan): bool
     {
-        return $user->isInternal();
+        return true;
     }
 
     public function create(User $user): bool

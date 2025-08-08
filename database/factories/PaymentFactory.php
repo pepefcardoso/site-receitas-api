@@ -3,6 +3,7 @@
 namespace Database\Factories;
 
 use App\Models\Subscription;
+use App\Models\PaymentMethod;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**

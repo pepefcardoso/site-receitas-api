@@ -4,7 +4,7 @@ namespace Database\Seeders;
 
 use App\Models\RecipeUnit;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Str; // Importar a classe Str
+use Illuminate\Support\Str;
 
 class RecipeUnitSeeder extends Seeder
 {

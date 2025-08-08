@@ -59,7 +59,7 @@ class RecipeSeeder extends Seeder
                 $difficultyString = strtolower($recipeDetails['difficulty']);
                 $recipeDetails['difficulty'] = match($difficultyString) {
                     'facil' => RecipeDifficultyEnum::FACIL,
-                    'medio' => RecipeDifficultyEnum::MEDIO,
+                    'medio' => RecipeDifficultyEnum::NORMAL,
                     'dificil' => RecipeDifficultyEnum::DIFICIL,
                 };
 

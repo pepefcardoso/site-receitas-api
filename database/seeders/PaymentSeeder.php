@@ -2,7 +2,6 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use App\Models\Payment;
 use App\Models\PaymentMethod;
 use App\Models\Subscription;
