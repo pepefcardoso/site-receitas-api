@@ -34,6 +34,7 @@ class UpdateUserRequest extends FormRequest
             ],
             'birthday' => 'nullable|date|before_or_equal:' . now()->subYears(18)->format('Y-m-d'),
             'password' => 'nullable|string|min:8|max:99|confirmed',
+            'image' => 'sometimes|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
         ];
     }
 
