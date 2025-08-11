@@ -2,31 +2,35 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Controllers\Concerns\ManagesResourceCaching;
 use App\Http\Requests\NewsletterCustomer\StoreRequest;
 use App\Http\Resources\NewsletterCustomer\NewsletterCustomerResource;
 use App\Models\NewsletterCustomer;
 use App\Services\NewsletterCustomer\CreateNewsletterCustomer;
 use App\Services\NewsletterCustomer\DeleteNewsletterCustomer;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Http\Request;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
 class NewsletterCustomerController extends BaseController
 {
+    use ManagesResourceCaching;
+
     public function __construct()
     {
         $this->middleware('auth:sanctum')->except(['store']);
+    }
+
+    protected function getCacheTag(): string
+    {
+        return 'newsletter_customers';
     }
 
     public function index(Request $request): AnonymousResourceCollection
     {
         $this->authorize('viewAny', NewsletterCustomer::class);
 
-        $perPage = $request->input('per_page', 15);
-        $orderBy = $request->input('order_by', 'created_at');
-        $orderDirection = $request->input('order_direction', 'desc');
-
-        $customers = NewsletterCustomer::orderBy($orderBy, $orderDirection)->paginate($perPage);
+        $customers = $this->getCachedAndPaginated($request, NewsletterCustomer::query(), [], 'created_at');
 
         return NewsletterCustomerResource::collection($customers);
     }
@@ -34,6 +38,8 @@ class NewsletterCustomerController extends BaseController
     public function store(StoreRequest $request, CreateNewsletterCustomer $service): JsonResponse
     {
         $customer = $service->create($request->validated());
+        $this->flushResourceCache();
+
         return (new NewsletterCustomerResource($customer))->response()->setStatusCode(201);
     }
 
@@ -47,6 +53,8 @@ class NewsletterCustomerController extends BaseController
     {
         $this->authorize('delete', $newsletter);
         $service->delete($newsletter);
+        $this->flushResourceCache();
+
         return response()->json(null, 204);
     }
 }

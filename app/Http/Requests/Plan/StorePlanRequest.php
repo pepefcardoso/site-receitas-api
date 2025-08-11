@@ -2,7 +2,7 @@
 
 namespace App\Http\Requests\Plan;
 
-use App\Models\Plan; // Importe o modelo Plan
+use App\Models\Plan;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 

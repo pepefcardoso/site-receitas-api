@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Controllers\Concerns\ManagesResourceCaching;
 use App\Http\Requests\CustomerContact\StoreRequest;
 use App\Http\Requests\CustomerContact\UpdateStatusRequest;
 use App\Http\Resources\CustomerContact\CustomerContactResource;
@@ -14,26 +15,32 @@ use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
 class CustomerContactController extends BaseController
 {
+    use ManagesResourceCaching;
+
     public function __construct()
     {
         $this->middleware('auth:sanctum')->except(['store']);
+    }
+
+    protected function getCacheTag(): string
+    {
+        return 'customer_contacts';
     }
 
     public function index(Request $request): AnonymousResourceCollection
     {
         $this->authorize('viewAny', CustomerContact::class);
 
-        $perPage = $request->input('per_page', 15);
-        $orderBy = $request->input('order_by', 'created_at');
-        $orderDirection = $request->input('order_direction', 'desc');
+        $contacts = $this->getCachedAndPaginated($request, CustomerContact::query(), [], 'created_at');
 
-        $contacts = CustomerContact::orderBy($orderBy, $orderDirection)->paginate($perPage);
         return CustomerContactResource::collection($contacts);
     }
 
     public function store(StoreRequest $request, CreateCustomerContact $service): JsonResponse
     {
         $contact = $service->create($request->validated());
+        $this->flushResourceCache();
+
         return (new CustomerContactResource($contact))->response()->setStatusCode(201);
     }
 
@@ -47,6 +54,8 @@ class CustomerContactController extends BaseController
     {
         $this->authorize('update', $customerContact);
         $updatedContact = $service->update($customerContact, $request->validated('status'));
+        $this->flushResourceCache();
+
         return new CustomerContactResource($updatedContact);
     }
 }

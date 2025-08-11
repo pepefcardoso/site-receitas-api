@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Controllers\Concerns\ManagesResourceCaching;
 use App\Http\Requests\RecipeCategory\StoreRequest;
 use App\Http\Requests\RecipeCategory\UpdateRequest;
 use App\Http\Resources\RecipeCategory\RecipeCategoryResource;
@@ -9,28 +10,25 @@ use App\Models\RecipeCategory;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Validation\ValidationException;
 
 class RecipeCategoryController extends BaseController
 {
+    use ManagesResourceCaching;
+
     public function __construct()
     {
         $this->middleware('auth:sanctum')->except(['index', 'show']);
     }
 
+    protected function getCacheTag(): string
+    {
+        return 'recipe_categories';
+    }
+
     public function index(Request $request): AnonymousResourceCollection
     {
-        $perPage = $request->input('per_page', 15);
-        $orderBy = $request->input('order_by', 'name');
-        $orderDirection = $request->input('order_direction', 'asc');
-        $page = $request->input('page', 1);
-
-        $cacheKey = "recipe_categories_list_{$orderBy}_{$orderDirection}_page_{$page}_per_page_{$perPage}";
-
-        $categories = cache()->remember($cacheKey, now()->addHour(), function () use ($orderBy, $orderDirection, $perPage) {
-            return RecipeCategory::orderBy($orderBy, $orderDirection)->paginate($perPage);
-        });
+        $categories = $this->getCachedAndPaginated($request, RecipeCategory::query());
 
         return RecipeCategoryResource::collection($categories);
     }
@@ -39,7 +37,9 @@ class RecipeCategoryController extends BaseController
     {
         $this->authorize('create', RecipeCategory::class);
         $category = RecipeCategory::create($request->validated());
-        Cache::forget('recipe_categories_list');
+
+        $this->flushResourceCache();
+
         return (new RecipeCategoryResource($category))
             ->response()
             ->setStatusCode(201);
@@ -54,7 +54,9 @@ class RecipeCategoryController extends BaseController
     {
         $this->authorize('update', $recipeCategory);
         $recipeCategory->update($request->validated());
-        Cache::forget('recipe_categories_list');
+
+        $this->flushResourceCache();
+
         return new RecipeCategoryResource($recipeCategory);
     }
 
@@ -67,7 +69,9 @@ class RecipeCategoryController extends BaseController
             ]);
         }
         $recipeCategory->delete();
-        Cache::forget('recipe_categories_list');
+
+        $this->flushResourceCache();
+
         return response()->json(null, 204);
     }
 }

@@ -2,8 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\StorePaymentMethodRequest;
-use App\Http\Requests\UpdatePaymentMethodRequest;
+use App\Http\Controllers\Concerns\ManagesResourceCaching;
+use App\Http\Requests\PaymentMethod\StorePaymentMethodRequest;
+use App\Http\Requests\PaymentMethod\UpdatePaymentMethodRequest;
 use App\Http\Resources\PaymentMethod\PaymentMethodResource;
 use App\Models\PaymentMethod;
 use Illuminate\Http\JsonResponse;
@@ -12,17 +13,25 @@ use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
 class PaymentMethodController extends BaseController
 {
+    use ManagesResourceCaching;
+
+    public function __construct()
+    {
+        $this->middleware('auth:sanctum')->except(['index', 'show']);
+    }
+
+    protected function getCacheTag(): string
+    {
+        return 'payment_methods';
+    }
+
     public function index(Request $request): AnonymousResourceCollection
     {
         $this->authorize('viewAny', PaymentMethod::class);
 
-        $perPage = $request->input('per_page', 15);
-        $orderBy = $request->input('order_by', 'name');
-        $orderDirection = $request->input('order_direction', 'asc');
+        $baseQuery = PaymentMethod::query()->where('is_active', true);
 
-        $paymentMethods = PaymentMethod::where('is_active', true)
-            ->orderBy($orderBy, $orderDirection)
-            ->paginate($perPage);
+        $paymentMethods = $this->getCachedAndPaginated($request, $baseQuery);
 
         return PaymentMethodResource::collection($paymentMethods);
     }
@@ -30,6 +39,8 @@ class PaymentMethodController extends BaseController
     public function store(StorePaymentMethodRequest $request): JsonResponse
     {
         $paymentMethod = PaymentMethod::create($request->validated());
+        $this->flushResourceCache();
+
         return (new PaymentMethodResource($paymentMethod))
             ->response()
             ->setStatusCode(201);
@@ -44,6 +55,8 @@ class PaymentMethodController extends BaseController
     public function update(UpdatePaymentMethodRequest $request, PaymentMethod $paymentMethod): PaymentMethodResource
     {
         $paymentMethod->update($request->validated());
+        $this->flushResourceCache();
+
         return new PaymentMethodResource($paymentMethod);
     }
 
@@ -51,6 +64,8 @@ class PaymentMethodController extends BaseController
     {
         $this->authorize('delete', $paymentMethod);
         $paymentMethod->delete();
+        $this->flushResourceCache();
+
         return response()->json(null, 204);
     }
 }

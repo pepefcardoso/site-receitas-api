@@ -2,33 +2,32 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Controllers\Concerns\ManagesResourceCaching;
 use App\Models\Image;
 use App\Services\Image\CreateImage;
 use App\Services\Image\DeleteImage;
 use App\Services\Image\UpdateImage;
-use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
 
 class ImageController extends BaseController
 {
-    use AuthorizesRequests;
+    use ManagesResourceCaching;
 
     public function __construct()
     {
         $this->middleware('auth:sanctum')->except(['index', 'show']);
     }
 
+    protected function getCacheTag(): string
+    {
+        return 'images';
+    }
+
     public function index(Request $request)
     {
         $this->authorize('viewAny', Image::class);
 
-        $perPage = $request->input('per_page', 10);
-        $orderBy = $request->input('order_by', 'created_at');
-        $orderDirection = $request->input('order_direction', 'desc');
-
-        $images = Image::query()
-            ->orderBy($orderBy, $orderDirection)
-            ->paginate($perPage);
+        $images = $this->getCachedAndPaginated($request, Image::query(), [], 'created_at');
 
         return response()->json($images);
     }
@@ -44,6 +43,8 @@ class ImageController extends BaseController
 
             $imageData = $service->uploadOnly($file);
             $image = $service->createDbRecord($model, $imageData);
+
+            $this->flushResourceCache();
 
             return response()->json($image, 201);
         });
@@ -69,6 +70,8 @@ class ImageController extends BaseController
             $oldPath = $updateService->updateDbRecord($image, $newImageData);
             $updateService->deleteFile($oldPath);
 
+            $this->flushResourceCache();
+
             return response()->json($image->fresh());
         });
     }
@@ -80,6 +83,8 @@ class ImageController extends BaseController
 
             $filePath = $service->deleteDbRecord($image);
             $service->deleteFile($filePath);
+
+            $this->flushResourceCache();
 
             return response()->json(null, 204);
         });

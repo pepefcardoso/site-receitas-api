@@ -2,54 +2,64 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Controllers\Concerns\ManagesResourceCaching;
 use App\Http\Requests\Subscription\StoreSubscriptionRequest;
 use App\Http\Requests\Subscription\UpdateSubscriptionRequest;
 use App\Http\Resources\Subscription\SubscriptionResource;
 use App\Models\Subscription;
 use App\Notifications\SubscribedToPlan;
-use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Http\Response;
+use Illuminate\Validation\ValidationException;
 
 class SubscriptionController extends BaseController
 {
+    use ManagesResourceCaching;
+
     public function __construct()
     {
         $this->authorizeResource(Subscription::class, 'subscription');
     }
 
-    public function index(Request $request)
+    protected function getCacheTag(): string
     {
-        $perPage = $request->input('per_page', 15);
-        $orderBy = $request->input('order_by', 'created_at');
-        $orderDirection = $request->input('order_direction', 'desc');
+        return 'subscriptions';
+    }
 
-        $subscriptions = Subscription::with(['company', 'plan'])
-            ->orderBy($orderBy, $orderDirection)
-            ->paginate($perPage);
+    public function index(Request $request): AnonymousResourceCollection
+    {
+        $baseQuery = Subscription::query();
+        $relations = ['company', 'plan'];
+
+        $subscriptions = $this->getCachedAndPaginated($request, $baseQuery, $relations, 'created_at');
 
         return SubscriptionResource::collection($subscriptions);
     }
 
     public function store(StoreSubscriptionRequest $request): JsonResponse
     {
-        try {
-            $validatedData = $request->validated();
-            $existingSubscription = Subscription::where('company_id', $validatedData['company_id'])
-                ->whereIsActive()
-                ->first();
-            if ($existingSubscription) {
-                throw new Exception('This company already has an active subscription.');
-            }
-            $subscription = Subscription::create($validatedData);
-            $subscription->company->notify(new SubscribedToPlan($subscription));
-            return (new SubscriptionResource($subscription))
-                ->response()
-                ->setStatusCode(Response::HTTP_CREATED);
-        } catch (\Exception $e) {
-            return response()->json(['message' => $e->getMessage()], Response::HTTP_UNPROCESSABLE_ENTITY);
+        $validatedData = $request->validated();
+
+        $existingSubscription = Subscription::where('company_id', $validatedData['company_id'])
+            ->whereIsActive()
+            ->first();
+
+        if ($existingSubscription) {
+            throw ValidationException::withMessages([
+                'company_id' => 'This company already has an active subscription.',
+            ]);
         }
+
+        $subscription = Subscription::create($validatedData);
+        $subscription->company->notify(new SubscribedToPlan($subscription));
+
+        $this->flushResourceCache();
+
+        return (new SubscriptionResource($subscription))
+            ->response()
+            ->setStatusCode(Response::HTTP_CREATED);
     }
 
     public function show(Subscription $subscription): SubscriptionResource
@@ -59,13 +69,17 @@ class SubscriptionController extends BaseController
 
     public function update(UpdateSubscriptionRequest $request, Subscription $subscription): SubscriptionResource
     {
-        $updatedSubscription = $subscription->update($request->validated());
-        return new SubscriptionResource($updatedSubscription);
+        $subscription->update($request->validated());
+        $this->flushResourceCache();
+
+        return new SubscriptionResource($subscription);
     }
 
     public function destroy(Subscription $subscription): Response
     {
         $subscription->delete();
+        $this->flushResourceCache();
+
         return response()->noContent();
     }
 }

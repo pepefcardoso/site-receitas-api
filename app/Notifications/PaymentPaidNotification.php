@@ -2,7 +2,6 @@
 
 namespace App\Notifications;
 
-// Assumindo que seu modelo de pagamento está em App\Models\Payment
 use App\Models\Payment;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;

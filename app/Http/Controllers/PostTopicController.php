@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Controllers\Concerns\ManagesResourceCaching;
 use App\Http\Requests\PostTopic\StoreRequest;
 use App\Http\Requests\PostTopic\UpdateRequest;
 use App\Http\Resources\PostTopic\PostTopicResource;
@@ -13,18 +14,21 @@ use Illuminate\Validation\ValidationException;
 
 class PostTopicController extends BaseController
 {
+    use ManagesResourceCaching;
+
     public function __construct()
     {
         $this->middleware('auth:sanctum')->except(['index', 'show']);
     }
 
+    protected function getCacheTag(): string
+    {
+        return 'post_topics';
+    }
+
     public function index(Request $request): AnonymousResourceCollection
     {
-        $perPage = $request->input('per_page', 15);
-        $orderBy = $request->input('order_by', 'name');
-        $orderDirection = $request->input('order_direction', 'asc');
-
-        $topics = PostTopic::orderBy($orderBy, $orderDirection)->paginate($perPage);
+        $topics = $this->getCachedAndPaginated($request, PostTopic::query());
 
         return PostTopicResource::collection($topics);
     }
@@ -33,28 +37,37 @@ class PostTopicController extends BaseController
     {
         $this->authorize('create', PostTopic::class);
         $topic = PostTopic::create($request->validated());
+
+        $this->flushResourceCache();
+
         return (new PostTopicResource($topic))->response()->setStatusCode(201);
     }
 
-    public function show(PostTopic $postTopic)
+    public function show(PostTopic $postTopic): PostTopicResource
     {
         return new PostTopicResource($postTopic);
     }
 
-    public function update(UpdateRequest $request, PostTopic $postTopic)
+    public function update(UpdateRequest $request, PostTopic $postTopic): PostTopicResource
     {
         $this->authorize('update', $postTopic);
         $postTopic->update($request->validated());
+
+        $this->flushResourceCache();
+
         return new PostTopicResource($postTopic);
     }
 
-    public function destroy(PostTopic $postTopic)
+    public function destroy(PostTopic $postTopic): JsonResponse
     {
         $this->authorize('delete', $postTopic);
         if ($postTopic->posts()->exists()) {
             throw ValidationException::withMessages(['topic' => 'This topic is in use and cannot be deleted.']);
         }
         $postTopic->delete();
+
+        $this->flushResourceCache();
+
         return response()->json(null, 204);
     }
 }
