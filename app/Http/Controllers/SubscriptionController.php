@@ -64,6 +64,8 @@ class SubscriptionController extends BaseController
 
     public function show(Subscription $subscription): SubscriptionResource
     {
+        $this->authorize('view', $subscription);
+
         return new SubscriptionResource($subscription->load(['company', 'plan']));
     }
 
@@ -77,6 +79,8 @@ class SubscriptionController extends BaseController
 
     public function destroy(Subscription $subscription): Response
     {
+        $this->authorize('delete', $subscription);
+
         $subscription->delete();
         $this->flushResourceCache();
 

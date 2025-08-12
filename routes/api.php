@@ -109,8 +109,8 @@ Route::middleware(['auth:sanctum', 'throttle:api'])->group(function () {
 
     Route::apiResource('payment-methods', PaymentMethodController::class);
 
-    // Posts (Restantes - store, update, destroy)
-    Route::apiResource('posts', PostController::class)->except(['index', 'show']);
+    Route::post('/posts', [PostController::class, 'store'])->middleware('plan.limit:post');
+    Route::apiResource('posts', PostController::class)->except(['index', 'show', 'store']);
 
     // CRUDs de Categorias, Tópicos, etc. (protegidos)
     Route::apiResource('post-categories', PostCategoryController::class)->except(['index', 'show']);
@@ -119,8 +119,8 @@ Route::middleware(['auth:sanctum', 'throttle:api'])->group(function () {
     Route::apiResource('recipe-diets', RecipeDietController::class)->except(['index', 'show']);
     Route::apiResource('recipe-units', RecipeUnitController::class)->except(['index', 'show']);
 
-    // Receitas
-    Route::apiResource('recipes', RecipeController::class)->except(['index', 'show']);
+    Route::post('/recipes', [RecipeController::class, 'store'])->middleware('plan.limit:recipe');
+    Route::apiResource('recipes', RecipeController::class)->except(['index', 'show', 'store']);
 
     // Comentários
     Route::post('/{type}/{commentableId}/comments', [CommentController::class, 'store'])

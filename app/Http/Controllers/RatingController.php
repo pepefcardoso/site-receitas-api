@@ -44,7 +44,6 @@ class RatingController extends BaseController
 
     public function store(StoreRatingRequest $request, string $type, int $rateableId): JsonResponse
     {
-        $this->authorize('create', Rating::class);
         $rateable = $this->resolveRateable($type, $rateableId);
 
         $rating = $rateable->ratings()->updateOrCreate(
@@ -60,7 +59,6 @@ class RatingController extends BaseController
 
     public function update(UpdateRatingRequest $request, Rating $rating): RatingResource
     {
-        $this->authorize('update', $rating);
         $rating->update($request->validated());
 
         $this->flushRateableCache($rating->rateable);
@@ -71,6 +69,7 @@ class RatingController extends BaseController
     public function destroy(Rating $rating): JsonResponse
     {
         $this->authorize('delete', $rating);
+
         $rateable = $rating->rateable;
         $rating->delete();
 

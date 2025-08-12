@@ -35,8 +35,8 @@ class PostCategoryController extends BaseController
 
     public function store(StoreRequest $request): JsonResponse
     {
-        $this->authorize('create', PostCategory::class);
         $category = PostCategory::create($request->validated());
+
         $this->flushResourceCache();
 
         return (new PostCategoryResource($category))->response()->setStatusCode(201);
@@ -49,8 +49,8 @@ class PostCategoryController extends BaseController
 
     public function update(UpdateRequest $request, PostCategory $postCategory): PostCategoryResource
     {
-        $this->authorize('update', $postCategory);
         $postCategory->update($request->validated());
+
         $this->flushResourceCache();
 
         return new PostCategoryResource($postCategory);
@@ -59,10 +59,13 @@ class PostCategoryController extends BaseController
     public function destroy(PostCategory $postCategory): JsonResponse
     {
         $this->authorize('delete', $postCategory);
+
         if ($postCategory->posts()->exists()) {
             throw ValidationException::withMessages(['category' => 'This category is in use and cannot be deleted.']);
         }
+
         $postCategory->delete();
+
         $this->flushResourceCache();
 
         return response()->json(null, 204);

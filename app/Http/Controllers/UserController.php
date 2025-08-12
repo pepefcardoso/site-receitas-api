@@ -17,6 +17,7 @@ use App\Services\User\UpdateUser;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Support\Facades\Auth;
 
 class UserController extends BaseController
 {
@@ -27,7 +28,6 @@ class UserController extends BaseController
 
     public function index(FilterUsersRequest $request, ListUser $service): AnonymousResourceCollection
     {
-        $this->authorize('viewAny', User::class);
         $users = $service->list($request->validated());
         return UserResource::collection($users);
     }
@@ -43,45 +43,53 @@ class UserController extends BaseController
     public function show(User $user): UserResource
     {
         $this->authorize('view', $user);
+
         return new UserResource($user->load('image'));
     }
 
     public function update(UpdateUserRequest $request, User $user, UpdateUser $service): UserResource
     {
-        $this->authorize('update', $user);
         $updatedUser = $service->update($user, $request->validated());
+
         return new UserResource($updatedUser);
     }
 
     public function destroy(User $user, DeleteUser $service): JsonResponse
     {
         $this->authorize('delete', $user);
+
         $service->delete($user);
+
         return response()->json(null, 204);
     }
 
     public function authUser(Request $request): UserResource
     {
         $this->authorize('view', $request->user());
+
         return new UserResource($request->user()->load('image'));
     }
 
     public function updateRole(UpdateUserRoleRequest $request, User $user): UserResource
     {
-        $this->authorize('updateRole', $user);
         $user->update(['role' => $request->validated('role')]);
+
         return new UserResource($user);
     }
 
     public function toggleFavoritePost(ToggleFavoriteRequest $request): JsonResponse
     {
-        $result = $request->user()->favoritePosts()->toggle($request->validated('post_id'));
+        $user = Auth::user();
+        $postId = $request->validated()['post_id'] ?? null;
+        $result = $user->favoritePosts()->toggle($postId);
         return response()->json($result);
     }
 
     public function toggleFavoriteRecipe(ToggleFavoriteRequest $request): JsonResponse
     {
-        $result = $request->user()->favoriteRecipes()->toggle($request->validated('recipe_id'));
+        $user = Auth::user();
+        $recipeId = $request->validated()['recipe_id'] ?? null;
+        $result = $user->favoriteRecipes()->toggle($recipeId);
         return response()->json($result);
     }
 }

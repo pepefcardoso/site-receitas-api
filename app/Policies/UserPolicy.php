@@ -36,4 +36,16 @@ class UserPolicy
     {
         return $authUser->isInternal();
     }
+
+    public function toggleFavoritePost(User $authUser, ?User $targetUser = null): bool
+    {
+        $targetId = $targetUser?->id ?? $authUser->id;
+        return $authUser->isInternal() || $authUser->id === $targetId;
+    }
+
+    public function toggleFavoriteRecipe(User $authUser, ?User $targetUser = null): bool
+    {
+        $targetId = $targetUser?->id ?? $authUser->id;
+        return $authUser->isInternal() || $authUser->id === $targetId;
+    }
 }

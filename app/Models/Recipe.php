@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use App\Enum\RecipeDifficultyEnum;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -10,7 +9,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
-use Illuminate\Validation\Rule;
 use Laravel\Scout\Searchable;
 
 class Recipe extends Model
@@ -27,6 +25,7 @@ class Recipe extends Model
         'difficulty',
         'category_id',
         'user_id',
+        'company_id',
     ];
 
     /**
@@ -44,13 +43,13 @@ class Recipe extends Model
             'description' => $this->description,
             'category'    => $this->category->name ?? null,
             'author'      => $this->user->name ?? null,
-
             'category_id'  => $this->category_id,
             'user_id'      => $this->user_id,
             'diets'        => $this->diets->pluck('id')->all(),
             'time'         => (int) $this->time,
             'difficulty'   => $this->difficulty,
             'created_at'   => $this->created_at->timestamp,
+            'company_id'   => $this->company_id,
         ];
     }
 
@@ -140,5 +139,10 @@ class Recipe extends Model
     public function favoritedByUsers(): BelongsToMany
     {
         return $this->belongsToMany(User::class, 'rl_user_favorite_recipes', 'recipe_id', 'user_id');
+    }
+
+    public function company(): BelongsTo
+    {
+        return $this->belongsTo(Company::class);
     }
 }

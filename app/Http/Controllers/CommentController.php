@@ -12,6 +12,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Auth;
 
 class CommentController extends BaseController
 {
@@ -46,10 +47,10 @@ class CommentController extends BaseController
     public function store(StoreCommentRequest $request, string $type, int $commentableId): JsonResponse
     {
         $this->authorize('create', Comment::class);
-        $commentable = $this->resolveCommentable($type, $commentableId);
 
+        $commentable = $this->resolveCommentable($type, $commentableId);
         $comment = $commentable->comments()->create([
-            'user_id' => $request->user()->id,
+            'user_id' => Auth::id(),
             'content' => $request->validated('content'),
         ]);
 
@@ -63,6 +64,7 @@ class CommentController extends BaseController
     public function update(UpdateCommentRequest $request, Comment $comment): CommentResource
     {
         $this->authorize('update', $comment);
+
         $comment->update($request->validated());
 
         $this->flushCommentableCache($comment->commentable);
@@ -73,7 +75,8 @@ class CommentController extends BaseController
     public function destroy(Comment $comment): JsonResponse
     {
         $this->authorize('delete', $comment);
-        $commentable = $comment->commentable; // Pega o pai antes de deletar
+
+        $commentable = $comment->commentable;
         $comment->delete();
 
         $this->flushCommentableCache($commentable);

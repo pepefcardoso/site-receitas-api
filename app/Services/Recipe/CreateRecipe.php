@@ -20,13 +20,6 @@ class CreateRecipe
     ) {
     }
 
-    /**
-     * Cria uma nova receita completa de forma segura.
-     *
-     * @param array $data
-     * @return Recipe
-     * @throws Throwable
-     */
     public function create(array $data): Recipe
     {
         $imageData = null;
@@ -38,8 +31,13 @@ class CreateRecipe
             }
 
             $recipe = DB::transaction(function () use ($data, $imageData) {
+                $user = Auth::user();
+
                 $recipeData = Arr::only($data, ['title', 'description', 'time', 'portion', 'difficulty', 'category_id']);
-                $recipeData['user_id'] = Auth::id();
+
+                $recipeData['user_id'] = $user->id;
+                $recipeData['company_id'] = $user->company ? $user->company->id : null;
+
                 $recipe = Recipe::create($recipeData);
 
                 $this->syncDiets($recipe, $data);
@@ -68,9 +66,6 @@ class CreateRecipe
         }
     }
 
-    /**
-     * Sincroniza as dietas associadas à receita.
-     */
     protected function syncDiets(Recipe $recipe, array $data): void
     {
         if ($diets = data_get($data, 'diets')) {
@@ -78,9 +73,6 @@ class CreateRecipe
         }
     }
 
-    /**
-     * Cria os ingredientes da receita.
-     */
     protected function createIngredients(Recipe $recipe, array $data): void
     {
         if ($ingredientsData = data_get($data, 'ingredients')) {
@@ -88,9 +80,6 @@ class CreateRecipe
         }
     }
 
-    /**
-     * Cria os passos da receita.
-     */
     protected function createSteps(Recipe $recipe, array $data): void
     {
         if ($stepsData = data_get($data, 'steps')) {

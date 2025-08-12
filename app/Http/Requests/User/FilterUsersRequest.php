@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\User;
 
+use Illuminate\Support\Facades\Auth;
 use App\Models\User;
 use Illuminate\Foundation\Http\FormRequest;
 
@@ -9,7 +10,7 @@ class FilterUsersRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return $this->user()->can('viewAny', User::class);
+        return Auth::user()->can('viewAny', User::class);
     }
     public function rules(): array
     {

@@ -35,7 +35,6 @@ class RecipeUnitController extends BaseController
 
     public function store(StoreRequest $request): JsonResponse
     {
-        $this->authorize('create', RecipeUnit::class);
         $unit = RecipeUnit::create($request->validated());
 
         $this->flushResourceCache();
@@ -52,7 +51,6 @@ class RecipeUnitController extends BaseController
 
     public function update(UpdateRequest $request, RecipeUnit $recipeUnit): RecipeUnitResource
     {
-        $this->authorize('update', $recipeUnit);
         $recipeUnit->update($request->validated());
 
         $this->flushResourceCache();
@@ -63,11 +61,13 @@ class RecipeUnitController extends BaseController
     public function destroy(RecipeUnit $recipeUnit): JsonResponse
     {
         $this->authorize('delete', $recipeUnit);
+
         if ($recipeUnit->ingredients()->exists()) {
             throw ValidationException::withMessages([
                 'unit' => 'This unit cannot be deleted because it is associated with one or more ingredients.',
             ]);
         }
+
         $recipeUnit->delete();
 
         $this->flushResourceCache();

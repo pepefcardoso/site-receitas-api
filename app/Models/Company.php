@@ -14,7 +14,7 @@ class Company extends Model
 {
     use HasFactory, Searchable, Notifiable;
 
-     protected $fillable = [
+    protected $fillable = [
         'name',
         'cnpj',
         'email',
@@ -54,5 +54,15 @@ class Company extends Model
     public function subscriptions(): HasMany
     {
         return $this->hasMany(Subscription::class);
+    }
+
+    public function recipes(): HasMany
+    {
+        return $this->hasMany(Recipe::class);
+    }
+
+    public function posts(): HasMany
+    {
+        return $this->hasMany(Post::class);
     }
 }

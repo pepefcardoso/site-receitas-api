@@ -35,7 +35,6 @@ class RecipeCategoryController extends BaseController
 
     public function store(StoreRequest $request): JsonResponse
     {
-        $this->authorize('create', RecipeCategory::class);
         $category = RecipeCategory::create($request->validated());
 
         $this->flushResourceCache();
@@ -52,7 +51,6 @@ class RecipeCategoryController extends BaseController
 
     public function update(UpdateRequest $request, RecipeCategory $recipeCategory): RecipeCategoryResource
     {
-        $this->authorize('update', $recipeCategory);
         $recipeCategory->update($request->validated());
 
         $this->flushResourceCache();
@@ -63,11 +61,13 @@ class RecipeCategoryController extends BaseController
     public function destroy(RecipeCategory $recipeCategory): JsonResponse
     {
         $this->authorize('delete', $recipeCategory);
+
         if ($recipeCategory->recipes()->exists()) {
             throw ValidationException::withMessages([
                 'category' => 'This category cannot be deleted because it is associated with recipes.',
             ]);
         }
+
         $recipeCategory->delete();
 
         $this->flushResourceCache();

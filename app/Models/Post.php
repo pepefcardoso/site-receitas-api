@@ -22,6 +22,7 @@ class Post extends Model
         'content',
         'category_id',
         'user_id',
+        'company_id',
     ];
 
     /**
@@ -43,6 +44,7 @@ class Post extends Model
             'category_id' => $this->category_id,
             'user_id'     => $this->user_id,
             'created_at'  => $this->created_at->timestamp,
+            'company_id'  => $this->company_id,
         ];
     }
 
@@ -113,5 +115,10 @@ public function sortableAttributes(): array
     public function favoritedByUsers(): BelongsToMany
     {
         return $this->belongsToMany(User::class, 'rl_user_favorite_posts', 'post_id', 'user_id');
+    }
+
+    public function company(): BelongsTo
+    {
+        return $this->belongsTo(Company::class);
     }
 }

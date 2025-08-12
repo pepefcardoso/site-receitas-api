@@ -35,7 +35,6 @@ class PostTopicController extends BaseController
 
     public function store(StoreRequest $request): JsonResponse
     {
-        $this->authorize('create', PostTopic::class);
         $topic = PostTopic::create($request->validated());
 
         $this->flushResourceCache();
@@ -50,7 +49,6 @@ class PostTopicController extends BaseController
 
     public function update(UpdateRequest $request, PostTopic $postTopic): PostTopicResource
     {
-        $this->authorize('update', $postTopic);
         $postTopic->update($request->validated());
 
         $this->flushResourceCache();
@@ -61,9 +59,11 @@ class PostTopicController extends BaseController
     public function destroy(PostTopic $postTopic): JsonResponse
     {
         $this->authorize('delete', $postTopic);
+
         if ($postTopic->posts()->exists()) {
             throw ValidationException::withMessages(['topic' => 'This topic is in use and cannot be deleted.']);
         }
+
         $postTopic->delete();
 
         $this->flushResourceCache();

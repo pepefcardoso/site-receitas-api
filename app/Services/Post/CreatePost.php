@@ -19,13 +19,6 @@ class CreatePost
     ) {
     }
 
-    /**
-     * Cria um novo post e sua imagem associada.
-     *
-     * @param array $data
-     * @return Post
-     * @throws Throwable
-     */
     public function create(array $data): Post
     {
         $imageData = null;
@@ -37,7 +30,11 @@ class CreatePost
             }
 
             $post = DB::transaction(function () use ($data, $imageData) {
-                $data['user_id'] = Auth::id();
+                $user = Auth::user();
+
+                $data['user_id'] = $user->id;
+                $data['company_id'] = $user->company ? $user->company->id : null;
+
                 $post = Post::create($data);
 
                 if ($topics = data_get($data, 'topics', [])) {

@@ -36,9 +36,10 @@ class RecipeController extends BaseController
 
     public function store(StoreRecipeRequest $request, CreateRecipe $service): RecipeResource
     {
-        $this->authorize('create', Recipe::class);
         $recipe = $service->create($request->validated());
+
         $recipe->load(['user.image', 'category', 'diets', 'ingredients.unit', 'steps', 'image']);
+
         return new RecipeResource($recipe);
     }
 
@@ -50,29 +51,37 @@ class RecipeController extends BaseController
 
     public function update(UpdateRecipeRequest $request, Recipe $recipe, UpdateRecipe $service): RecipeResource
     {
-        $this->authorize('update', $recipe);
         $updatedRecipe = $service->update($recipe, $request->validated());
+
         return new RecipeResource($updatedRecipe);
     }
 
     public function destroy(Recipe $recipe, DeleteRecipe $service)
     {
         $this->authorize("delete", $recipe);
+
         $service->delete($recipe);
+
         return response()->json(null, 204);
     }
 
     public function userRecipes(ListUserRecipes $service): AnonymousResourceCollection
     {
         $perPage = request()->input('per_page', 10);
+
         $userRecipes = $service->list($perPage);
+
         return RecipeCollectionResource::collection($userRecipes);
     }
 
     public function favorites(ListFavoriteRecipes $service): AnonymousResourceCollection
     {
+        $this->authorize("viewFavorites", Recipe::class);
+
         $perPage = request()->input('per_page', 10);
+
         $favorites = $service->list($perPage);
+
         return RecipeCollectionResource::collection($favorites);
     }
 }

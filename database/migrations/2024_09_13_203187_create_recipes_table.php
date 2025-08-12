@@ -15,6 +15,7 @@ return new class extends Migration {
             $table->id();
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->foreignId('category_id')->constrained('recipe_categories');
+            $table->foreignId('company_id')->nullable()->constrained()->onDelete('cascade');
             $table->string('title');
             $table->text('description');
             $table->integer('time');

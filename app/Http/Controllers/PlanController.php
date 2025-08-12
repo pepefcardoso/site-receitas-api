@@ -62,6 +62,8 @@ class PlanController extends BaseController
 
     public function destroy(Plan $plan): Response
     {
+        $this->authorize("delete", $plan);
+
         $plan->delete();
         $this->flushResourceCache();
 

@@ -34,7 +34,6 @@ class PostController extends BaseController
 
     public function store(StorePostRequest $request, CreatePost $service): PostResource
     {
-        $this->authorize('create', Post::class);
         $post = $service->create($request->validated());
         $post->load(['user.image', 'category', 'topics', 'image']);
         return new PostResource($post);
@@ -48,7 +47,6 @@ class PostController extends BaseController
 
     public function update(UpdatePostRequest $request, Post $post, UpdatePost $service): PostResource
     {
-        $this->authorize('update', $post);
         $updatedPost = $service->update($post, $request->validated());
         return new PostResource($updatedPost);
     }
@@ -56,21 +54,29 @@ class PostController extends BaseController
     public function destroy(Post $post, DeletePost $service)
     {
         $this->authorize("delete", $post);
+
         $service->delete($post);
+
         return response()->json(null, 204);
     }
 
     public function userPosts(ListUserPosts $service): AnonymousResourceCollection
     {
         $perPage = request()->input('per_page', 10);
+
         $userPosts = $service->list($perPage);
+
         return PostCollectionResource::collection($userPosts);
     }
 
     public function favorites(ListFavoritePosts $service): AnonymousResourceCollection
     {
+        $this->authorize("viewFavorites", Post::class);
+
         $perPage = request()->input('per_page', 10);
+
         $favorites = $service->list($perPage);
+
         return PostCollectionResource::collection($favorites);
     }
 }
