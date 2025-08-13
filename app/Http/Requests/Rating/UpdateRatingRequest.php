@@ -3,13 +3,15 @@
 namespace App\Http\Requests\Rating;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Route;
 
 class UpdateRatingRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        $rating = $this->route('rating');
-        return $this->user()->can('update', $rating);
+        $rating = Route::current()->parameter('rating');
+        return Gate::allows('update', $rating);
     }
 
     public function rules(): array

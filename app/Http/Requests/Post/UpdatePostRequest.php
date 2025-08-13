@@ -3,13 +3,16 @@
 namespace App\Http\Requests\Post;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Route;
 
 class UpdatePostRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        $post = $this->route('post');
-        return $this->user()->can('update', $post);
+        $post = Route::current()->parameter('post');
+
+        return Gate::allows('update', $post);
     }
 
     public function rules(): array

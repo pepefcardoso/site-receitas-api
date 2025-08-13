@@ -3,8 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Concerns\ManagesResourceCaching;
-use App\Http\Requests\CustomerContact\StoreRequest;
-use App\Http\Requests\CustomerContact\UpdateStatusRequest;
+use App\Http\Requests\CustomerContact\StoreCustomerContactRequest;
+use App\Http\Requests\CustomerContact\UpdateCustomerContactStatusRequest;
 use App\Http\Resources\CustomerContact\CustomerContactResource;
 use App\Models\CustomerContact;
 use App\Services\CustomerContact\CreateCustomerContact;
@@ -36,7 +36,7 @@ class CustomerContactController extends BaseController
         return CustomerContactResource::collection($contacts);
     }
 
-    public function store(StoreRequest $request, CreateCustomerContact $service): JsonResponse
+    public function store(StoreCustomerContactRequest $request, CreateCustomerContact $service): JsonResponse
     {
         $contact = $service->create($request->validated());
         $this->flushResourceCache();
@@ -47,13 +47,14 @@ class CustomerContactController extends BaseController
     public function show(CustomerContact $customer_contact): CustomerContactResource
     {
         $this->authorize('view', $customer_contact);
+
         return new CustomerContactResource($customer_contact);
     }
 
-    public function updateStatus(UpdateStatusRequest $request, CustomerContact $customerContact, UpdateCustomerContactStatus $service): CustomerContactResource
+    public function updateStatus(UpdateCustomerContactStatusRequest $request, CustomerContact $customerContact, UpdateCustomerContactStatus $service): CustomerContactResource
     {
-        $this->authorize('update', $customerContact);
         $updatedContact = $service->update($customerContact, $request->validated('status'));
+
         $this->flushResourceCache();
 
         return new CustomerContactResource($updatedContact);

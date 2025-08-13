@@ -17,6 +17,16 @@ class NewsletterCustomerPolicy
         return $user->isInternal();
     }
 
+    public function create(?User $user): bool
+    {
+        return true;
+    }
+
+    public function update(User $user, NewsletterCustomer $newsletterCustomer): bool
+    {
+        return $user->isInternal();
+    }
+
     public function delete(User $user, NewsletterCustomer $newsletterCustomer): bool
     {
         return $user->isInternal();

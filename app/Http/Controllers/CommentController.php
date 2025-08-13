@@ -23,6 +23,8 @@ class CommentController extends BaseController
 
     public function index(Request $request, string $type, $commentableId): AnonymousResourceCollection
     {
+        $this->authorize('viewAny', Comment::class);
+
         $commentable = $this->resolveCommentable($type, $commentableId);
         $cacheTags = $this->getCacheTagsForCommentable($commentable);
 
@@ -46,8 +48,6 @@ class CommentController extends BaseController
 
     public function store(StoreCommentRequest $request, string $type, int $commentableId): JsonResponse
     {
-        $this->authorize('create', Comment::class);
-
         $commentable = $this->resolveCommentable($type, $commentableId);
         $comment = $commentable->comments()->create([
             'user_id' => Auth::id(),
@@ -63,8 +63,6 @@ class CommentController extends BaseController
 
     public function update(UpdateCommentRequest $request, Comment $comment): CommentResource
     {
-        $this->authorize('update', $comment);
-
         $comment->update($request->validated());
 
         $this->flushCommentableCache($comment->commentable);
@@ -86,6 +84,8 @@ class CommentController extends BaseController
 
     public function show(Comment $comment): CommentResource
     {
+        $this->authorize('view', $comment);
+
         return new CommentResource($comment->load('user.image'));
     }
 

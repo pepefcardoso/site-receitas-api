@@ -41,6 +41,7 @@ class PostController extends BaseController
 
     public function show(Post $post, ShowPost $service): PostResource
     {
+        $this->authorize('view', $post);
         $detailedPost = $service->show($post);
         return new PostResource($detailedPost);
     }
@@ -62,6 +63,8 @@ class PostController extends BaseController
 
     public function userPosts(ListUserPosts $service): AnonymousResourceCollection
     {
+        $this->authorize("viewAny", Post::class);
+
         $perPage = request()->input('per_page', 10);
 
         $userPosts = $service->list($perPage);

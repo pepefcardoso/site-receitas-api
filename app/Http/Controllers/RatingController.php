@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
 
@@ -22,6 +23,8 @@ class RatingController extends BaseController
 
     public function index(Request $request, string $type, int $rateableId): AnonymousResourceCollection
     {
+        $this->authorize('viewAny', Rating::class);
+
         $rateable = $this->resolveRateable($type, $rateableId);
         $cacheTags = $this->getCacheTagsForRateable($rateable);
 
@@ -47,7 +50,7 @@ class RatingController extends BaseController
         $rateable = $this->resolveRateable($type, $rateableId);
 
         $rating = $rateable->ratings()->updateOrCreate(
-            ['user_id' => $request->user()->id],
+            ['user_id' => Auth::id()],
             ['rating' => $request->validated('rating')]
         );
 
@@ -80,6 +83,8 @@ class RatingController extends BaseController
 
     public function showUserRating(Request $request, string $type, int $rateableId)
     {
+        $this->authorize('view', Rating::class);
+
         $rateable = $this->resolveRateable($type, $rateableId);
         $rating = $rateable->ratings()->where('user_id', $request->user()->id)->first();
 
@@ -91,6 +96,8 @@ class RatingController extends BaseController
 
     public function show(Rating $rating): RatingResource
     {
+        $this->authorize('view', $rating);
+
         return new RatingResource($rating);
     }
 

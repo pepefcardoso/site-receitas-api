@@ -12,6 +12,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Cache;
+use Symfony\Component\HttpFoundation\Response as SymfonyResponse;
 
 class PlanController extends BaseController
 {
@@ -29,6 +30,8 @@ class PlanController extends BaseController
 
     public function index(Request $request): JsonResource
     {
+        $this->authorize('viewAny', Plan::class);
+
         $cacheKey = 'plans:list:' . http_build_query($request->all());
 
         $plans = Cache::tags($this->getCacheTag())->remember($cacheKey, now()->addHour(), function () use ($request) {
@@ -44,7 +47,7 @@ class PlanController extends BaseController
         $plan = Plan::create($request->validated());
         $this->flushResourceCache();
 
-        return response()->json(new PlanResource($plan), Response::HTTP_CREATED);
+        return response()->json(new PlanResource($plan), SymfonyResponse::HTTP_CREATED);
     }
 
     public function show(Plan $plan): PlanResource

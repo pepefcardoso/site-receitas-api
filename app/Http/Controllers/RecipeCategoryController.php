@@ -3,8 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Concerns\ManagesResourceCaching;
-use App\Http\Requests\RecipeCategory\StoreRequest;
-use App\Http\Requests\RecipeCategory\UpdateRequest;
+use App\Http\Requests\RecipeCategory\StoreRecipeCategoryRequest;
+use App\Http\Requests\RecipeCategory\UpdateRecipeCategoryRequest;
 use App\Http\Resources\RecipeCategory\RecipeCategoryResource;
 use App\Models\RecipeCategory;
 use Illuminate\Http\JsonResponse;
@@ -28,12 +28,14 @@ class RecipeCategoryController extends BaseController
 
     public function index(Request $request): AnonymousResourceCollection
     {
+        $this->authorize('viewAny', RecipeCategory::class);
+
         $categories = $this->getCachedAndPaginated($request, RecipeCategory::query());
 
         return RecipeCategoryResource::collection($categories);
     }
 
-    public function store(StoreRequest $request): JsonResponse
+    public function store(StoreRecipeCategoryRequest $request): JsonResponse
     {
         $category = RecipeCategory::create($request->validated());
 
@@ -46,10 +48,12 @@ class RecipeCategoryController extends BaseController
 
     public function show(RecipeCategory $recipeCategory): RecipeCategoryResource
     {
+        $this->authorize('view', $recipeCategory);
+
         return new RecipeCategoryResource($recipeCategory);
     }
 
-    public function update(UpdateRequest $request, RecipeCategory $recipeCategory): RecipeCategoryResource
+    public function update(UpdateRecipeCategoryRequest $request, RecipeCategory $recipeCategory): RecipeCategoryResource
     {
         $recipeCategory->update($request->validated());
 

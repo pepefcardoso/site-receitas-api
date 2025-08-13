@@ -17,6 +17,11 @@ class RecipePolicy
         return true;
     }
 
+    public function viewFavorites(User $user): bool
+    {
+        return true;
+    }
+
     public function create(User $user): bool
     {
         return true;

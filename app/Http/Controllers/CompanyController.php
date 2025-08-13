@@ -19,15 +19,15 @@ class CompanyController extends BaseController
 
     public function index(FilterCompaniesRequest $request, ListCompanies $service): AnonymousResourceCollection
     {
-        $this->authorize('viewAny', Company::class);
         $companies = $service->list($request->validated());
+
         return CompanyResource::collection($companies);
     }
 
     public function store(StoreCompanyRequest $request, CreateCompany $service): JsonResponse
     {
-        $this->authorize('create', Company::class);
         $company = $service->create($request->validated());
+
         return (new CompanyResource($company))
             ->response()
             ->setStatusCode(201);
@@ -36,21 +36,25 @@ class CompanyController extends BaseController
     public function show(Company $company): CompanyResource
     {
         $this->authorize('view', $company);
+
         $company->load('subscriptions.plan', 'image');
+
         return new CompanyResource($company);
     }
 
     public function update(UpdateCompanyRequest $request, Company $company, UpdateCompany $service): CompanyResource
     {
-        $this->authorize('update', $company);
         $company = $service->update($company, $request->validated());
+
         return new CompanyResource($company);
     }
 
     public function destroy(Company $company, DeleteCompany $service)
     {
         $this->authorize('delete', $company);
+
         $service->delete($company);
+
         return response()->json(null, 204);
     }
 }

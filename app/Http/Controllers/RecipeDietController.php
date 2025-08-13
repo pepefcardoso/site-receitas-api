@@ -3,8 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Concerns\ManagesResourceCaching;
-use App\Http\Requests\RecipeDiet\StoreRequest;
-use App\Http\Requests\RecipeDiet\UpdateRequest;
+use App\Http\Requests\RecipeDiet\StoreRecipeDietRequest;
+use App\Http\Requests\RecipeDiet\UpdateRecipeDietRequest;
 use App\Http\Resources\RecipeDiet\RecipeDietResource;
 use App\Models\RecipeDiet;
 use Illuminate\Http\JsonResponse;
@@ -28,12 +28,14 @@ class RecipeDietController extends BaseController
 
     public function index(Request $request): AnonymousResourceCollection
     {
+        $this->authorize('viewAny', RecipeDiet::class);
+
         $diets = $this->getCachedAndPaginated($request, RecipeDiet::query());
 
         return RecipeDietResource::collection($diets);
     }
 
-    public function store(StoreRequest $request): JsonResponse
+    public function store(StoreRecipeDietRequest $request): JsonResponse
     {
         $diet = RecipeDiet::create($request->validated());
 
@@ -46,10 +48,12 @@ class RecipeDietController extends BaseController
 
     public function show(RecipeDiet $recipeDiet): RecipeDietResource
     {
+        $this->authorize('view', $recipeDiet);
+
         return new RecipeDietResource($recipeDiet);
     }
 
-    public function update(UpdateRequest $request, RecipeDiet $recipeDiet): RecipeDietResource
+    public function update(UpdateRecipeDietRequest $request, RecipeDiet $recipeDiet): RecipeDietResource
     {
         $recipeDiet->update($request->validated());
 

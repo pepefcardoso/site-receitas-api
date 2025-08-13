@@ -3,8 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Concerns\ManagesResourceCaching;
-use App\Http\Requests\RecipeUnit\StoreRequest;
-use App\Http\Requests\RecipeUnit\UpdateRequest;
+use App\Http\Requests\RecipeUnit\StoreRecipeUnitRequest;
+use App\Http\Requests\RecipeUnit\UpdateRecipeUnitRequest;
 use App\Http\Resources\RecipeUnit\RecipeUnitResource;
 use App\Models\RecipeUnit;
 use Illuminate\Http\JsonResponse;
@@ -28,12 +28,14 @@ class RecipeUnitController extends BaseController
 
     public function index(Request $request): AnonymousResourceCollection
     {
+        $this->authorize('viewAny', RecipeUnit::class);
+
         $units = $this->getCachedAndPaginated($request, RecipeUnit::query());
 
         return RecipeUnitResource::collection($units);
     }
 
-    public function store(StoreRequest $request): JsonResponse
+    public function store(StoreRecipeUnitRequest $request): JsonResponse
     {
         $unit = RecipeUnit::create($request->validated());
 
@@ -46,10 +48,12 @@ class RecipeUnitController extends BaseController
 
     public function show(RecipeUnit $recipeUnit): RecipeUnitResource
     {
+        $this->authorize('view', $recipeUnit);
+
         return new RecipeUnitResource($recipeUnit);
     }
 
-    public function update(UpdateRequest $request, RecipeUnit $recipeUnit): RecipeUnitResource
+    public function update(UpdateRecipeUnitRequest $request, RecipeUnit $recipeUnit): RecipeUnitResource
     {
         $recipeUnit->update($request->validated());
 

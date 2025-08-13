@@ -3,12 +3,13 @@
 namespace App\Http\Requests\Post;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Gate;
 
 class StorePostRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return $this->user()->can('create', \App\Models\Post::class);
+        return Gate::allows('create', \App\Models\Post::class);
     }
 
     public function rules(): array

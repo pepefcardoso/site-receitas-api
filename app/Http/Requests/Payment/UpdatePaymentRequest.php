@@ -3,13 +3,17 @@
 namespace App\Http\Requests\Payment;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Route;
 use Illuminate\Validation\Rule;
 
 class UpdatePaymentRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return $this->user()->can('update', $this->payment);
+        $payment = Route::current()->parameter('payment');
+
+        return Gate::allows('update', $payment);
     }
 
     public function rules(): array

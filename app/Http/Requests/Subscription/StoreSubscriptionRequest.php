@@ -3,12 +3,13 @@
 namespace App\Http\Requests\Subscription;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Gate;
 
 class StoreSubscriptionRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return $this->user()->can('create', \App\Models\Subscription::class);
+        return Gate::allows('create', \App\Models\Subscription::class);
     }
 
     public function rules(): array

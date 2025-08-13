@@ -3,13 +3,15 @@
 namespace App\Http\Requests\Recipe;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Route;
 
 class UpdateRecipeRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        $recipe = $this->route('recipe');
-        return $this->user()->can('update', $recipe);
+        $recipe = Route::current()->parameter('recipe');
+        return Gate::allows('update', $recipe);
     }
 
     public function rules(): array

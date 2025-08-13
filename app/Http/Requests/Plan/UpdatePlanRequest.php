@@ -3,21 +3,25 @@
 namespace App\Http\Requests\Plan;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Route;
 use Illuminate\Validation\Rule;
 
 class UpdatePlanRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return $this->user()->can('update', $this->route('plan'));
+        $plan = Route::current()->parameter('plan');
+
+        return Gate::allows('update', $plan);
     }
 
     public function rules(): array
     {
-        $planId = $this->route('plan')?->id;
+        $plan = Route::current()->parameter('plan');
 
         return [
-            'name' => ['sometimes', 'required', 'string', 'max:255', Rule::unique('plans')->ignore($planId)],
+            'name' => ['sometimes', 'required', 'string', 'max:255', Rule::unique('plans')->ignore($plan?->id)],
             'badge' => ['sometimes', 'nullable', 'string', 'max:255'],
             'price' => ['sometimes', 'required', 'integer', 'min:0'],
             'period' => ['sometimes', 'required', 'string', Rule::in(['monthly', 'yearly'])],

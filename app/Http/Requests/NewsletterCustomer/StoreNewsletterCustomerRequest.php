@@ -3,12 +3,14 @@
 namespace App\Http\Requests\NewsletterCustomer;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Gate;
+use App\Models\NewsletterCustomer;
 
-class StoreRequest extends FormRequest
+class StoreNewsletterCustomerRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return true;
+        return Gate::allows('create', NewsletterCustomer::class);
     }
 
     public function rules(): array

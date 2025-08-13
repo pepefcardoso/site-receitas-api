@@ -45,6 +45,8 @@ class RecipeController extends BaseController
 
     public function show(Recipe $recipe, ShowRecipe $service): RecipeResource
     {
+        $this->authorize('view', $recipe);
+
         $detailedRecipe = $service->show($recipe);
         return new RecipeResource($detailedRecipe);
     }
@@ -67,6 +69,8 @@ class RecipeController extends BaseController
 
     public function userRecipes(ListUserRecipes $service): AnonymousResourceCollection
     {
+        $this->authorize("viewAny", Recipe::class);
+
         $perPage = request()->input('per_page', 10);
 
         $userRecipes = $service->list($perPage);

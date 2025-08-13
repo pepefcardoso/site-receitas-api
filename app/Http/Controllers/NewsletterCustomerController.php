@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Concerns\ManagesResourceCaching;
-use App\Http\Requests\NewsletterCustomer\StoreRequest;
+use App\Http\Requests\NewsletterCustomer\StoreNewsletterCustomerRequest;
 use App\Http\Resources\NewsletterCustomer\NewsletterCustomerResource;
 use App\Models\NewsletterCustomer;
 use App\Services\NewsletterCustomer\CreateNewsletterCustomer;
@@ -35,7 +35,7 @@ class NewsletterCustomerController extends BaseController
         return NewsletterCustomerResource::collection($customers);
     }
 
-    public function store(StoreRequest $request, CreateNewsletterCustomer $service): JsonResponse
+    public function store(StoreNewsletterCustomerRequest $request, CreateNewsletterCustomer $service): JsonResponse
     {
         $customer = $service->create($request->validated());
         $this->flushResourceCache();
@@ -46,6 +46,7 @@ class NewsletterCustomerController extends BaseController
     public function show(NewsletterCustomer $newsletter): NewsletterCustomerResource
     {
         $this->authorize('view', $newsletter);
+
         return new NewsletterCustomerResource($newsletter);
     }
 

@@ -3,18 +3,24 @@
 namespace App\Http\Requests\RecipeCategory;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Str;
 
-class StoreRequest extends FormRequest
+/**
+ * @property string $name
+ * @mixin \Illuminate\Http\Request
+ * @method void merge(array $input)
+ */
+class StoreRecipeCategoryRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return $this->user()->can('create', \App\Models\RecipeCategory::class);
+        return Gate::allows('create', \App\Models\RecipeCategory::class);
     }
 
     protected function prepareForValidation()
     {
-        if ($this->has('name')) {
+        if ($this->name) {
             $this->merge(['normalized_name' => Str::upper($this->name)]);
         }
     }

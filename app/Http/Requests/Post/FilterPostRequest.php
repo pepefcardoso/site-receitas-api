@@ -2,13 +2,15 @@
 
 namespace App\Http\Requests\Post;
 
+use App\Models\Post;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Gate;
 
 class FilterPostRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return true;
+        return Gate::allows('viewAny', Post::class);
     }
 
     public function rules(): array

@@ -4,14 +4,17 @@ namespace App\Http\Requests\CustomerContact;
 
 use App\Enum\CustomerContactStatusEnum;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Route;
 use Illuminate\Validation\Rule;
 
-class UpdateStatusRequest extends FormRequest
+class UpdateCustomerContactStatusRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        $contact = $this->route('customer_contact');
-        return $this->user()->can('update', $contact);
+        $contact = Route::current()->parameter('customer_contact');
+
+        return Gate::allows('update', $contact);
     }
 
     public function rules(): array

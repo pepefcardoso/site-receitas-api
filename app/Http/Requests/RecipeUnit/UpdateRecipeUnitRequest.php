@@ -3,27 +3,34 @@
 namespace App\Http\Requests\RecipeUnit;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 
-class UpdateRequest extends FormRequest
+/**
+ * @property string $name
+ * @mixin \Illuminate\Http\Request
+ * @method void merge(array $input)
+ */
+class UpdateRecipeUnitRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        $unit = $this->route('recipe_unit');
-        return $this->user()->can('update', $unit);
+        $unit = Route::current()->parameter('recipe_unit');
+        return Gate::allows('update', $unit);
     }
 
     protected function prepareForValidation()
     {
-        if ($this->has('name')) {
+        if ($this->name) {
             $this->merge(['normalized_name' => Str::upper($this->name)]);
         }
     }
 
     public function rules(): array
     {
-        $unitId = $this->route('recipe_unit')->id;
+        $unitId = Route::current()->parameter('recipe_unit')->id;
 
         return [
             'name' => ['required', 'string', 'max:50', Rule::unique('recipe_units')->ignore($unitId)],

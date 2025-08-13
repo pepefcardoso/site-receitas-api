@@ -4,7 +4,6 @@ namespace App\Policies;
 
 use App\Models\Subscription;
 use App\Models\User;
-use Illuminate\Auth\Access\Response;
 
 class SubscriptionPolicy
 {
@@ -20,12 +19,12 @@ class SubscriptionPolicy
 
     public function create(User $user): bool
     {
-        return true;
+        return $user->isInternal();
     }
 
     public function update(User $user, Subscription $subscription): bool
     {
-        return $user->isInternal() || $user->id === $subscription->company->user_id;
+        return $user->isInternal();
     }
 
     public function delete(User $user, Subscription $subscription): bool

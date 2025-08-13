@@ -4,12 +4,13 @@ namespace App\Http\Requests\PaymentMethod;
 
 use App\Models\PaymentMethod;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Gate;
 
 class StorePaymentMethodRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return $this->user()->can('create', PaymentMethod::class);
+        return Gate::allows('create', PaymentMethod::class);
     }
 
     public function rules(): array

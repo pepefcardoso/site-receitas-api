@@ -3,8 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Concerns\ManagesResourceCaching;
-use App\Http\Requests\PostTopic\StoreRequest;
-use App\Http\Requests\PostTopic\UpdateRequest;
+use App\Http\Requests\PostTopic\StorePostTopicRequest;
+use App\Http\Requests\PostTopic\UpdatePostTopicRequest;
 use App\Http\Resources\PostTopic\PostTopicResource;
 use App\Models\PostTopic;
 use Illuminate\Http\JsonResponse;
@@ -28,12 +28,14 @@ class PostTopicController extends BaseController
 
     public function index(Request $request): AnonymousResourceCollection
     {
+        $this->authorize('viewAny', PostTopic::class);
+
         $topics = $this->getCachedAndPaginated($request, PostTopic::query());
 
         return PostTopicResource::collection($topics);
     }
 
-    public function store(StoreRequest $request): JsonResponse
+    public function store(StorePostTopicRequest $request): JsonResponse
     {
         $topic = PostTopic::create($request->validated());
 
@@ -44,10 +46,12 @@ class PostTopicController extends BaseController
 
     public function show(PostTopic $postTopic): PostTopicResource
     {
+        $this->authorize('view', $postTopic);
+
         return new PostTopicResource($postTopic);
     }
 
-    public function update(UpdateRequest $request, PostTopic $postTopic): PostTopicResource
+    public function update(UpdatePostTopicRequest $request, PostTopic $postTopic): PostTopicResource
     {
         $postTopic->update($request->validated());
 

@@ -4,13 +4,14 @@ namespace App\Http\Requests\Plan;
 
 use App\Models\Plan;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Validation\Rule;
 
 class StorePlanRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return $this->user()->can('create', Plan::class);
+        return Gate::allows('create', Plan::class);
     }
 
     public function rules(): array

@@ -27,6 +27,8 @@ class PaymentMethodController extends BaseController
 
     public function index(Request $request): AnonymousResourceCollection
     {
+        $this->authorize('viewAny', PaymentMethod::class);
+
         $baseQuery = PaymentMethod::query()->where('is_active', true);
 
         $paymentMethods = $this->getCachedAndPaginated($request, $baseQuery);
@@ -46,6 +48,8 @@ class PaymentMethodController extends BaseController
 
     public function show(PaymentMethod $paymentMethod): PaymentMethodResource
     {
+        $this->authorize('view', $paymentMethod);
+
         return new PaymentMethodResource($paymentMethod);
     }
 

@@ -35,14 +35,4 @@ class PaymentPolicy
     {
         return $user->isInternal();
     }
-
-    public function restore(User $user, Payment $payment): bool
-    {
-        return $user->isInternal();
-    }
-
-    public function forceDelete(User $user, Payment $payment): bool
-    {
-        return $user->isInternal();
-    }
 }

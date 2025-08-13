@@ -16,6 +16,11 @@ class PostPolicy
         return true;
     }
 
+    public function viewFavorites(User $user)
+    {
+        return true;
+    }
+
     public function create(User $user): bool
     {
         return true;

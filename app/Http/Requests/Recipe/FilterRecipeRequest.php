@@ -2,13 +2,15 @@
 
 namespace App\Http\Requests\Recipe;
 
+use App\Models\Recipe;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Gate;
 
 class FilterRecipeRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return true;
+        return Gate::allows('viewAny', Recipe::class);
     }
 
     public function rules(): array

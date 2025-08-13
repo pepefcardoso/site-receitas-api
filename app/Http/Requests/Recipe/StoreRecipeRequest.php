@@ -5,12 +5,13 @@ namespace App\Http\Requests\Recipe;
 use App\Enum\RecipeDifficultyEnum;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\Gate;
 
 class StoreRecipeRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return $this->user()->can('create', \App\Models\Recipe::class);
+        return Gate::allows('create', \App\Models\Recipe::class);
     }
 
     public function rules(): array

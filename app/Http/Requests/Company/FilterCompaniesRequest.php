@@ -4,13 +4,15 @@ namespace App\Http\Requests\Company;
 
 use App\Models\Company;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Gate;
 
 class FilterCompaniesRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return $this->user()->can('viewAny', Company::class);
+        return Gate::allows('viewAny', Company::class);
     }
+
     public function rules(): array
     {
         return [

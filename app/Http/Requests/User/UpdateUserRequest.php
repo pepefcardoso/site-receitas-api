@@ -4,18 +4,20 @@ namespace App\Http\Requests\User;
 
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Route;
 
 class UpdateUserRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        $userToUpdate = $this->route('user');
-        return $this->user()->can('update', $userToUpdate);
+        $userToUpdate = Route::current()->parameter('user');
+        return Gate::allows('update', $userToUpdate);
     }
 
     public function rules(): array
     {
-        $userId = $this->route('user')->id;
+        $userId = Route::current()->parameter('user')->id;
 
         return [
             'name' => 'sometimes|required|string|min:3|max:100',

@@ -3,18 +3,28 @@
 namespace App\Http\Requests\PostCategory;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Str;
 
-class StoreRequest extends FormRequest
+/**
+ * @property string $name
+ * @mixin \Illuminate\Http\Request
+ * @method void merge(array $input)
+ */
+class StorePostCategoryRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return $this->user()->can('create', \App\Models\PostCategory::class);
+        return Gate::allows('create', \App\Models\PostCategory::class);
     }
+
     protected function prepareForValidation()
     {
-        $this->merge(['normalized_name' => Str::upper($this->name)]);
+        if ($this->name) {
+            $this->merge(['normalized_name' => Str::upper($this->name)]);
+        }
     }
+
     public function rules(): array
     {
         return [

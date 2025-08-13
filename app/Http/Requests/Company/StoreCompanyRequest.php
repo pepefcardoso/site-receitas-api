@@ -3,13 +3,14 @@
 namespace App\Http\Requests\Company;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Validation\Rule;
 
 class StoreCompanyRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return $this->user()->can('create', \App\Models\Company::class);
+        return Gate::allows('create', \App\Models\Company::class);
     }
 
     public function rules(): array

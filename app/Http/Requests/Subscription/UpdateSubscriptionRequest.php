@@ -3,13 +3,15 @@
 namespace App\Http\Requests\Subscription;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Route;
 
 class UpdateSubscriptionRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        $subscription = $this->route('subscription');
-        return $this->user()->can('update', $subscription);
+        $subscription = Route::current()->parameter('subscription');
+        return Gate::allows('update', $subscription);
     }
 
     public function rules(): array

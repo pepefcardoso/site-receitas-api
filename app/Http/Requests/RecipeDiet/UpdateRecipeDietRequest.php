@@ -3,27 +3,35 @@
 namespace App\Http\Requests\RecipeDiet;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 
-class UpdateRequest extends FormRequest
+/**
+ * @property string $name
+ * @mixin \Illuminate\Http\Request
+ * @method void merge(array $input)
+ */
+class UpdateRecipeDietRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        $diet = $this->route('recipe_diet');
-        return $this->user()->can('update', $diet);
+        $diet = Route::current()->parameter('recipe_diet');
+
+        return Gate::allows('update', $diet);
     }
 
     protected function prepareForValidation()
     {
-        if ($this->has('name')) {
+        if ($this->name) {
             $this->merge(['normalized_name' => Str::upper($this->name)]);
         }
     }
 
     public function rules(): array
     {
-        $dietId = $this->route('recipe_diet')->id;
+        $dietId = Route::current()->parameter('recipe_diet')->id;
 
         return [
             'name' => [

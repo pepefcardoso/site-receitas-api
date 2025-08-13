@@ -13,6 +13,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Http\Response;
 use Illuminate\Validation\ValidationException;
+use Symfony\Component\HttpFoundation\Response as SymfonyResponse;
 
 class SubscriptionController extends BaseController
 {
@@ -30,6 +31,8 @@ class SubscriptionController extends BaseController
 
     public function index(Request $request): AnonymousResourceCollection
     {
+        $this->authorize('viewAny', Subscription::class);
+
         $baseQuery = Subscription::query();
         $relations = ['company', 'plan'];
 
@@ -59,7 +62,7 @@ class SubscriptionController extends BaseController
 
         return (new SubscriptionResource($subscription))
             ->response()
-            ->setStatusCode(Response::HTTP_CREATED);
+            ->setStatusCode(SymfonyResponse::HTTP_CREATED);
     }
 
     public function show(Subscription $subscription): SubscriptionResource

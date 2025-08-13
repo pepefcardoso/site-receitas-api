@@ -52,6 +52,8 @@ class ImageController extends BaseController
 
     public function show(Image $image)
     {
+        $this->authorize('view', $image);
+
         return $this->execute(function () use ($image) {
             return response()->json($image);
         });

@@ -5,9 +5,13 @@ namespace App\Http\Requests\User;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Route;
 
 /**
+ * @property string $post_id
+ * @property string $recipe_id
  * @mixin \Illuminate\Http\Request
+ * @method void merge(array $input)
  */
 class ToggleFavoriteRequest extends FormRequest
 {
@@ -18,13 +22,13 @@ class ToggleFavoriteRequest extends FormRequest
             return false;
         }
 
-        $targetUser = $this->route('user') ?? $user;
+        $targetUser = Route::current()->parameter('user') ?? $user;
 
-        if ($this->input('post_id') !== null) {
+        if ($this->post_id) {
             return Gate::forUser($user)->allows('toggleFavoritePost', $targetUser);
         }
 
-        if ($this->input('recipe_id') !== null) {
+        if ($this->recipe_id) {
             return Gate::forUser($user)->allows('toggleFavoriteRecipe', $targetUser);
         }
 

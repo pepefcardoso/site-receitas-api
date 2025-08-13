@@ -7,14 +7,14 @@ use App\Models\User;
 
 class ImagePolicy
 {
-    public function viewAny(?User $user)
+    public function viewAny(User $user)
     {
-        return true;
+        return $user->isInternal();
     }
 
-    public function view(?User $user, Image $image)
+    public function view(User $user, Image $image)
     {
-        return true;
+        return $user->isInternal() || $user->id === $image->user_id;
     }
 
     public function create(User $user): bool
