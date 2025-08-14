@@ -12,6 +12,7 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         $this->call([
+            UserSeeder::class,
             PaymentMethodSeeder::class,
             PlanSeeder::class,
             PostCategorySeeder::class,
@@ -19,9 +20,8 @@ class DatabaseSeeder extends Seeder
             PostSeeder::class,
             RecipeDietSeeder::class,
             RecipeCategorySeeder::class,
-            RecipeSeeder::class,
             RecipeUnitSeeder::class,
-            UserSeeder::class,
+            RecipeSeeder::class,
         ]);
     }
 }

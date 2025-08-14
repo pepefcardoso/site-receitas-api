@@ -3,13 +3,12 @@
 namespace App\Services\Recipe;
 
 use App\Models\Recipe;
-use Illuminate\Support\Facades\Auth;
 
 class ListRecipe
 {
     public function list(array $filters = [], int $perPage = 10)
     {
-        $searchTerm = $filters['title'] ?? $filters['search'] ?? '';
+        $searchTerm = $filters['title'] ?? '';
 
         if (empty($searchTerm)) {
             return $this->traditionalQuery($filters, $perPage);
@@ -87,16 +86,30 @@ class ListRecipe
 
     private function addRelationsAndPaginate($query, int $perPage)
     {
-        $userId = Auth::id();
+        $userId = auth('sanctum')->id();
 
-        $query->with(['diets', 'category', 'image'])
-            ->withAvg('ratings', 'rating')
-            ->withCount('ratings');
+        if (method_exists($query, 'query')) {
+            $query->query(function ($builder) use ($userId) {
+                $builder->with(['diets', 'category', 'image'])
+                    ->withAvg('ratings', 'rating')
+                    ->withCount('ratings');
 
-        if ($userId) {
-            $query->withExists([
-                'favoritedByUsers as is_favorited' => fn($q) => $q->where('user_id', $userId)
-            ]);
+                if ($userId) {
+                    $builder->withExists([
+                        'favoritedByUsers as is_favorited' => fn($q) => $q->where('user_id', $userId)
+                    ]);
+                }
+            });
+        } else {
+            $query->with(['diets', 'category', 'image'])
+                ->withAvg('ratings', 'rating')
+                ->withCount('ratings');
+
+            if ($userId) {
+                $query->withExists([
+                    'favoritedByUsers as is_favorited' => fn($q) => $q->where('user_id', $userId)
+                ]);
+            }
         }
 
         return $query->paginate($perPage);
