@@ -28,46 +28,45 @@ class Recipe extends Model
         'company_id',
     ];
 
-    /**
-     * Get the indexable data array for the model.
-     *
-     * @return array
-     */
+    public function shouldBeSearchable(): bool
+    {
+        return true;
+    }
+
     public function toSearchableArray(): array
     {
-        $this->load('category', 'diets', 'user');
+        $this->load(['category', 'diets', 'user', 'ingredients']);
 
         return [
-            'id'          => (int) $this->id,
-            'title'       => $this->title,
+            'id' => (int) $this->id,
+            'title' => $this->title,
             'description' => $this->description,
-            'category'    => $this->category->name ?? null,
-            'author'      => $this->user->name ?? null,
-            'category_id'  => $this->category_id,
-            'user_id'      => $this->user_id,
-            'diets'        => $this->diets->pluck('id')->all(),
-            'time'         => (int) $this->time,
-            'difficulty'   => $this->difficulty,
-            'created_at'   => $this->created_at->timestamp,
-            'company_id'   => $this->company_id,
+            'category_name' => $this->category->name ?? null,
+            'author' => $this->user->name ?? null,
+            'category_id' => $this->category_id,
+            'user_id' => $this->user_id,
+            'company_id' => $this->company_id,
+            'diets' => $this->diets->pluck('id')->toArray(),
+            'diet_names' => $this->diets->pluck('name')->toArray(),
+            'ingredients' => $this->ingredients->pluck('name')->toArray(),
+            'time' => (int) $this->time,
+            'portion' => (int) $this->portion,
+            'difficulty' => $this->difficulty,
+            'created_at' => $this->created_at->timestamp,
+            'updated_at' => $this->updated_at->timestamp,
         ];
     }
 
-    /**
-     * Retorna os atributos que podem ser usados para filtrar no Meilisearch.
-     *
-     * @return array
-     */
+    public function searchableAs(): string
+    {
+        return 'recipes';
+    }
+
     public function filterableAttributes(): array
     {
         return ['category_id', 'user_id', 'diets'];
     }
 
-    /**
-     * Retorna os atributos que podem ser usados para ordenar no Meilisearch.
-     *
-     * @return array
-     */
     public function sortableAttributes(): array
     {
         return ['created_at', 'title', 'time', 'difficulty'];

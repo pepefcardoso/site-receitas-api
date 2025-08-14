@@ -25,39 +25,45 @@ class Post extends Model
         'company_id',
     ];
 
-    /**
-     * Get the indexable data array for the model.
-     *
-     * @return array
-     */
+    public function shouldBeSearchable(): bool
+    {
+        return true;
+    }
+
     public function toSearchableArray(): array
     {
-        $this->load('category', 'topics', 'user');
+        $this->load(['category', 'topics', 'user']);
 
         return [
-            'id'      => (int) $this->id,
-            'title'   => $this->title,
+            'id' => (int) $this->id,
+            'title' => $this->title,
             'summary' => $this->summary,
             'content' => $this->content,
-            'author'  => $this->user->name ?? null,
-            'topics'  => $this->topics->pluck('name')->all(),
+            'author' => $this->user->name ?? null,
+            'topics' => $this->topics->pluck('name')->toArray(),
+            'category_name' => $this->category->name ?? null,
             'category_id' => $this->category_id,
-            'user_id'     => $this->user_id,
-            'created_at'  => $this->created_at->timestamp,
-            'company_id'  => $this->company_id,
+            'user_id' => $this->user_id,
+            'company_id' => $this->company_id,
+            'created_at' => $this->created_at->timestamp,
+            'updated_at' => $this->updated_at->timestamp,
         ];
     }
 
+    public function searchableAs(): string
+    {
+        return 'posts';
+    }
 
     public function filterableAttributes(): array
-{
-    return ['category_id', 'user_id'];
-}
+    {
+        return ['category_id', 'user_id'];
+    }
 
-public function sortableAttributes(): array
-{
-    return ['created_at', 'title'];
-}
+    public function sortableAttributes(): array
+    {
+        return ['created_at', 'title'];
+    }
 
     public function scopeFilter($query, array $filters)
     {
