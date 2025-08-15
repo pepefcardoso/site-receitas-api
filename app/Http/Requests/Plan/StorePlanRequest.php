@@ -32,6 +32,7 @@ class StorePlanRequest extends FormRequest
             'max_banners' => ['nullable', 'integer', 'min:0'],
             'max_email_campaigns' => ['nullable', 'integer', 'min:0'],
             'newsletter' => ['nullable', 'boolean'],
+            'is_popular' => ['nullable', 'boolean'],
             'trial_days' => ['nullable', 'integer', 'min:0'],
         ];
     }

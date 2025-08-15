@@ -21,33 +21,22 @@ use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\PaymentMethodController;
 use Illuminate\Support\Facades\Route;
 
-/*
-|--------------------------------------------------------------------------
-| Rotas Públicas (Não exigem autenticação)
-|--------------------------------------------------------------------------
-*/
-
-// Autenticação
 Route::controller(AuthController::class)->prefix('auth')->middleware('throttle:auth')->group(function () {
     Route::post('/login', 'login');
     Route::post('/password/forgot', 'sendResetLink');
     Route::post('/password/reset', 'resetPassword');
 });
 
-// Autenticação Social (OAuth)
 Route::controller(SocialAuthController::class)->prefix('auth/social')->group(function () {
     Route::get('/{provider}', 'redirectToProvider');
     Route::get('/{provider}/callback', 'handleProviderCallback');
 });
 
-// Registro de Usuário
 Route::post('/users', [UserController::class, 'store'])->name('users.store');
 
-// Contato e Newsletter
 Route::post('/contact', [CustomerContactController::class, 'store']);
 Route::post('/newsletter', [NewsletterCustomerController::class, 'store'])->name('newsletter.store');
 
-// Categorias, Tópicos, Dietas e Unidades (Públicas)
 Route::get('/post-categories', [PostCategoryController::class, 'index']);
 Route::get('/post-categories/{postCategory}', [PostCategoryController::class, 'show']);
 Route::get('/post-topics', [PostTopicController::class, 'index']);
@@ -59,38 +48,29 @@ Route::get('/recipe-diets/{recipeDiet}', [RecipeDietController::class, 'show']);
 Route::get('/recipe-units', [RecipeUnitController::class, 'index']);
 Route::get('/recipe-units/{recipeUnit}', [RecipeUnitController::class, 'show']);
 
-// Rotas de POSTS que exigem autenticação.
 Route::middleware('auth:sanctum')->controller(PostController::class)->prefix('posts')->group(function () {
     Route::get('/my', 'userPosts');
     Route::get('/favorites', 'favorites');
 });
 
-// Rotas públicas de POSTS
 Route::get('/posts', [PostController::class, 'index']);
 Route::get('/posts/{post}', [PostController::class, 'show']);
 
-// Rotas de RECIPES que exigem autenticação
 Route::middleware('auth:sanctum')->controller(RecipeController::class)->prefix('recipes')->group(function () {
     Route::get('/my', [RecipeController::class, 'userRecipes']);
     Route::get('/favorites', [RecipeController::class, 'favorites']);
 });
 
-// Rotas públicas de RECIPES
 Route::get('/recipes', [RecipeController::class, 'index']);
 Route::get('/recipes/{recipe}', [RecipeController::class, 'show']);
 
+Route::get('/plans', [PlanController::class, 'index']);
+Route::get('/plans/{plan}', [PlanController::class, 'show']);
 
-/*
-|--------------------------------------------------------------------------
-| Rotas Protegidas (Restantes)
-|--------------------------------------------------------------------------
-*/
 Route::middleware(['auth:sanctum', 'throttle:api'])->group(function () {
 
-    // Logout
     Route::post('/auth/logout', [AuthController::class, 'logout']);
 
-    // Usuários
     Route::controller(UserController::class)->prefix('users')->group(function () {
         Route::get('/me', 'authUser');
         Route::patch('/{user}/role', 'updateRole');
@@ -101,7 +81,7 @@ Route::middleware(['auth:sanctum', 'throttle:api'])->group(function () {
 
     Route::apiResource('companies', CompanyController::class);
 
-    Route::apiResource('plans', PlanController::class);
+    Route::apiResource('plans', PlanController::class)->except(['index', 'show']);
 
     Route::apiResource('subscriptions', SubscriptionController::class);
 
@@ -112,7 +92,6 @@ Route::middleware(['auth:sanctum', 'throttle:api'])->group(function () {
     Route::post('/posts', [PostController::class, 'store'])->middleware('plan.limit:post');
     Route::apiResource('posts', PostController::class)->except(['index', 'show', 'store']);
 
-    // CRUDs de Categorias, Tópicos, etc. (protegidos)
     Route::apiResource('post-categories', PostCategoryController::class)->except(['index', 'show']);
     Route::apiResource('post-topics', PostTopicController::class)->except(['index', 'show']);
     Route::apiResource('recipe-categories', RecipeCategoryController::class)->except(['index', 'show']);
@@ -122,14 +101,12 @@ Route::middleware(['auth:sanctum', 'throttle:api'])->group(function () {
     Route::post('/recipes', [RecipeController::class, 'store'])->middleware('plan.limit:recipe');
     Route::apiResource('recipes', RecipeController::class)->except(['index', 'show', 'store']);
 
-    // Comentários
     Route::post('/{type}/{commentableId}/comments', [CommentController::class, 'store'])
         ->whereIn('type', ['posts', 'recipes'])
         ->whereNumber('commentableId');
     Route::put('/comments/{comment}', [CommentController::class, 'update']);
     Route::delete('/comments/{comment}', [CommentController::class, 'destroy']);
 
-    // Avaliações
     Route::get('/{type}/{rateableId}/rating', [RatingController::class, 'showUserRating'])
         ->whereIn('type', ['posts', 'recipes'])
         ->whereNumber('rateableId');
@@ -139,14 +116,12 @@ Route::middleware(['auth:sanctum', 'throttle:api'])->group(function () {
     Route::put('/ratings/{rating}', [RatingController::class, 'update']);
     Route::delete('/ratings/{rating}', [RatingController::class, 'destroy']);
 
-    // Contato e Newsletter (gerenciamento)
     Route::get('/contact', [CustomerContactController::class, 'index']);
     Route::get('/contact/{customer_contact}', [CustomerContactController::class, 'show']);
     Route::patch('/contact/{customer_contact}', [CustomerContactController::class, 'updateStatus']);
     Route::apiResource('newsletter', NewsletterCustomerController::class)->except(['store']);
 });
 
-// Rotas públicas restantes para Comentários e Avaliações
 Route::get('/{type}/{commentableId}/comments', [CommentController::class, 'index'])
     ->whereNumber('commentableId')
     ->whereIn('type', ['posts', 'recipes']);
@@ -157,7 +132,6 @@ Route::get('/{type}/{rateableId}/ratings', [RatingController::class, 'index'])
     ->whereNumber('rateableId');
 Route::get('/ratings/{rating}', [RatingController::class, 'show']);
 
-// Rota para Health Check
 Route::get('/health', function () {
     return response()->json(['status' => 'ok']);
 });

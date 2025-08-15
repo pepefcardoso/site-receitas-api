@@ -37,6 +37,7 @@ class UpdatePlanRequest extends FormRequest
             'max_email_campaigns' => ['sometimes', 'nullable', 'integer', 'min:0'],
             'newsletter' => ['sometimes', 'nullable', 'boolean'],
             'trial_days' => ['sometimes', 'nullable', 'integer', 'min:0'],
+            'is_popular' => ['sometimes', 'nullable', 'boolean'],
         ];
     }
 }

@@ -27,6 +27,7 @@ class PlanResource extends JsonResource
                 'email_campaigns' => $this->max_email_campaigns,
             ],
             'newsletter' => $this->newsletter,
+            'is_popular' => $this->is_popular,
             'trial_days' => $this->trial_days,
             'created_at' => $this->created_at->toIso8601String(),
         ];

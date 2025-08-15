@@ -33,6 +33,7 @@ class PlanSeeder extends Seeder
                 'max_email_campaigns' => 0,
                 'newsletter' => true,
                 'trial_days' => 0,
+                'is_popular' => false,
             ],
             [
                 'name' => 'Marca em Destaque',
@@ -55,6 +56,7 @@ class PlanSeeder extends Seeder
                 'max_email_campaigns' => 1,
                 'newsletter' => true,
                 'trial_days' => 7,
+                'is_popular' => true,
             ],
             [
                 'name' => 'Parceria Estratégica',
@@ -78,6 +80,7 @@ class PlanSeeder extends Seeder
                 'max_email_campaigns' => null,
                 'newsletter' => true,
                 'trial_days' => 0,
+                'is_popular' => false,
             ],
         ];
 

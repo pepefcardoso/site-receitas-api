@@ -27,11 +27,13 @@ class Plan extends Model
         'max_email_campaigns',
         'newsletter',
         'trial_days',
+        'is_popular',
     ];
 
     protected $casts = [
         'features' => 'array',
         'newsletter' => 'boolean',
+        'is_popular' => 'boolean',
         'trial_days' => 'integer',
         'max_users' => 'integer',
         'max_posts' => 'integer',

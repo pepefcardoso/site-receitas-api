@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->string('badge')->nullable();
+            $table->boolean('is_popular')->default(false);
             $table->unsignedInteger('price')->default(0);
             $table->string('period')->default('monthly');
             $table->text('description')->nullable();
