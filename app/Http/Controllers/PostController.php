@@ -17,19 +17,31 @@ use App\Services\Post\ShowPost;
 use App\Services\Post\UpdatePost;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
-class PostController extends BaseController
+class PostController extends BaseResourceController
 {
     public function __construct()
     {
         $this->middleware('auth:sanctum')->except(['index', 'show']);
     }
 
-    public function index(FilterPostRequest $request, ListPost $service): AnonymousResourceCollection
+    protected function getFilterRequestClass(): string
     {
-        $filters = $request->validated();
-        $perPage = $filters['per_page'] ?? 10;
-        $posts = $service->list($filters, $perPage);
-        return PostCollectionResource::collection($posts);
+        return FilterPostRequest::class;
+    }
+
+    protected function getListServiceClass(): string
+    {
+        return ListPost::class;
+    }
+
+    protected function getCollectionResourceClass(): string
+    {
+        return PostCollectionResource::class;
+    }
+
+    public function index(FilterPostRequest $request): AnonymousResourceCollection
+    {
+        return $this->standardIndex($request);
     }
 
     public function store(StorePostRequest $request, CreatePost $service): PostResource

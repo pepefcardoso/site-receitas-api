@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\HasStandardSearch;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -13,7 +14,7 @@ use Laravel\Scout\Searchable;
 
 class Recipe extends Model
 {
-    use HasFactory, Searchable;
+    use HasFactory, Searchable, HasStandardSearch;
 
     public const VALID_SORT_COLUMNS = ['title', 'created_at', 'time', 'difficulty'];
 
@@ -74,22 +75,12 @@ class Recipe extends Model
 
     public function scopeFilter($query, array $filters)
     {
-        if (!empty($filters['title'])) {
-            $query->where('title', 'like', '%' . $filters['title'] . '%');
-        }
-
-        if (!empty($filters['category_id'])) {
-            $query->where('category_id', $filters['category_id']);
-        }
+        $query = $this->scopeApplyStandardFilters($query, $filters);
 
         if (!empty($filters['diets'])) {
             $query->whereHas('diets', function ($query) use ($filters) {
                 $query->whereIn('recipe_diets.id', $filters['diets']);
             });
-        }
-
-        if (!empty($filters['user_id'])) {
-            $query->where('user_id', $filters['user_id']);
         }
 
         return $query;

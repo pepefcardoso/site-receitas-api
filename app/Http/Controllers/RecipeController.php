@@ -17,21 +17,31 @@ use App\Services\Recipe\ShowRecipe;
 use App\Services\Recipe\UpdateRecipe;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
-class RecipeController extends BaseController
+class RecipeController extends BaseResourceController
 {
     public function __construct()
     {
         $this->middleware('auth:sanctum')->except(['index', 'show']);
     }
 
-    public function index(FilterRecipeRequest $request, ListRecipe $service): AnonymousResourceCollection
+    protected function getFilterRequestClass(): string
     {
-        $filters = $request->validated();
-        $perPage = $filters['per_page'] ?? 10;
+        return FilterRecipeRequest::class;
+    }
 
-        $recipes = $service->list($filters, $perPage);
+    protected function getListServiceClass(): string
+    {
+        return ListRecipe::class;
+    }
 
-        return RecipeCollectionResource::collection($recipes);
+    protected function getCollectionResourceClass(): string
+    {
+        return RecipeCollectionResource::class;
+    }
+
+    public function index(FilterRecipeRequest $request): AnonymousResourceCollection
+    {
+        return $this->standardIndex($request);
     }
 
     public function store(StoreRecipeRequest $request, CreateRecipe $service): RecipeResource

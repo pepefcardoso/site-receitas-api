@@ -3,115 +3,41 @@
 namespace App\Services\Recipe;
 
 use App\Models\Recipe;
+use App\Services\Concerns\BaseListService;
 
 class ListRecipe
 {
-    public function list(array $filters = [], int $perPage = 10)
+    use BaseListService;
+
+    protected function getModelClass(): string
     {
-        $searchTerm = $filters['title'] ?? '';
-
-        if (empty($searchTerm)) {
-            return $this->traditionalQuery($filters, $perPage);
-        }
-
-        return $this->searchQuery($searchTerm, $filters, $perPage);
+        return Recipe::class;
     }
 
-    private function searchQuery(string $searchTerm, array $filters, int $perPage)
+    protected function getValidSortColumns(): array
     {
-        $query = Recipe::search($searchTerm, function ($meilisearch, $query, $options) use ($filters) {
-            $filterExpressions = [];
-
-            if (!empty($filters['category_id'])) {
-                $filterExpressions[] = 'category_id = ' . (int) $filters['category_id'];
-            }
-
-            if (!empty($filters['user_id'])) {
-                $filterExpressions[] = 'user_id = ' . (int) $filters['user_id'];
-            }
-
-            if (!empty($filters['diets']) && is_array($filters['diets'])) {
-                $diets = implode(', ', array_map('intval', $filters['diets']));
-                $filterExpressions[] = 'diets IN [' . $diets . ']';
-            }
-
-            if (!empty($filterExpressions)) {
-                $options['filter'] = implode(' AND ', $filterExpressions);
-            }
-
-            $orderBy = $filters['order_by'] ?? 'created_at';
-            $orderDirection = $filters['order_direction'] ?? 'desc';
-
-            if (in_array($orderBy, Recipe::VALID_SORT_COLUMNS)) {
-                $options['sort'] = [$orderBy . ':' . $orderDirection];
-            }
-
-            return $meilisearch->search($query, $options);
-        });
-
-        return $this->addRelationsAndPaginate($query, $perPage);
+        return Recipe::VALID_SORT_COLUMNS;
     }
 
-    private function traditionalQuery(array $filters, int $perPage)
+    protected function getDefaultRelations(): array
     {
-        $query = Recipe::query();
-
-        if (!empty($filters['title'])) {
-            $query->where('title', 'like', '%' . $filters['title'] . '%');
-        }
-
-        if (!empty($filters['category_id'])) {
-            $query->where('category_id', $filters['category_id']);
-        }
-
-        if (!empty($filters['diets'])) {
-            $query->whereHas('diets', function ($query) use ($filters) {
-                $query->whereIn('recipe_diets.id', $filters['diets']);
-            });
-        }
-
-        if (!empty($filters['user_id'])) {
-            $query->where('user_id', $filters['user_id']);
-        }
-
-        $orderBy = $filters['order_by'] ?? 'created_at';
-        $orderDirection = $filters['order_direction'] ?? 'desc';
-
-        if (in_array($orderBy, Recipe::VALID_SORT_COLUMNS)) {
-            $query->orderBy($orderBy, $orderDirection);
-        }
-
-        return $this->addRelationsAndPaginate($query, $perPage);
+        return ['diets', 'category', 'image'];
     }
 
-    private function addRelationsAndPaginate($query, int $perPage)
+    protected function applySearchFilters($query, string $searchTerm, array $filters)
     {
-        $userId = auth('sanctum')->id();
+        return $query;
+    }
 
-        if (method_exists($query, 'query')) {
-            $query->query(function ($builder) use ($userId) {
-                $builder->with(['diets', 'category', 'image'])
-                    ->withAvg('ratings', 'rating')
-                    ->withCount('ratings');
+    protected function getCustomSearchFilters(array $filters): array
+    {
+        $customFilters = [];
 
-                if ($userId) {
-                    $builder->withExists([
-                        'favoritedByUsers as is_favorited' => fn($q) => $q->where('user_id', $userId)
-                    ]);
-                }
-            });
-        } else {
-            $query->with(['diets', 'category', 'image'])
-                ->withAvg('ratings', 'rating')
-                ->withCount('ratings');
-
-            if ($userId) {
-                $query->withExists([
-                    'favoritedByUsers as is_favorited' => fn($q) => $q->where('user_id', $userId)
-                ]);
-            }
+        if (!empty($filters['diets']) && is_array($filters['diets'])) {
+            $diets = implode(', ', array_map('intval', $filters['diets']));
+            $customFilters[] = 'diets IN [' . $diets . ']';
         }
 
-        return $query->paginate($perPage);
+        return $customFilters;
     }
 }
