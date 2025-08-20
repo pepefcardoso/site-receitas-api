@@ -4,6 +4,7 @@ namespace App\Policies;
 
 use App\Models\Rating;
 use App\Models\User;
+
 class RatingPolicy
 {
     public function viewAny(?User $user)
@@ -11,7 +12,7 @@ class RatingPolicy
         return true;
     }
 
-    public function view(?User $user, Rating $rating)
+    public function view(?User $user, ?Rating $rating = null)
     {
         return true;
     }
