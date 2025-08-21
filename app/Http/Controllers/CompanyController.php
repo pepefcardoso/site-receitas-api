@@ -12,6 +12,7 @@ use App\Services\Company\CreateCompany;
 use App\Models\Company;
 use App\Services\Company\ListCompanies;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
 class CompanyController extends BaseController
@@ -31,6 +32,22 @@ class CompanyController extends BaseController
         return (new CompanyResource($company))
             ->response()
             ->setStatusCode(201);
+    }
+
+    public function myCompany(Request $request): CompanyResource | JsonResponse
+    {
+        $user = $request->user();
+        $company = $user->company;
+
+        if (!$company) {
+            return response()->json(['message' => 'Nenhuma empresa encontrada para este usuário.'], 404);
+        }
+
+        $this->authorize('view', $company);
+
+        $company->load('subscriptions.plan', 'image');
+
+        return new CompanyResource($company);
     }
 
     public function show(Company $company): CompanyResource

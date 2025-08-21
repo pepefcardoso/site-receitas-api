@@ -79,6 +79,7 @@ Route::middleware(['auth:sanctum', 'throttle:api'])->group(function () {
     });
     Route::apiResource('users', UserController::class)->except(['store']);
 
+    Route::get('/companies/my', [CompanyController::class, 'myCompany']);
     Route::apiResource('companies', CompanyController::class);
 
     Route::apiResource('plans', PlanController::class)->except(['index', 'show']);

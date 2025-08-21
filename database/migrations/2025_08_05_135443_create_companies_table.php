@@ -16,7 +16,7 @@ return new class extends Migration
         Schema::create('companies', function (Blueprint $table) {
             $table->id();
             $table->string('name')->unique();
-            $table->string('cnpj')->unique();
+            $table->string('cnpj')->unique()->nullable();
              $table->string('email')->unique();
             $table->string('phone')->unique();
             $table->string('address');

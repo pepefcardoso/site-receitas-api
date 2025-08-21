@@ -28,12 +28,15 @@ class CreateCompany
             }
 
             $company = DB::transaction(function () use ($data, $imageData) {
-                $data['user_id'] = Auth::id();
-                $company = Company::create($data);
+                $companyData = $data;
+                $companyData['user_id'] = Auth::id();
+                $company = Company::create($companyData);
 
                 if ($imageData) {
                     $this->createImageService->createDbRecord($company, $imageData);
                 }
+
+                return $company;
             });
 
             return $company;
